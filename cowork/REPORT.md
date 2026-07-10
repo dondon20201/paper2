@@ -2,98 +2,116 @@
 
 <!-- Written by Claude Code after completing each dispatch. Cowork reads this to plan next steps. Overwrite the placeholder sections below; keep the section headings. -->
 
-**Status:** COMPLETE — **STEP 0 GATE: PASSED, NARROW. Step 0 closed.**
-**Dispatch #:** 004
+**Status:** COMPLETE — **006 CLEARED by the preregistered transfer rule. Firewall held.**
+**Dispatch #:** 005
 **Date:** 2026-07-10
 
 ## What was done
 
-Step 0b″ executed exactly as preregistered. Calibration phase (seed family
-1000+i, disjoint from evaluation): 7-point ρ_sens truth grid × 3 configs ×
-20 replicates with ρ_level 0.4 / ρ_d′ 0.3; linear shrinkage maps fitted per
-config (quadratic terms n.s. at p = 0.30/0.83/0.81 — linear justified;
-residual plot + underlying data saved). Correction frozen — ρ̂c = (ρ̂ − a)/b
-with delta-method SEs (fit SE/b² + calibration-vcov term, as declared) —
-then evaluated blind on fresh seeds (20260711 main R = 30; 777 spot R = 15)
-across the full 0b′ scenario suite at 200/200, 200/100, and the previously
-untested 100/100. Pre-declared decision tree executed mechanically.
-`fit_latent()` extended to return SEs and the ρ_sens–ρ_level sampling
-covariance (needed for corrected-gap CIs); shared sim machinery factored into
-`R/gate_harness.R` (02's script-local copies untouched — its committed record
-stands).
+First real-data dispatch, executed under the firewall (NO cross-domain
+quantity computed anywhere — verified by grepping my own outputs before
+committing; the only match is the firewall note itself). Step 1: per-subject
+measurement layer for all 322 subjects × 4 domains, both trial sets (primary
+= repeat_exclude==0; all-trials sensitivity check), with parcels and d′-hat
+as the 006 CFA inputs. Step 2: split-half reliabilities with bootstrap CIs,
+parcel-level reliabilities, trials-needed curves (memory/vision), and the
+preregistered calibration-transfer check. Raw-file md5 re-verified at the top
+of every script (provenance guard is now standing practice).
+
+Two mid-run fixes, both documented: (1) the raw memory domain contains 3
+trials with NaN signal/response but intact accuracy/confidence — d_prime_hat
+now drops such trials (was silently NA-ing all of memory's d′); (2) my
+trials-needed bootstrap had an aggregate-formula bug producing boundary CIs —
+fixed and rerun (point estimates were unaffected).
 
 ## Files changed / created
 
-- `R/parcels.R` — fit_latent now returns SEs + cov(rs, rl)
-- `R/gate_harness.R` — shared gate simulation harness (new)
-- `analysis/03_calibrated_gate.R` — calibration + blind evaluation + decision tree
-- `results/step0b2_SIMULATION_{calibration_replicates,calibration_coefs,eval_replicates,eval_summary}.csv`, `_meta.json`
-- `figures/step0b2_SIMULATION_calibration_residuals.png` (underlying data in results/)
-- `results/STEP0B2_FINAL_REPORT.md` (new; the closing report), `results/STEP0_REPORT.md` (final verdict block), `PROGRESS.md`
+- `analysis/04_realdata_measures.R` — Step 1 (REALDATA labels throughout)
+- `analysis/05_realdata_reliability.R` — Step 2 + transfer check writer
+- `R/parcels.R` — d_prime_hat NA-guard for signal/response
+- `results/step1_REALDATA_{subject_measures,domain_summary}.csv`
+- `results/step2_REALDATA_{reliability,trialsneeded,trialsneeded_curve}.csv`
+- `results/step2_REALDATA_transfer_check.md` — the verdict document
 
 ## Commits
 
-- `7ebfc4c` — docs: dispatch 004 from Cowork
-- `375770e` — feat: step 0b″ — calibrated latent-estimator gate, final round
-- `67f3c40` — docs: step 0b″ final report — GATE PASSED, NARROW; step 0 closed
+- `6ef90a2` — docs: dispatch 005 from Cowork
+- `77254c1` — feat: steps 1–2 — real-data measures, reliability, trials-needed, transfer check
 - final `docs:` commit — this report + session-log line
 
-Task 4 (remote): **SKIPPED — still no URL.** Fifteen commits, no backup.
+Task 5 (remote): **SKIPPED — no URL, fifth ask.** The repo now contains real
+paper deliverables and still has zero backup beyond this machine.
 
 ## Results
 
-All SIMULATION, computed this session. Calibration slopes: 0.75 (200/200),
-0.94 (200/100), 0.76 (100/100).
+All REALDATA, primary trial set, computed this session (VERIFIED; CIs are
+2000-resample bootstrap unless noted).
 
-**Blind-evaluation scoreboard (corrected estimator, main seed):**
-- **200/200: ALL criteria PASS** — GAP ρ_sens bias −0.029, coverage 28/30,
-  gap>0 30/30; NULL gap bias +0.044, CI∋0 29/30; ZERO-SENS −0.056;
-  DCONF +0.045; 0% bad fits; CI-honesty 1.34× median width, 0 narrower.
-- **200/100: fails ONE criterion** — GAP ρ_sens bias −0.081 vs ±0.07 (the
-  correction under-corrected this seed's draws; uncorrected same cell −0.10).
-  Everything else passes. Spot-check seed: 200/100 passes everything.
-  Genuinely borderline; the preregistration names the main seed decisive, so
-  it FAILS. No post-hoc rescue attempted.
-- **100/100: fails TWO** (GAP bias +0.089, NULL gap bias +0.075) — clear.
+**Exclusions (preregistered rule ≥60 trials + both accuracy classes):**
+memory 1/321, vision 0/322, Calories 0/322, GDP 5/317-of-322 — max 1.6%,
+nowhere near the 15% surprise threshold. Missing-confidence trials dropped:
+0.79% of all trials.
 
-**Decision tree branch (pre-declared): GATE PASSED, NARROW.** memory×vision
-(200/200) sole confirmatory pair; four 200/100 pairs + Calories×GDP
-descriptive only, with simulation-measured bias bands (±0.09–0.10 on ρ_sens).
+**Reliability (split-half, Spearman-Brown, [95% CI]):**
 
-**Power caveat for expectation-setting:** at true gap 0.4, the corrected gap
-CI excludes zero in 18/30 (60%) at 200/200 (direction right 30/30). The
-confirmatory test is unbiased and honest but not high-powered — a "CI
-includes zero" outcome on real data is a live possibility and will be
-reported as exactly that.
+| Domain | Level (mean conf) | AUROC2 | d′-hat |
+|---|---|---|---|
+| memory | 0.97 [0.96, 0.98] | **0.84** [0.79, 0.87] | 0.86 [0.83, 0.89] |
+| vision | 0.99 [0.98, 0.99] | 0.59 [0.48, 0.68] | **−0.96** [−1.5, −0.53] |
+| Calories | 0.95 [0.94, 0.96] | 0.47 [0.35, 0.57] | **−1.5** [−2.1, −0.98] |
+| GDP | 0.95 [0.93, 0.96] | 0.39 [0.22, 0.51] | −0.36 [−1.3, 0.22] |
 
-**Locked Step 1+ design (STEP0B2_FINAL_REPORT.md §3):** level = mean
-confidence (raw; bias ≤ 0.006 everywhere); sensitivity = AUROC2 only,
-d′-partialed, K = 4 exchangeable-parcel CFA; frozen 200/200 correction
-(a = 0.040, b = 0.75) with delta-method CIs; confirmatory quantity = corrected
-gap on memory×vision; descriptive tier with bias bands; floor elements
-(level generalization, reliability curves, both spurious-gap demonstrations)
-ride along regardless.
+Two headline findings:
+1. **The level-vs-sensitivity measurability contrast is dramatic and now
+   quantified on real data** — trials needed for reliability 0.7: level 7–15
+   trials; AUROC2 memory ~110 [96, 170], **vision ~360 [210, 490] — more
+   trials than the experiment contains.** (SB-prophecy fits; curve + fits
+   saved.) This is a paper figure/deliverable on its own, and it lands
+   exactly on BRIEF §1's "sensitivity is poorly measured" warning.
+2. **Negative d′ split-half reliability outside memory** (vision −0.96,
+   Calories −1.5): vision is contrast-staircased (accuracy SD 0.017!) and
+   the staircase's negative feedback anticorrelates odd/even d′; the trivia
+   tasks appear difficulty-controlled too. So d′-hat has essentially no
+   stable trait variance outside memory. Consequences for 006 are in the
+   transfer check: the d′-confound risk is SMALLER than simulated
+   (conservative); partialing stays (preregistered) but will be near-inert
+   for vision; memory d′ (mean 1.56, SD 0.56) is a genuine trait and is
+   where partialing matters.
+
+**TRANSFER CHECK — VERDICT: 006 CLEARED** (preregistered rule, numbers in
+`step2_REALDATA_transfer_check.md`): real parcel AUROC2 reliability vs
+simulation — memory 0.55 vs 0.18 (ratio 3.1), vision 0.27 vs 0.18 (1.5);
+both ≥ 0.7 by a wide margin, and in the direction the dispatch itself deemed
+conservative (real measurement is BETTER than the calibration assumed; any
+over-correction inflates estimated sensitivity correlations, which biases
+AGAINST the thesis gap). Context rows: Calories 1.6×, GDP 1.3×. Also noted:
+real between-subject level SD (0.72–0.91) below simulation-implied 1.31 —
+wider real CIs, no validity issue.
+
+**Sensitivity check (all-trials vs primary):** domain summaries nearly
+identical (means shift ≤ 0.03); primary carries the claims as preregistered.
 
 ## Issues & blockers
 
-1. None blocking — Step 0 is closed with a definite, preregistration-selected
-   design. Step 1 awaits a Cowork dispatch.
-2. Honest wrinkle to carry into the paper's methods: 200/100 straddles the
-   bias bar (fails main seed by 0.011, passes spot seed). It is correctly
-   OUT of the confirmatory tier under the prereg — but the bias bands we
-   attach to the descriptive tier should quote both seeds' values, not just
-   the worse one.
-3. Backup STILL missing. Fifteen commits on one machine. Fourth reminder.
+1. None blocking 006. The transfer verdict is CLEARED under the
+   preregistered rule.
+2. For 006 planning: memory AUROC2 reliability (0.84) is far above what the
+   0b″ power note assumed — real confirmatory power should exceed the
+   simulated ~60%. Conversely vision (0.59) is at the simulated level. Net:
+   likely somewhat better than 60%, not dramatically.
+3. The staircase finding (negative d′ reliability) deserves a sentence in the
+   paper's methods for why d′-partialing is near-inert in vision — flagging
+   now so it isn't rediscovered as a reviewer objection.
+4. Backup: fifth consecutive skip. Real deliverables now at risk on one disk.
 
 ## Questions / decisions needed for planning
 
-- Step 1 dispatch: suggest it covers (i) real-data per-subject component
-  estimation (level, d′-partialed AUROC2 parcels) for all four domains,
-  (ii) reliability/trials-needed analysis (Step 2 of BRIEF), and only then
-  (iii) the confirmatory memory×vision test in a separate dispatch — keeps
-  the confirmatory analysis single-shot and clean.
-- Should the descriptive-tier bias bands be frozen NOW from
-  step0b2_SIMULATION_eval_summary.csv (my suggestion: yes, quote ±0.09 for
-  200/100, ±0.10 for 100/100, both-seed values in a footnote) so Step 3+
-  can't be accused of choosing bands after seeing real data?
-- GitHub remote URL (fourth ask).
+- 006 (confirmatory memory×vision, single shot) is cleared to be dispatched.
+  Suggest it also preregister: the all-trials sensitivity variant, a
+  bootstrap-over-subjects CI to complement the delta-method CI, and the
+  exact wording template for both outcomes (gap CI excludes 0 / does not).
+- Should the descriptive-tier pairs (dispatch 007?) reuse this dispatch's
+  parcel columns as-is (they're saved and committed), or recompute after any
+  006 learnings? My suggestion: as-is, they're preregistration-clean.
+- GitHub remote URL. (Fifth ask — the trials-needed curve alone is worth
+  backing up.)
