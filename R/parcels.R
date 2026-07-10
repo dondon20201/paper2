@@ -19,7 +19,10 @@ parcel_measures <- function(trials, k) {
 }
 
 # Type-1 d' with log-linear correction (for d'-partialing variants).
+# Trials with missing signal or response are dropped (the raw Lund memory
+# domain contains 3 such trials with intact accuracy/confidence).
 d_prime_hat <- function(trials) {
+  trials <- trials[!is.na(trials$signal) & !is.na(trials$response), ]
   n_s <- sum(trials$signal == 1)
   n_n <- sum(trials$signal == 0)
   h <- (sum(trials$response == 1 & trials$signal == 1) + 0.5) / (n_s + 1)
