@@ -3,48 +3,50 @@
 <!-- Written by Claude Cowork after each planning session. Claude Code executes this when Ben says "Run dispatch". This file is overwritten per dispatch; history lives in git. -->
 
 **Status:** READY
-**Dispatch #:** 002
+**Dispatch #:** 003
 **Date:** 2026-07-10
-**From:** Cowork — Step 0a graded PASS (independently cross-checked); proceeding to Step 0b
+**From:** Cowork — Step 0b audited & accepted as an honest FAIL; this is Step 0b′ (revised gate, your option (a), with (b) as the standing floor)
 
 ## Objective
-Complete the Step 0 gate: build and run the recovery/separability simulation (BRIEF.md Step 0b), then produce the standalone STEP 0 REPORT combining 0a + 0b for Ben to judge before any real-data analysis. Plus small housekeeping (renv, optional remote).
+Determine whether a LATENT-variable estimator can recover the cross-domain sensitivity correlation and the level-vs-sensitivity gap without bias at realistic trial counts. If yes, the thesis test is redesigned around it and the gate passes; if no, the paper reframes to the validated floor (level generalization + quantified measurement-limits + the spurious-gap demonstration). Either outcome ends Step 0 with a definite verdict.
 
 ## Context
-Dispatch 001 passed: data provenance VERIFIED, and Cowork independently reproduced your structure counts and per-domain means in a separate environment with separate code — the numbers agree to ~0.01. Your avg_conf offset finding (~0.02–0.06, undocumented upstream preprocessing) is accepted as an external-pipeline difference; carry it as a provenance footnote. Answers to your questions: yes, renv init goes in this dispatch (task 1); remote push is task 5 if Ben supplies a URL; mle md5 pinning as you recorded it is fine.
+Cowork audited dispatch 002 against the raw results files: all claims verified, preregistered criteria correctly applied, FAIL accepted. Consequences now binding: **gamma is dropped as a primary sensitivity measure** (set-point leakage −0.18/−0.15 across seeds); AUROC2 stands (clean leakage, known noise); the naive raw-correlation contrast is dead (invents the thesis under null); mean-confidence level measure is validated. You may REUSE your own dispatch-002 simulator and estimator code — it passed its self-checks and is this project's own validated code (the from-scratch mandate bars only the OLD project's code).
 
 ## Tasks
 
-1. HOUSEKEEPING: initialize renv and snapshot after installing whatever packages this dispatch needs. Commit the lockfile.
+1. STEP 0b′ — latent-estimator gate (`analysis/02_latent_gate.R`, extending your harness; everything SIMULATION-labeled as before):
 
-2. STEP 0b — recovery & separability simulation (`analysis/01_recovery_separability.R`, all new code; simulation only, unmistakably labeled as such in every output):
+   **Estimator under test (primary):** parcel-based latent correlation. Per simulated subject per domain, split trials into K interleaved parcels (K=4 at 200 trials; K=2 at 100 — justify or revise K in the report), compute AUROC2 per parcel, and fit a two-domain CFA/SEM (each domain's latent sensitivity indicated by its parcels; lavaan or equivalent) to estimate the LATENT cross-domain sensitivity correlation. Same machinery for level (mean-conf parcels) so the gap is estimated within one framework. If lavaan is unusable on Dondon, a clearly-documented equivalent (e.g. correlation-attenuation via parcel-based reliability inside a bootstrap) is acceptable — say so.
 
-   **Design (requirements, not a straitjacket — improve freely but meet every gate):**
-   a. Build a generative simulator where each simulated subject has TWO independent planted traits per domain: a confidence LEVEL/set-point (shifts where confidence lands on the 1–7 scale, independent of accuracy) and a metacognitive SENSITIVITY (how strongly confidence tracks trial-level correctness). An SDT-style construction is natural (trial evidence → accuracy; confidence from evidence magnitude scaled by sensitivity, shifted by set-point, cut into 1–7 by fixed thresholds), but the requirement is functional: the two knobs must be mechanistically separate in the generator.
-   b. SIMULATOR SELF-CHECK before any recovery claim (the lesson from the old project's buggy simulator): holding sensitivity fixed while varying planted level must move generated mean confidence monotonically while leaving generated accuracy and (approximately) generated AUROC2 flat; and vice versa (varying sensitivity moves AUROC2, not mean confidence — if your construction couples them, quantify and report the coupling). Also confirm generated accuracy matches its target. Save this check's numbers.
-   c. Match the real data's scale: 322 subjects, conf 1–7, and run recovery at BOTH ~200 trials (memory/vision) and ~100 trials (Calories/GDP).
-   d. RECOVERY: estimate each subject's level (mean confidence) and sensitivity (AUROC2 AND gamma) from the simulated trials; correlate estimated vs planted across subjects. Bootstrap CIs on every recovery correlation. PREREGISTERED PASS CRITERIA: level recovery r ≥ 0.9 at both trial counts; sensitivity recovery r ≥ 0.7 at 200 trials (report the 100-trial value with CI whatever it is — if it is much lower, that is the trial-limitation finding, not a failure).
-   e. SEPARABILITY / LEAKAGE (the decisive check): correlation between ESTIMATED level and PLANTED sensitivity, and between ESTIMATED sensitivity and PLANTED level (traits planted independently). PASS: |r| < 0.10 with CI covering 0 for both directions at 200 trials. If leakage exceeds this, the components are not cleanly separable with these estimators → per BRIEF.md, STOP after reporting; do not proceed to Step 1.
-   f. THESIS-DETECTABILITY scenario: simulate a population where planted LEVEL correlates across two domains at rho = 0.6 while planted SENSITIVITY correlates at rho = 0.2 (both at realistic trial counts). Verify the estimated cross-domain correlations recover the gap (level-correlation estimate > sensitivity-correlation estimate, each within its bootstrap CI of truth). Also run the null scenario (both rho = 0.4, no gap) and confirm no spurious gap appears. This proves the Step 3 design can detect — and does not invent — the thesis pattern.
-   g. Fixed, reported seeds; sensitivity of conclusions spot-checked on a second seed. Save all outputs to `results/step0b_*.csv/json`.
+   **Scenarios (population ρ values; replicate R=30 per scenario per trial-config, fresh traits each replicate; trial configs 200/200 and 200/100):**
+   - GAP: ρ_level 0.6, ρ_sens 0.2
+   - NULL-GAP: ρ_level 0.4, ρ_sens 0.4
+   - ZERO-SENS: ρ_level 0.4, ρ_sens 0.0
+   - D′-CONFOUND (new, critical): ρ_dprime 0.4, ρ_sens 0.0, ρ_level 0.0 — real subjects' type-1 ability DOES correlate across domains, and AUROC2 carries a d′ confound (~0.33, your dispatch-002 measurement). Does the latent estimator convert cross-domain d′ correlation into a spurious sensitivity correlation?
 
-3. STEP 0 REPORT: write `results/STEP0_REPORT.md` — standalone, readable by Ben — combining: 0a provenance verdict (from dispatch 001), the simulator self-check, recovery results with CIs, separability/leakage results, thesis-detectability results, and an explicit overall verdict: GATE PASSED / GATE FAILED (+ what failing means). Every number labeled per the claim rules. Commit it.
+   **Preregistered criteria (against each replicate's REALIZED trait correlations; also report the realized-vs-population deviation you observed in 002 — explain it, it looked larger than sampling error and is probably your trait-transformation/copula, quantify to confirm it is benign):**
+   a. GAP: median bias of latent ρ_sens across replicates within ±0.07; 95% CI coverage of realized truth ≥ 25/30 replicates; estimated latent gap positive in ≥ 27/30.
+   b. NULL-GAP: median estimated latent gap within ±0.07 of realized (~0); gap CI covers 0 in ≥ 25/30.
+   c. ZERO-SENS: median latent ρ_sens within ±0.07 of 0.
+   d. D′-CONFOUND: median spurious latent ρ_sens < 0.10. If this fails, add d′-partialing (residualize parcel AUROC2 on estimated d′, or include d′ as a covariate), rerun scenario D and A, and report both raw and partialed variants — partialed becomes primary if it passes.
+   e. Convergence/inadmissibility bookkeeping: report the % of replicates with Heywood cases / non-convergence; > 20% in any scenario = that config FAILS regardless of bias.
 
-4. Update `PROGRESS.md` next-steps per your outcome.
+2. Write `results/STEP0B_PRIME_REPORT.md` (standalone addendum; update STEP0_REPORT.md's verdict block to point at it): scenario tables with bias/coverage/convergence, the K-choice justification, the realized-vs-population correlation explanation, and an explicit final verdict: **STEP 0 GATE: PASSED WITH REVISED DESIGN (latent contrast, AUROC2 + level, estimator as validated here)** or **STEP 0 GATE: FAILED → floor reframe**. State which thesis test (exact estimator + measures) Step 1+ will use if passed.
 
-5. OPTIONAL — only if Ben provides a GitHub remote URL at run time: add remote, push all commits (retry 4x with backoff). Otherwise skip and note.
+3. Update PROGRESS.md status/next-steps per the verdict.
 
-6. Report per protocol: overwrite `cowork/REPORT.md`, append session-log line to `PROGRESS.md`, final `docs:` commit.
+4. OPTIONAL — GitHub remote if Ben provides a URL at run time (repo still has no backup; remind him in your summary).
+
+5. Report per protocol: overwrite `cowork/REPORT.md`, append session-log line, final `docs:` commit.
 
 ## Constraints
-- NO real-data thesis analysis yet (no cross-domain correlations on the Lund data) — that is Step 1+, gated on this dispatch's verdict. The only real-data touch allowed: reading empirical accuracy/d′ ranges to calibrate simulator targets (say so if you do).
-- FROM-SCRATCH MANDATE stands: nothing consulted or reused from the old project.
-- Simulation outputs must be impossible to mistake for empirical results (file names, headers, report labels all say SIMULATION).
-- All pass criteria above are fixed BEFORE running (this dispatch is the preregistration). If you believe a criterion is wrongly calibrated, say so in the report and give your reasoning — do not silently change it.
+- Still NO real-data thesis analysis. Real-data touches allowed only for simulator calibration, declared explicitly (as in 002).
+- Preregistration discipline unchanged: criteria above are fixed before running; if you believe one is miscalibrated, run it as written and argue in the report.
+- Simulation labeling unchanged (file names, headers, data_type columns).
+- Keep runtime sane (~this is 30×2×4 SEM fits on small matrices — should be minutes, not hours). If it balloons, reduce R to 20 and say so.
 
 ## Acceptance criteria
-- Simulator self-check saved and passing (or coupling quantified + discussed).
-- Recovery + leakage + detectability numbers all have bootstrap CIs and fixed seeds; second-seed spot-check reported.
-- `results/STEP0_REPORT.md` exists, is standalone-readable, and states GATE PASSED or GATE FAILED explicitly.
-- renv.lock committed; `git status` clean after final commit.
-- REPORT.md filled per template.
+- All four scenarios run at both trial configs with fixed seeds + second-seed spot-check of the headline verdict.
+- STEP0B_PRIME_REPORT.md exists, is standalone-readable, states the gate verdict explicitly, and every number has a CI and a status label.
+- `git status` clean after final commit; REPORT.md filled per template.
