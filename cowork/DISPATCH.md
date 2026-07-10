@@ -3,43 +3,48 @@
 <!-- Written by Claude Cowork after each planning session. Claude Code executes this when Ben says "Run dispatch". This file is overwritten per dispatch; history lives in git. -->
 
 **Status:** READY
-**Dispatch #:** 001
+**Dispatch #:** 002
 **Date:** 2026-07-10
-**From:** Cowork — scope v2 (BRIEF.md) adoption
+**From:** Cowork — Step 0a graded PASS (independently cross-checked); proceeding to Step 0b
 
 ## Objective
-Turn this scaffolded folder into a git repo, and complete STEP 0a of BRIEF.md: fetch and verify the primary dataset. This is the provenance half of the Step 0 gate; the recovery/separability half (Step 0b) comes in dispatch 002.
+Complete the Step 0 gate: build and run the recovery/separability simulation (BRIEF.md Step 0b), then produce the standalone STEP 0 REPORT combining 0a + 0b for Ben to judge before any real-data analysis. Plus small housekeeping (renv, optional remote).
 
 ## Context
-Read `BRIEF.md` (repo root) in full first — it is the authoritative research brief and its from-scratch mandate is binding: no prior scripts, results, or numbers may be reused or consulted; all data fetched fresh; all code written new in this repo. CLAUDE.md carries the working rules.
+Dispatch 001 passed: data provenance VERIFIED, and Cowork independently reproduced your structure counts and per-domain means in a separate environment with separate code — the numbers agree to ~0.01. Your avg_conf offset finding (~0.02–0.06, undocumented upstream preprocessing) is accepted as an external-pipeline difference; carry it as a provenance footnote. Answers to your questions: yes, renv init goes in this dispatch (task 1); remote push is task 5 if Ben supplies a URL; mle md5 pinning as you recorded it is fine.
 
 ## Tasks
-1. Verify you are in `C:\Dev\paper2` and that it is NOT already a git repo (`git rev-parse --git-dir` should fail). Stop and ask if it is.
-2. `git init`. Add `.gitattributes` at repo root containing `* text=auto`.
-3. Create `results/` and `manuscript/` directories (with .gitkeep) to complete the BRIEF-aligned structure.
-4. `git status` — expect: BRIEF.md, CLAUDE.md, PROGRESS.md, README.md, .gitignore, .gitattributes, cowork/DISPATCH.md, cowork/REPORT.md, and .gitkeep files (data/raw, data/processed, R, analysis, figures, results, manuscript). `_inbox/` must NOT appear (gitignored — if it appears, stop and ask). Anything else unexpected: stop and ask.
-5. Commit as: `chore: initial scaffold — brief, two-agent workflow, project structure`
-6. STEP 0a — data provenance (write a fresh script, e.g. `analysis/00_fetch_verify.R` or equivalent):
-   a. **Do NOT git-clone the full repo on this Windows machine.** The repo contains TWO files differing only in filename case (`metacognition_TrialData_master.csv` — WRONG file, md5 653437023bcee998481bc33a77fd2729, 11,451,520 bytes — vs `metacognition_trialData_master.csv` — CORRECT file), and a full clone on case-insensitive NTFS will collide them, leaving you with an arbitrary one. Instead download the two needed files directly at the PINNED commit (raw URLs are case-sensitive, so this is safe):
-      - https://raw.githubusercontent.com/embodied-computation-group/dg-metacognition/0c38aba4eb720a143d126b7c7d4c313a900bc536/data_summary/metacognition_trialData_master.csv
-      - https://raw.githubusercontent.com/embodied-computation-group/dg-metacognition/0c38aba4eb720a143d126b7c7d4c313a900bc536/data_summary/mle_fit_data_wide.csv
-      Record the pinned commit (0c38aba4eb720a143d126b7c7d4c313a900bc536, 2024-06-28; verified as current HEAD on 2026-07-10).
-   b. Compute md5 of the trial CSV. Expected: `500b2e6e1eb0e47e717feba5b912ad9f` (11,837,935 bytes). If it differs — especially if it is 653437... — you fetched the wrong-case file; stop and fix. If it differs for any other reason, verify the structure below still holds and REPORT the discrepancy prominently; if structure also differs, STOP.
-   c. Verify structure from the raw file (expected values independently re-verified by Cowork on 2026-07-10): 193,200 rows; 322 subjects; four modalities (memory, Calories, GDP, vision); confidence integers 1–7; median trials per subject ≈200 for memory and vision but ≈100 for Calories and GDP (the trivia tasks — do NOT treat ~100 as a mismatch); 11 columns: subject, modality, trial, signal, response, accuracy, confidence, rt, rt_conf, contrast, repeat_exclude. Report actual counts, not the expected ones.
-   d. Reproduce ONE basic summary with your own code — use per-domain MEAN CONFIDENCE and per-domain mean accuracy — and compare against the shipped `mle_fit_data_wide.csv` (`avg_conf_*` columns) as an EXTERNAL cross-check only. Expect close agreement on mean confidence (within ~0.05; their file has 320 subjects vs 322 raw — two exclusions — and uses per-subject means). CAUTION: do NOT expect a simple equal-variance d′ to match their `da_*` columns numerically — their "da" is a different SDT quantity and runs ~0.2 LOWER than naive d′; compare only the rank-order of domains for d′-like measures. A numeric d′ mismatch is a known definitional difference, NOT a data problem. Save your computed table to `results/step0a_basic_summary.csv`.
-   e. Store the raw CSVs under `data/raw/lund2025/` (the trial CSV is ~11.8 MB: gitignore it, and commit a `data/raw/lund2025/README.md` recording URLs, pinned commit hash, md5s, sizes, and fetch date; the small mle_fit_data_wide.csv may be committed).
-7. Commit Step 0a work as: `feat: step 0a — fetch and verify Lund 2025 trial data`
-8. OPTIONAL — only if Ben provides a GitHub remote URL when he runs this dispatch: `git remote add origin <url>` then `git push -u origin master` (retry up to 4x with backoff on network errors). If no URL is given, skip and mark as skipped in the report.
-9. Report per protocol: overwrite `cowork/REPORT.md` (include the md5 result, actual structure counts, and the basic-summary comparison), append a session-log line to `PROGRESS.md`, final `docs:` commit.
+
+1. HOUSEKEEPING: initialize renv and snapshot after installing whatever packages this dispatch needs. Commit the lockfile.
+
+2. STEP 0b — recovery & separability simulation (`analysis/01_recovery_separability.R`, all new code; simulation only, unmistakably labeled as such in every output):
+
+   **Design (requirements, not a straitjacket — improve freely but meet every gate):**
+   a. Build a generative simulator where each simulated subject has TWO independent planted traits per domain: a confidence LEVEL/set-point (shifts where confidence lands on the 1–7 scale, independent of accuracy) and a metacognitive SENSITIVITY (how strongly confidence tracks trial-level correctness). An SDT-style construction is natural (trial evidence → accuracy; confidence from evidence magnitude scaled by sensitivity, shifted by set-point, cut into 1–7 by fixed thresholds), but the requirement is functional: the two knobs must be mechanistically separate in the generator.
+   b. SIMULATOR SELF-CHECK before any recovery claim (the lesson from the old project's buggy simulator): holding sensitivity fixed while varying planted level must move generated mean confidence monotonically while leaving generated accuracy and (approximately) generated AUROC2 flat; and vice versa (varying sensitivity moves AUROC2, not mean confidence — if your construction couples them, quantify and report the coupling). Also confirm generated accuracy matches its target. Save this check's numbers.
+   c. Match the real data's scale: 322 subjects, conf 1–7, and run recovery at BOTH ~200 trials (memory/vision) and ~100 trials (Calories/GDP).
+   d. RECOVERY: estimate each subject's level (mean confidence) and sensitivity (AUROC2 AND gamma) from the simulated trials; correlate estimated vs planted across subjects. Bootstrap CIs on every recovery correlation. PREREGISTERED PASS CRITERIA: level recovery r ≥ 0.9 at both trial counts; sensitivity recovery r ≥ 0.7 at 200 trials (report the 100-trial value with CI whatever it is — if it is much lower, that is the trial-limitation finding, not a failure).
+   e. SEPARABILITY / LEAKAGE (the decisive check): correlation between ESTIMATED level and PLANTED sensitivity, and between ESTIMATED sensitivity and PLANTED level (traits planted independently). PASS: |r| < 0.10 with CI covering 0 for both directions at 200 trials. If leakage exceeds this, the components are not cleanly separable with these estimators → per BRIEF.md, STOP after reporting; do not proceed to Step 1.
+   f. THESIS-DETECTABILITY scenario: simulate a population where planted LEVEL correlates across two domains at rho = 0.6 while planted SENSITIVITY correlates at rho = 0.2 (both at realistic trial counts). Verify the estimated cross-domain correlations recover the gap (level-correlation estimate > sensitivity-correlation estimate, each within its bootstrap CI of truth). Also run the null scenario (both rho = 0.4, no gap) and confirm no spurious gap appears. This proves the Step 3 design can detect — and does not invent — the thesis pattern.
+   g. Fixed, reported seeds; sensitivity of conclusions spot-checked on a second seed. Save all outputs to `results/step0b_*.csv/json`.
+
+3. STEP 0 REPORT: write `results/STEP0_REPORT.md` — standalone, readable by Ben — combining: 0a provenance verdict (from dispatch 001), the simulator self-check, recovery results with CIs, separability/leakage results, thesis-detectability results, and an explicit overall verdict: GATE PASSED / GATE FAILED (+ what failing means). Every number labeled per the claim rules. Commit it.
+
+4. Update `PROGRESS.md` next-steps per your outcome.
+
+5. OPTIONAL — only if Ben provides a GitHub remote URL at run time: add remote, push all commits (retry 4x with backoff). Otherwise skip and note.
+
+6. Report per protocol: overwrite `cowork/REPORT.md`, append session-log line to `PROGRESS.md`, final `docs:` commit.
 
 ## Constraints
-- FROM-SCRATCH MANDATE: do not download, open, or consult anything from the old project (no metacog_newmachine.zip, no old scripts/results), and nothing from `_inbox/` enters the analysis.
-- Do NOT proceed to Step 0b (recovery/separability simulations) or any later step — that is dispatch 002, designed by Cowork first.
-- Do not touch `C:\Dev\cogsci`.
-- No numbers in the report that your own code did not just compute.
+- NO real-data thesis analysis yet (no cross-domain correlations on the Lund data) — that is Step 1+, gated on this dispatch's verdict. The only real-data touch allowed: reading empirical accuracy/d′ ranges to calibrate simulator targets (say so if you do).
+- FROM-SCRATCH MANDATE stands: nothing consulted or reused from the old project.
+- Simulation outputs must be impossible to mistake for empirical results (file names, headers, report labels all say SIMULATION).
+- All pass criteria above are fixed BEFORE running (this dispatch is the preregistration). If you believe a criterion is wrongly calibrated, say so in the report and give your reasoning — do not silently change it.
 
 ## Acceptance criteria
-- `git status` clean after final commit; `_inbox/` and the raw CSV untracked/ignored; provenance README committed.
-- md5 + structure verification results stated explicitly in REPORT.md (match or mismatch, with actual values).
-- `results/step0a_basic_summary.csv` exists and is committed.
+- Simulator self-check saved and passing (or coupling quantified + discussed).
+- Recovery + leakage + detectability numbers all have bootstrap CIs and fixed seeds; second-seed spot-check reported.
+- `results/STEP0_REPORT.md` exists, is standalone-readable, and states GATE PASSED or GATE FAILED explicitly.
+- renv.lock committed; `git status` clean after final commit.
 - REPORT.md filled per template.
