@@ -2,104 +2,98 @@
 
 <!-- Written by Claude Code after completing each dispatch. Cowork reads this to plan next steps. Overwrite the placeholder sections below; keep the section headings. -->
 
-**Status:** COMPLETE — **STEP 0b′ FAILED per preregistration (by one criterion, one config, by 0.012)**
-**Dispatch #:** 003
+**Status:** COMPLETE — **STEP 0 GATE: PASSED, NARROW. Step 0 closed.**
+**Dispatch #:** 004
 **Date:** 2026-07-10
 
 ## What was done
 
-Step 0b′ built and run in full: parcel machinery (`R/parcels.R` — interleaved
-parcels, per-parcel AUROC2/mean-conf, corrected d′, and the two-domain
-four-factor CFA with the gap as a lavaan defined parameter), the gate script
-(`analysis/02_latent_gate.R` — 4 scenarios × 2 configs × 30 replicates main
-seed + 15 second-seed, raw AND d′-partialed variants everywhere), lavaan
-added to renv and lockfile updated. `results/STEP0B_PRIME_REPORT.md` written
-(standalone) and STEP0_REPORT.md's verdict block updated to point at it.
-Runtime: 1.8 min of fits (well within budget; R = 30 kept).
-
-**One estimator refinement made during smoke testing (before any scenario
-run, documented per the K "justify or revise" clause):** an unconstrained
-2-parcel factor on 50-trial AUROC2 parcels is empirically underidentified —
-first smoke fit gave loadings 24.2/0.006, residual variance −463, singular
-information matrix. Since interleaved parcels are exchangeable BY
-CONSTRUCTION, equal-loading + equal-residual constraints within each factor
-are true in the population; imposing them identifies K = 2 and stabilized
-everything (480/480 admissible fits, 0% — criterion e headroom huge).
-Unbounded ML with a bounded fallback (bounds cost 180× runtime for identical
-estimates). Preregistered CRITERIA were not touched.
+Step 0b″ executed exactly as preregistered. Calibration phase (seed family
+1000+i, disjoint from evaluation): 7-point ρ_sens truth grid × 3 configs ×
+20 replicates with ρ_level 0.4 / ρ_d′ 0.3; linear shrinkage maps fitted per
+config (quadratic terms n.s. at p = 0.30/0.83/0.81 — linear justified;
+residual plot + underlying data saved). Correction frozen — ρ̂c = (ρ̂ − a)/b
+with delta-method SEs (fit SE/b² + calibration-vcov term, as declared) —
+then evaluated blind on fresh seeds (20260711 main R = 30; 777 spot R = 15)
+across the full 0b′ scenario suite at 200/200, 200/100, and the previously
+untested 100/100. Pre-declared decision tree executed mechanically.
+`fit_latent()` extended to return SEs and the ρ_sens–ρ_level sampling
+covariance (needed for corrected-gap CIs); shared sim machinery factored into
+`R/gate_harness.R` (02's script-local copies untouched — its committed record
+stands).
 
 ## Files changed / created
 
-- `R/parcels.R` — parcel measures, corrected d′, exchangeability-constrained CFA builder + fitter
-- `analysis/02_latent_gate.R` — the gate suite incl. trait-transform check
-- `renv.lock` — + lavaan 0.6-21 (quadprog, mnormt, pbivnorm, numDeriv)
-- `results/step0bprime_SIMULATION_{replicates,summary,traitcheck}.csv`, `_meta.json`
-- `results/STEP0B_PRIME_REPORT.md` (new), `results/STEP0_REPORT.md` (verdict block updated)
-- `PROGRESS.md` — status/next-steps per verdict
+- `R/parcels.R` — fit_latent now returns SEs + cov(rs, rl)
+- `R/gate_harness.R` — shared gate simulation harness (new)
+- `analysis/03_calibrated_gate.R` — calibration + blind evaluation + decision tree
+- `results/step0b2_SIMULATION_{calibration_replicates,calibration_coefs,eval_replicates,eval_summary}.csv`, `_meta.json`
+- `figures/step0b2_SIMULATION_calibration_residuals.png` (underlying data in results/)
+- `results/STEP0B2_FINAL_REPORT.md` (new; the closing report), `results/STEP0_REPORT.md` (final verdict block), `PROGRESS.md`
 
 ## Commits
 
-- `7705efc` — docs: dispatch 003 from Cowork
-- `819a149` — feat: step 0b′ — parcel-based latent-estimator gate (SIMULATION only)
-- `4086ce9` — docs: step 0b′ gate report + STEP0_REPORT verdict update
+- `7ebfc4c` — docs: dispatch 004 from Cowork
+- `375770e` — feat: step 0b″ — calibrated latent-estimator gate, final round
+- `67f3c40` — docs: step 0b″ final report — GATE PASSED, NARROW; step 0 closed
 - final `docs:` commit — this report + session-log line
 
-Task 4 (remote): **SKIPPED again — no URL.** Eleven commits now live only on
-Dondon. Please create the private GitHub repo.
+Task 4 (remote): **SKIPPED — still no URL.** Fifteen commits, no backup.
 
 ## Results
 
-All SIMULATION, computed this session; full tables in the CSVs and
-STEP0B_PRIME_REPORT.md. Primary variant = **d′-partialed** (promoted by the
-preregistration itself: raw failed DCONF at 200/100 with median spurious
-ρ_sens 0.102 ≥ 0.10; partialed passes it at −0.004/+0.029).
+All SIMULATION, computed this session. Calibration slopes: 0.75 (200/200),
+0.94 (200/100), 0.76 (100/100).
 
-Scoreboard (partialed): **200/200 passes all eight criteria** — GAP ρ_sens
-bias +0.029, coverage 28/30, gap>0 29/30; NULL gap bias +0.051, CI∋0 29/30;
-ZERO-SENS 0.041; DCONF −0.004; 0% bad fits. **200/100 fails exactly one:**
-NULL-scenario median gap bias **+0.082 vs the ±0.07 bar** (everything else
-passes; second seed +0.096 — replicated, systematic). Mechanism: latent
-ρ_sens shrinks multiplicatively at low parcel reliability (−0.09 bias at
-true 0.4 in 200/100) while level is unbiased (≤0.006), leaving a residual
-spurious-gap component ~4× smaller than dispatch 002's raw artifact but
-still over the preregistered bar. → **STEP 0b′: FAILED as written; STEP 0
-GATE: still FAILED.**
+**Blind-evaluation scoreboard (corrected estimator, main seed):**
+- **200/200: ALL criteria PASS** — GAP ρ_sens bias −0.029, coverage 28/30,
+  gap>0 30/30; NULL gap bias +0.044, CI∋0 29/30; ZERO-SENS −0.056;
+  DCONF +0.045; 0% bad fits; CI-honesty 1.34× median width, 0 narrower.
+- **200/100: fails ONE criterion** — GAP ρ_sens bias −0.081 vs ±0.07 (the
+  correction under-corrected this seed's draws; uncorrected same cell −0.10).
+  Everything else passes. Spot-check seed: 200/100 passes everything.
+  Genuinely borderline; the preregistration names the main seed decisive, so
+  it FAILS. No post-hoc rescue attempted.
+- **100/100: fails TWO** (GAP bias +0.089, NULL gap bias +0.075) — clear.
 
-Also delivered:
-- **DCONF finding (important, replicated):** raw latent estimation converts
-  cross-domain d′ correlation into spurious sensitivity correlation;
-  d′-partialing eliminates it. Mandatory ingredient for ANY future real-data
-  sensitivity analysis in this project.
-- **Power note:** at true gap 0.4, gap CI excludes 0 in 25/30 (200/200) and
-  22/30 (200/100) — the validated config has ~80% power.
-- **002 realized-vs-population deviation explained (benign):** λ copula
-  transform bias is −0.008 at ρ = 0.2 (2000-draw check; SD 0.053); 002's
-  realized 0.32 was a 99.2nd-percentile draw. Criteria here use realized
-  values, mooting the issue.
+**Decision tree branch (pre-declared): GATE PASSED, NARROW.** memory×vision
+(200/200) sole confirmatory pair; four 200/100 pairs + Calories×GDP
+descriptive only, with simulation-measured bias bands (±0.09–0.10 on ρ_sens).
+
+**Power caveat for expectation-setting:** at true gap 0.4, the corrected gap
+CI excludes zero in 18/30 (60%) at 200/200 (direction right 30/30). The
+confirmatory test is unbiased and honest but not high-powered — a "CI
+includes zero" outcome on real data is a live possibility and will be
+reported as exactly that.
+
+**Locked Step 1+ design (STEP0B2_FINAL_REPORT.md §3):** level = mean
+confidence (raw; bias ≤ 0.006 everywhere); sensitivity = AUROC2 only,
+d′-partialed, K = 4 exchangeable-parcel CFA; frozen 200/200 correction
+(a = 0.040, b = 0.75) with delta-method CIs; confirmatory quantity = corrected
+gap on memory×vision; descriptive tier with bias bands; floor elements
+(level generalization, reliability curves, both spurious-gap demonstrations)
+ride along regardless.
 
 ## Issues & blockers
 
-1. **THE BLOCKER (decision, not defect):** gate failed by 0.012 on one
-   criterion in one config, replicated. Three paths in STEP0B_PRIME_REPORT §6:
-   (1) floor reframe; (2) one more preregistered round with a
-   simulation-calibrated shrinkage correction, including the untested 100/100
-   config (Calories×GDP — presumably worse than 200/100); (3) scope-restrict
-   strong claims to the 200/200 pair (memory×vision) with bias bands on the
-   200/100 pairs. My read: (2) is worth one round — the bias is
-   multiplicative, direction-known, and stable across seeds, which is what
-   makes calibration credible; (3) is the fallback if (2) fails; (1) remains
-   the floor regardless. But the preregistration bar is Ben's/yours to set.
-2. If option (2): the correction must be developed on NEW seeds and validated
-   against the existing criteria untouched — I will not tune on the
-   evaluation seeds.
-3. Repo backup still missing (no remote URL).
+1. None blocking — Step 0 is closed with a definite, preregistration-selected
+   design. Step 1 awaits a Cowork dispatch.
+2. Honest wrinkle to carry into the paper's methods: 200/100 straddles the
+   bias bar (fails main seed by 0.011, passes spot seed). It is correctly
+   OUT of the confirmatory tier under the prereg — but the bias bands we
+   attach to the descriptive tier should quote both seeds' values, not just
+   the worse one.
+3. Backup STILL missing. Fifteen commits on one machine. Fourth reminder.
 
 ## Questions / decisions needed for planning
 
-- Which path (1/2/3 above)? If (2): confirm the ±0.07 bar stays, and whether
-  100/100 must also pass or is explicitly out of scope (it determines whether
-  the Calories×GDP pair can carry any sensitivity claim at all).
-- If (3): confirm which claims may rest on 200/100 pairs with a ±0.10
-  simulation bias band attached — that phrasing decision shapes Step 3's
-  design.
-- GitHub remote URL, again.
+- Step 1 dispatch: suggest it covers (i) real-data per-subject component
+  estimation (level, d′-partialed AUROC2 parcels) for all four domains,
+  (ii) reliability/trials-needed analysis (Step 2 of BRIEF), and only then
+  (iii) the confirmatory memory×vision test in a separate dispatch — keeps
+  the confirmatory analysis single-shot and clean.
+- Should the descriptive-tier bias bands be frozen NOW from
+  step0b2_SIMULATION_eval_summary.csv (my suggestion: yes, quote ±0.09 for
+  200/100, ±0.10 for 100/100, both-seed values in a footnote) so Step 3+
+  can't be accused of choosing bands after seeing real data?
+- GitHub remote URL (fourth ask).
