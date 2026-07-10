@@ -2,12 +2,14 @@
 
 Running state of the project. Cowork updates this at each "Close out"; Code appends a session-log line after each dispatch.
 
-## Current status (2026-07-10, post-dispatch 007)
+## Current status (2026-07-10, post-dispatch 008)
 - Research question per `BRIEF.md`: **"Confidence Level vs Confidence Informativeness: Which Component of Metacognition Is Domain-General?"** — from-scratch mandate held throughout (all code new; data re-fetched, md5-verified at every script entry).
 - **STEP 0 CLOSED (gate PASSED, NARROW at dispatch 004).** Locked design executed: level = mean confidence; sensitivity = AUROC2, d′-partialed; exchangeable-parcel CFA + frozen 200/200 calibration (a=0.0401, b=0.7492).
 - **CONFIRMATORY RESULT (dispatch 006, final, one-shot): corrected gap = 0.11, 95% CI [−0.14, 0.36] → null gap NOT excluded.** ρ_level = 0.42 [0.33, 0.52]; corrected ρ_sens = 0.31 [0.08, 0.54] (domain-general sensitivity real after correction). Methods exhibit: naive raw gap 0.20 [0.05, 0.35] would have falsely "confirmed" the thesis.
 - **DESCRIPTIVE TIER DONE (dispatch 007, all five pairs estimable, NON-CONFIRMATORY):** ρ_level uniform 0.32–0.47 across all pairs; gap heterogeneous — vision pairs +0.19/+0.30, memory×knowledge pairs −0.02/−0.13, Calories×GDP +0.24; every gap carries its frozen systematic band (±0.09 / ±0.10) and none clears CI + band jointly. Consistent with the confirmatory null-not-excluded verdict.
 - Real-data measurement layer + reliabilities + trials-needed curves committed (dispatch 005); firewall held until 006.
+- **STEP 4 DONE (dispatch 008, gate-first, NON-CONFIRMATORY):** recovery/separability gate PASSED (50/50 at M1, bias ≤0.05, leakage ≤0.001); real-data decomposition ICC_level 0.44 [0.37, 0.52], ICC_sens 0.34 [0.26, 0.42], Δ_ICC 0.11 [0.0015, 0.21] — **zero-exclusion is knife-edge (margin < bootstrap MC error); treat as boundary pending Cowork decision**. R1/R2 robustness consistent; twin ipsative exhibits (sim −0.31 vs theory −1/3; real mean −0.30) in the can.
+- **Landscape figure + exploratory gap-vs-reliability scatter done (dispatch 008 Part C)** — all values asserted against committed results; captions carry NON-CONFIRMATORY/EXPLORATORY labels.
 - **Dispatches 005/006/007 all AUDITED & CONFIRMED by Cowork** (independent re-derivations: MoM latent correlations matched ≤0.003–0.005; calibration refit matched frozen coefs to 6 decimals; see `claude/paper2-step0-crosscheck.md`).
 - Repo: **GitHub remote WIRED and PUSHED (dispatch 007)** — origin = https://github.com/dondon20201/paper2.git; push after each dispatch from now on (Cowork verifies origin/master advanced at each audit).
 - Folder name "paper2" is a placeholder; proposed real name: **metacog** (rename only via explicit dispatch).
@@ -28,10 +30,10 @@ Running state of the project. Cowork updates this at each "Close out"; Code appe
 - [x] Dispatch 005: Steps 1–2 REALDATA + transfer check — **006 CLEARED** (results/step2_REALDATA_transfer_check.md): real parcel reliabilities exceed simulation (memory 3.1×, vision 1.5× — conservative direction); level reliability 0.95–0.99 vs AUROC2 0.39–0.84; trials-needed for rel .7: level 7–15 vs AUROC2 ~110 (memory) / ~360 (vision); d′ split-half NEGATIVE outside memory (staircase artifact, documented). **FIREWALL HELD: no cross-domain quantity computed yet.**
 - [x] Dispatch 006: confirmatory memory×vision test — **DONE, one-shot, numbers final**: corrected gap 0.11 [−0.14, 0.36], null not excluded; both components domain-general (level 0.42, corrected sensitivity 0.31)
 - [x] Dispatch 007: descriptive tier (5 pairs, preregistered bias bands) — **DONE, all estimable**: ρ_level 0.32–0.47 uniform; gap heterogeneous (vision-anchored positive, memory×knowledge negative); no descriptive gap clears CI + systematic band
-- [ ] Step 4 multilevel decomposition — Cowork to dispatch
+- [x] Dispatch 008: Step 4 multilevel decomposition + figures — **DONE**: gate PASSED (50/50 M1); ICC_level 0.44, ICC_sens 0.34, Δ_ICC 0.11 [0.0015, 0.21] knife-edge; R1/R2 consistent; figures committed; Δ presentation decision pending (Cowork)
 - [x] Paper framing decision (Ben, session 2): FLOOR narrative + measurement-lens landscape figure + exploratory gap-vs-reliability scatter (see Decisions)
 - [x] Wire GitHub remote — **DONE (dispatch 007)**: Ben pasted the URL in chat; origin added, full history pushed, origin/master verified equal to local HEAD
-- [ ] Steps 3–4: core level-vs-informativeness contrast + non-ipsative multilevel decomposition (gated)
+- [x] Steps 3–4: core contrast (dispatches 006/007) + non-ipsative multilevel decomposition (dispatch 008) — complete
 - [ ] Step 5: Confidence DB generalization (subset multi-task studies; data stays out of git)
 - [ ] Step 6: manuscript + claim-status table
 - [ ] Decide folder rename paper2 → metacog (explicit dispatch)
@@ -52,3 +54,4 @@ Running state of the project. Cowork updates this at each "Close out"; Code appe
 | 9 | 2026-07-10 | Code | Dispatch 006 executed: CONFIRMATORY memory×vision (1cf0dec) — **corrected gap = 0.11 [−0.14, 0.36], null NOT excluded** (preregistered wording); ρ_level 0.42 [0.33, 0.52]; corrected ρ_sens 0.31 [0.08, 0.54]; bootstrap agrees; 0/2000 bad fits; naive raw gap 0.20 [0.05, 0.35] = the spurious-confirmation exhibit. Primary numbers FINAL. Remote wiring blocked by permission classifier (URL must come from Ben in chat) |
 | 10 | 2026-07-10 | Code | Dispatch 007 executed: descriptive tier (8305ec9) — all five pairs estimable, NON-CONFIRMATORY: ρ_level 0.32–0.47 uniform; gaps heterogeneous (mem×Cal −0.02, mem×GDP −0.13, vis×Cal +0.19, vis×GDP +0.30, Cal×GDP +0.24), each ± frozen band 0.09/0.10; no gap clears CI + band; landscape consistent with 006 null-not-excluded. **GitHub remote wired + pushed** (URL from Ben in chat); origin/master verified = HEAD |
 | — | 2026-07-10 | Cowork | Session 2 close-out: dispatches 005/006/007 audited & CONFIRMED (independent re-derivations ≤0.005); confirmatory result FINAL; backup verified live (origin/master = 863d0e5 at audit); Ben's framing decision recorded (measurement-lens landscape figure + exploratory scatter); dispatch 008 (Step 4 multilevel + figures) to be planned fresh |
+| 11 | 2026-07-10 | Code | Dispatch 008 executed: Step 4 gate (d91967a) **PASSED** (50/50 M1, bias ≤0.05, leakage ≤0.001, sign 10/10; slope-SD 0.4 = documented implementation choice) → real-data decomposition (a60304c): ICC_level 0.44 [0.37, 0.52], ICC_sens 0.34 [0.26, 0.42], **Δ_ICC 0.11 [0.0015, 0.21] — knife-edge, flagged**; B=500, 0 failed/escalated; R1 + R2 (clmm) consistent; twin ipsative exhibits (sim −0.31, real −0.30). Figures (01c2b8e) with asserted values + labeled captions. renv + session-02 housekeeping; pushed |
