@@ -3,54 +3,54 @@
 <!-- Written by Claude Cowork after each planning session. Claude Code executes this when Ben says "Run dispatch". This file is overwritten per dispatch; history lives in git. -->
 
 **Status:** READY
-**Dispatch #:** 004
+**Dispatch #:** 005
 **Date:** 2026-07-10
-**From:** Cowork — 0b′ audited (all claims verified against replicates, both seeds); Ben chose one more gate round. This is Step 0b″, the FINAL gate round: it ends in a definite design, whatever the numbers say.
+**From:** Cowork — 0b″ audited (scoreboard, calibration coefs, CI-honesty all reconcile with raw files). STEP 0 CLOSED: GATE PASSED, NARROW. This is the FIRST REAL-DATA dispatch: Steps 1–2 + the calibration-transfer check. The confirmatory thesis test is dispatch 006, gated on this one.
 
 ## Objective
-Preregister and test a bias-corrected latent estimator on all three real trial configurations (200/200, 200/100, 100/100). The decision tree below is fixed in advance — every outcome maps to a design, so no further gate rounds follow this one.
+Compute the per-subject measurement layer on the real Lund data (BRIEF Steps 1–2), characterize reliability, and check that the real data's measurement properties match the simulation assumptions the frozen calibration rests on. **Produce NO cross-domain correlation of anything** — that firewall keeps the confirmatory memory×vision test (dispatch 006) unpeeked.
 
 ## Context
-0b′ status accepted: 200/200 fully validated (d′-partialed variant primary); single failure = NULL-scenario spurious gap bias +0.082/+0.096 at 200/100 (bar ±0.07); bias is multiplicative shrinkage of latent ρ_sens growing with truth, direction-known. 100/100 (Calories×GDP) untested. Your convergence fix (exchangeability constraints) and d′-partialing carry forward unchanged.
+Locked design from 0b″ §3: LEVEL = mean confidence (raw); SENSITIVITY = AUROC2 only, always d′-partialed; estimator (for 006) = exchangeable-parcel CFA with frozen 200/200 calibration (a=0.040, b=0.749). Real-data outputs are labeled REALDATA the way simulations were labeled SIMULATION.
+
+## Preregistered analysis decisions (fixed now)
+- PRIMARY trial set: `repeat_exclude == 0` trials only (the authors flagged those trials; respect it). SENSITIVITY CHECK: all trials. Report both; primary carries the claims.
+- Subjects: all 322 present in the raw file; a subject-domain enters a given analysis only if it has ≥ 60 primary trials and both correct and incorrect responses. Report exclusion counts per domain.
+- No other filtering. No outlier removal at this stage (robustness variants come later if planned).
 
 ## Tasks
 
-1. STEP 0b″ — calibrated estimator (`analysis/03_calibrated_gate.R`, extending the 0b′ harness):
+1. `analysis/04_realdata_measures.R` — per subject × domain, primary trial set (REALDATA labels):
+   a. LEVEL: mean confidence; also over/underconfidence (mean confidence/7 rescaled minus accuracy — state the rescaling explicitly) as the alternate index.
+   b. SENSITIVITY: AUROC2 on all qualifying trials; K=4 interleaved parcels for memory/vision, K=2 for Calories/GDP — parcel AUROC2 and parcel mean-conf per parcel (the CFA inputs for 006).
+   c. d′-hat per subject-domain (log-linear), for partialing in 006 and for the transfer check.
+   d. Save `results/step1_REALDATA_subject_measures.csv` (one row per subject-domain, plus parcel columns) and a compact `results/step1_REALDATA_domain_summary.csv` (per-domain n, means, SDs of each measure). NO cross-domain joins.
 
-   **Correction (train/test discipline — the correction may never be graded on the simulations that built it):**
-   a. CALIBRATION (training): for each trial config, simulate a grid of true ρ_sens ∈ {0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6} (ρ_level fixed 0.4, ρ_d′ 0.3 to keep partialing engaged), R=20 replicates per grid point, calibration seed family (e.g. 1000+i). Fit the mapping E[latent estimate | truth] per config (linear unless the grid clearly says otherwise — justify the functional form from the grid, plot residuals to a file). Invert it to define the corrected estimator; propagate calibration + estimation uncertainty into the corrected CI (bootstrap or delta method — state which).
-   b. EVALUATION (testing): rerun the full 0b′ scenario suite (GAP, NULL-GAP, ZERO-SENS, D′-CONF) with FRESH seeds (main 20260711, spot-check 777) at ALL THREE configs: 200/200, 200/100, **100/100**. R=30 per cell (15 spot-check). Apply the corrected estimator blind — no peeking back at calibration runs.
+2. `analysis/05_realdata_reliability.R` — Step 2 (REALDATA):
+   a. Split-half (odd/even interleaved) reliability per measure per domain, Spearman-Brown corrected, bootstrap CIs (2000).
+   b. Parcel-level reliability per domain (the quantity the calibration transfer depends on).
+   c. Trials-needed curve for AUROC2 in memory and vision: subsample n ∈ {25, 50, 75, 100, 150, 200} trials per subject (3 random subsamples averaged per n, fixed seed), split-half reliability at each n, Spearman-Brown prophecy fit with bootstrap CI on the curve parameter; report trials-to-reliability .5/.7/.8 with CIs. (This is a paper deliverable in its own right.)
+   d. Same reliability table for LEVEL (expected near-ceiling — that contrast is also a paper figure).
+   e. Save `results/step2_REALDATA_reliability.csv` + curve data.
 
-   **Preregistered criteria per config (same bars as 0b′, applied to the corrected estimator):**
-   - GAP: median ρ_sens bias ≤ ±0.07; coverage ≥ 25/30; gap>0 in ≥ 27/30.
-   - NULL-GAP: median gap bias ≤ ±0.07; gap CI ∋ 0 in ≥ 25/30.
-   - ZERO-SENS: |median ρ_sens| ≤ 0.07.
-   - D′-CONF: spurious ρ_sens < 0.10.
-   - Convergence: inadmissible/non-converged ≤ 20% per cell.
-   - CI honesty: corrected CIs must not be narrower than uncorrected ones (a correction that shrinks uncertainty is wrong by construction — flag if it happens).
+3. TRANSFER CHECK (`results/step2_REALDATA_transfer_check.md`) — decides whether 006 may run:
+   a. Compare, per domain: real parcel AUROC2 reliability vs the simulation's parcel reliability at matching trial counts (pull the simulated values from your 0b/0b″ outputs and state them); real d′ distribution (mean, SD) vs simulated truncnorm(1.2, 0.3); real level SD vs simulated beta SD 0.8 (on comparable scales — state the mapping).
+   b. PREREGISTERED RULE: if real memory & vision parcel reliabilities are ≥ 70% of the simulation's matching values (i.e., not more than 30% relatively below), the calibration transfers → declare "006 CLEARED". If below, declare "TRANSFER AT RISK" → 006 waits for one recalibration round at the real data's measured reliability (that would be a small, targeted rerun of 0b″'s calibration, not a new gate philosophy). If real reliabilities are HIGHER than simulated, transfer is conservative → cleared, note it.
+   c. Also flag any gross structural surprise (e.g., a domain where >15% of subject-domains fail the inclusion rule) — surprises get reported, not smoothed.
 
-   **PRE-DECLARED DECISION TREE (fixed now; execute the branch the numbers select):**
-   - ALL configs pass → GATE PASSED, full design: thesis test on all 6 domain pairs, corrected d′-partialed latent estimator.
-   - 200/200 + 200/100 pass, 100/100 fails → GATE PASSED WITH SCOPE RESTRICTION: 5 pairs primary; Calories×GDP reported only with its simulation-measured bias band, no standalone claim.
-   - Only 200/200 passes → GATE PASSED, NARROW: memory×vision is the sole confirmatory pair; other pairs descriptive with bias bands; paper leans harder on the floor elements.
-   - 200/200 fails under the corrected estimator (regression vs 0b′) → GATE FAILED OUTRIGHT: revert to the UNCORRECTED estimator's validated 200/200-only design (0b′ already passed it) and fold in the floor reframe.
+4. Update PROGRESS.md; note explicitly that no cross-domain quantity has been computed yet.
 
-2. Update `results/STEP0_REPORT.md` verdict block and write `results/STEP0B2_FINAL_REPORT.md`: calibration curve (form + fit + residuals), full scoreboard for all three configs, the branch selected by the decision tree, and the exact Step 1+ design that results (measures, estimator, which pairs confirmatory). This closes Step 0 permanently.
+5. OPTIONAL — GitHub remote if Ben provides a URL at run time. (Repo STILL has no backup and now contains real deliverables — press this in your summary.)
 
-3. Update PROGRESS.md accordingly.
-
-4. OPTIONAL — GitHub remote if Ben provides a URL (still no backup; keep reminding).
-
-5. Report per protocol: overwrite `cowork/REPORT.md`, session-log line, final `docs:` commit.
+6. Report per protocol: overwrite `cowork/REPORT.md`, session-log line, final `docs:` commit.
 
 ## Constraints
-- Still NO real-data thesis analysis. Calibration/evaluation are simulation only; declared real-data touches limited to simulator calibration as before.
-- Train/test separation is absolute: calibration seeds and evaluation seeds disjoint; the correction is frozen before evaluation runs.
-- No criterion adjustments mid-run. If a criterion looks miscalibrated, run as written and argue in the report.
-- Simulation labeling as before. Keep runtime sane; reduce R to 20 with a note if it balloons.
+- **FIREWALL: no cross-domain correlations, no gaps, no latent fits on real data in this dispatch.** Within-domain measurement properties only. The confirmatory shot is 006 and it fires exactly once.
+- Every reported number: computed this run, labeled REALDATA, saved to results/, status-labeled per BRIEF §3.
+- Preregistered decisions above are fixed; argue in the report if one looks wrong, don't change it.
 
 ## Acceptance criteria
-- Calibration artifacts saved (grid results, fitted mapping, residual check).
-- Evaluation scoreboard for all 3 configs × 4 scenarios, fresh seeds, both variants (corrected primary, uncorrected for comparison).
-- STEP0B2_FINAL_REPORT.md states the selected branch and the final Step 1+ design explicitly.
+- step1/step2 REALDATA files exist with per-domain exclusion counts; reliability tables with CIs; trials-needed curve with CIs.
+- Transfer check states "006 CLEARED" or "TRANSFER AT RISK" explicitly, with the numeric comparison shown.
+- No cross-domain quantity anywhere in outputs (grep your own results before committing).
 - `git status` clean; REPORT.md per template.
