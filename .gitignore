@@ -1,0 +1,21 @@
+# Imported material drop zone (triaged then removed; never committed)
+_inbox/
+# R
+.Rhistory
+.RData
+.Rproj.user/
+.Renviron
+# renv (keeps renv.lock, ignores the local library)
+renv/library/
+renv/local/
+renv/cellar/
+renv/staging/
+# Quarto / RMarkdown
+/.quarto/
+*_cache/
+*_files/
+# OS
+.DS_Store
+Thumbs.db
+# Claude Code local settings (machine-local)
+.claude/settings.local.json
