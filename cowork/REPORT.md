@@ -2,116 +2,121 @@
 
 <!-- Written by Claude Code after completing each dispatch. Cowork reads this to plan next steps. Overwrite the placeholder sections below; keep the section headings. -->
 
-**Status:** COMPLETE
-**Dispatch #:** 001
+**Status:** COMPLETE — **STEP 0 GATE FAILED (honest result, fully diagnosed)**
+**Dispatch #:** 002
 **Date:** 2026-07-10
 
 ## What was done
 
-All dispatch-001 tasks executed. Pre-flight checks passed (`C:\Dev\paper2`, not a
-git repo). Repo initialized with `.gitattributes` (`* text=auto`, plus
-`data/raw/** -text` — see Issues), `results/` and `manuscript/` created, scaffold
-committed. Step 0a executed via a fresh script `analysis/00_fetch_verify.R`: both
-files downloaded per-file at the pinned commit
-`0c38aba4eb720a143d126b7c7d4c313a900bc536` (no clone, avoiding the NTFS
-case-collision trap), md5/size/structure verified, basic summary reproduced and
-cross-checked against the shipped MLE fits, provenance recorded in
-`data/raw/lund2025/README.md` and `results/step0a_provenance.json`.
+All tasks executed. renv initialized and snapshotted (R 4.6.1; here, jsonlite,
+rprojroot, renv). Step 0b built from scratch: reusable estimators
+(`R/measures.R`: AUROC2 via rank-sum with midranks, Goodman-Kruskal gamma,
+bootstrap-CI helper), generative simulator (`R/simulate.R`: SDT trial model
+with three independent planted traits — d′, sensitivity λ, set-point β —
+analytically standardized so level and sensitivity are mechanistically
+separate up to the 1–7 binning), and the main script
+(`analysis/01_recovery_separability.R`) implementing the dispatch design plus
+three diagnostics I added when the preregistered criteria started failing:
+estimator unit checks against brute-force pair counting (every run), an
+asymptotic-consistency cohort at 5000 trials, and a planted-d′ confound
+quantification. `results/STEP0_REPORT.md` written (standalone) and committed.
+All simulation outputs are named `step0b_SIMULATION_*` and carry a
+`data_type = "SIMULATION"` column.
 
-Environment note: no R existed on this machine; installed R 4.6.1 via winget,
-plus `here`, `jsonlite`, `rprojroot` to the user library. renv is NOT set up yet
-(was not in scope) — worth a task in a future dispatch.
+Preregistered criteria were NOT adjusted; where I believe one was
+miscalibrated I said so in the report and left the verdict standing.
 
 ## Files changed / created
 
-- `.gitattributes` — `* text=auto` per dispatch, plus `data/raw/** -text` (Issues #1)
-- `.gitignore` — added `.claude/settings.local.json` (Issues #2) and the ~11.8 MB trial CSV
-- `results/`, `manuscript/` — created with `.gitkeep`
-- `analysis/00_fetch_verify.R` — Step 0a fetch + verify + cross-check (all new code)
-- `data/raw/lund2025/metacognition_trialData_master.csv` — fetched, gitignored
-- `data/raw/lund2025/mle_fit_data_wide.csv` — fetched, committed (118,445 bytes)
-- `data/raw/lund2025/README.md` — provenance: URLs, pinned commit, md5s, sizes, fetch date
-- `results/step0a_provenance.json` — machine-readable verification record
-- `results/step0a_basic_summary.csv` — reproduced per-domain summary vs shipped values
+- `renv.lock`, `.Rprofile`, `renv/` (activate.R, settings.json) — renv init
+- `R/measures.R` — auroc2(), gk_gamma(), boot_cor() (+ integer-overflow fix for huge-N cells)
+- `R/simulate.R` — folded-normal-standardized SDT generator; trait draws; cohort runner with odd/even split-half estimates
+- `analysis/01_recovery_separability.R` — self-check, unit checks, recovery, leakage, d′ confound, asymptotic run, detectability (gap + null × 3 trial configs), second-seed spot-check, preregistered-criteria evaluation
+- `results/step0b_SIMULATION_{selfcheck,recovery_leakage,detectability,detectability_gaps,seedcheck_recovery,seedcheck_gaps}.csv`, `results/step0b_SIMULATION_meta.json`
+- `results/STEP0_REPORT.md` — the standalone gate report
+- `PROGRESS.md` — next-steps rewritten around the gate failure
 
 ## Commits
 
-- `cf66ac0` — chore: initial scaffold — brief, two-agent workflow, project structure
-- `d7ba4d2` — feat: step 0a — fetch and verify Lund 2025 trial data
-- final `docs:` commit — this report + PROGRESS.md log line (latest commit touching REPORT.md)
+- `2e73b9e` — docs: dispatch 002 from Cowork (uncommitted Cowork file, committed per protocol)
+- `655bcb2` — chore: initialize renv (R 4.6.1; here, jsonlite)
+- `252dd48` — feat: step 0b — recovery/separability simulation (SIMULATION only)
+- `3d80ec7` — docs: STEP 0 gate report — 0a PASSED, 0b FAILED, gate FAILED
+- final `docs:` commit — this report + session-log line
 
-Task 8 (remote push): **SKIPPED** — no GitHub remote URL provided.
+Task 5 (remote push): **SKIPPED** — no GitHub URL provided. Repo still has no backup; five dispatch-002 commits are local-only.
 
 ## Results
 
-All numbers below computed this session by `analysis/00_fetch_verify.R`.
+All values computed this session by `analysis/01_recovery_separability.R`;
+everything below is **SIMULATION**. Seeds 20260710 (main) and 42424242
+(spot-check); 322 subjects; 2000-resample bootstrap CIs.
 
-**md5 — VERIFIED (exact match).** Trial CSV md5
-`500b2e6e1eb0e47e717feba5b912ad9f`, 11,837,935 bytes — both exactly as expected.
-Not the wrong-case file. `mle_fit_data_wide.csv`: md5
-`8dafc9a5a87c4c9a9461083d48d9c640`, 118,445 bytes (no prior expectation on
-record; now pinned).
+**Self-check: PASS.** Level knob → mean confidence strictly monotone, accuracy
+flat (range 0.0036), AUROC2 coupling small and quantified (range 0.029).
+Sensitivity knob → AUROC2 strictly monotone, accuracy flat, mean-confidence
+coupling 0.16 via binning skew (did not produce measurable leakage). Generated
+accuracy within 0.003 of analytic target. Estimator unit checks vs brute
+force: exact (< 1e-12).
 
-**Structure — VERIFIED (all match).** 193,200 rows (expected 193,200);
-322 subjects (expected 322); modalities Calories, GDP, memory, vision; confidence
-values exactly the integers 1–7; all 11 expected columns present. Median
-trials/subject: memory 200, vision 200, Calories 101, GDP 99 (matches the
-~200/~100 expectation for perception-memory vs trivia tasks).
+**Preregistered criteria scorecard:**
 
-**Basic summary — REPRODUCED (close, not exact; within stated tolerance).**
-Per-domain mean confidence (own computation, per-subject means then domain mean,
-all trials) vs shipped `avg_conf_*` (320-subject file):
+| Criterion | Result | Verdict |
+|---|---|---|
+| Level recovery ≥ 0.9 @200 | 0.99 [0.99, 0.99] | PASS |
+| Level recovery ≥ 0.9 @100 | 0.98 [0.98, 0.99] | PASS |
+| AUROC2 recovery ≥ 0.7 @200 | 0.59 [0.52, 0.65] | **FAIL** |
+| (gamma recovery, same bar) | 0.55 [0.48, 0.62] | **FAIL** |
+| Leakage level←λ, \|r\|<0.10 CI∋0 @200 | −0.020 [−0.13, 0.091] | PASS |
+| Leakage AUROC2←β, same @200 | −0.035 [−0.15, 0.077] | PASS |
+| (gamma←β leakage, unprereg'd but decisive) | **−0.18** [−0.32, −0.025], replicates seed 2 | **FAIL** — drop gamma as primary |
+| Detectability: gap recovered, truth in CIs | level ✓ everywhere; sensitivity truth OUTSIDE CI (est 0.084 vs truth 0.32 @200/200) | **FAIL** |
+| Null: no spurious gap | raw gap 0.27–0.31, CIs exclude 0 in all configs | **FAIL** |
 
-| Domain | Own mean conf | Shipped | abs diff | Own mean accuracy |
-|---|---|---|---|---|
-| Calories | 5.244 | 5.267 | 0.022 | 0.709 |
-| GDP | 4.318 | 4.355 | 0.037 | 0.699 |
-| memory | 4.489 | 4.546 | 0.057 | 0.769 |
-| vision | 4.163 | 4.194 | 0.031 | 0.718 |
+**Diagnosis (all VERIFIED in simulation):** not a code bug — estimators exact
+vs brute force and consistent (AUROC2 recovery 0.82 [0.78, 0.85] at 5000
+trials). The causes are structural: split-half reliability of AUROC2 is only
+~0.42–0.52 at 200 trials (~0.25–0.31 at 100), capping recovery at
+√rel ≈ 0.65–0.72 — the preregistered 0.7 was likely unreachable by
+construction (flagged in report, verdict unchanged); plus a type-1 confound
+(AUROC2↔d′ r ≈ 0.33 at 200 trials, 0.41 asymptotically). The null-scenario
+spurious raw gap is pure differential attenuation; split-half
+Spearman-Brown disattenuation shrinks it (0.08–0.20) but is seed-unstable
+(−0.11 to +0.25) at n = 322 — cannot certify a zero.
 
-Memory's 0.057 marginally exceeds the ~0.05 guideline, so I dug in adversarially.
-Per-subject agreement on matched subjects: r = 0.9987–0.9993 per domain, but max
-per-subject diff 0.21–0.31 and a systematic offset of ~0.02–0.03 (shipped values
-HIGHER than raw per-subject means) in every domain. I probed candidate filters
-(repeat_exclude, NA-drops on every column, complete cases, dropping first
-1/2/5/10/20 or last 2 trials): none reproduces their values exactly. Conclusion:
-the shipped `avg_conf_*` was computed after some undocumented preprocessing in
-their MLE pipeline — a definitional difference analogous to the known `da` vs
-naive-d′ caveat, not a data problem. The raw file itself is bit-exact against
-its expected md5, which is the provenance claim that matters. Shipped file also
-confirms the expected subject exclusions (320 rows vs 322 raw; per-domain
-non-NA n = 314–320; memory has the most exclusions, 314, contributing to its
-larger domain-mean diff). NOT verified further: which trials/subjects their
-pipeline drops — documented as an open provenance footnote, not blocking.
-
-**Step 0a verdict: PASS.** Data is confirmed to be the real Lund 2025 trial
-file; structure matches; an independently computed summary agrees with the
-shipped external reference within tolerance with the residual explained as an
-external-pipeline difference.
+**Bottom line: the naive raw Step-3 contrast would manufacture the thesis
+from measurement noise. Level measurement is bulletproof; sensitivity
+measurement at these trial counts is not.**
 
 ## Issues & blockers
 
-1. **`.gitattributes` deviation (deliberate):** added `data/raw/** -text` beyond
-   the dispatched `* text=auto`. Reason: text=auto would rewrite the committed
-   raw CSV's line endings on checkout, silently breaking its recorded md5.
-   Raw data must stay byte-identical.
-2. **Unexpected file at git-status check:** `.claude/settings.local.json`
-   (Claude Code's machine-local permission settings, an artifact of running the
-   tool, not project material). Rather than halt, I gitignored it — standard
-   convention. Flagging per the stop-and-ask rule; say if you want it handled
-   differently.
-3. **No git identity existed**; set repo-local `user.name citchow /
-   user.email citchow@gmail.com` (copied from the cogsci repo's local config).
-4. **R was not installed on Dondon**; installed R 4.6.1 (winget) + here/jsonlite.
-   renv not yet initialized — suggest adding to dispatch 002 so the lockfile
-   starts early.
-5. No remote push (no URL provided) — repo currently has no backup.
+1. **THE BLOCKER: Step 0 gate FAILED** → per BRIEF.md, Steps 1+ do not start.
+   Needs a Cowork-designed Step 0b′. Recommendation in STEP0_REPORT.md:
+   (a) bring the Step-4 latent/multilevel machinery into the gate — extend
+   this simulation to test whether a joint latent-correlation model recovers
+   ρ_sens and the gap unbiasedly at 100–200 trials; and/or (b) reframe the
+   primary claim around the validated level measure + a measurement-limits
+   finding for sensitivity (BRIEF's stated fallback floor; the spurious-gap
+   demo is itself a publishable methodological point).
+2. Gamma should be demoted from co-primary sensitivity measure (leaks
+   set-point via tie exclusion; replicated both seeds). Affects the Step 1
+   definition list — Cowork should re-scope.
+3. Minor: fixed an integer-overflow bug my own first draft hit in
+   auroc2()/gk_gamma() at 200k-trial self-check cells (counts now double
+   precision; unit checks cover it). Noting per be-your-own-adversary rule.
+4. Still no remote backup (no URL yet).
 
 ## Questions / decisions needed for planning
 
-- Dispatch 002 (Step 0b recovery/separability) as planned — no blockers from 0a.
-- Should dispatch 002 include renv init + snapshot as a housekeeping task?
-- Remind Ben: create the private GitHub repo; next dispatch can wire the remote
-  and push both commits.
-- Optional: record the mle csv md5 (`8dafc9a5...`) as the pinned expectation in
-  future re-verification runs (already stored in provenance JSON + data README).
+- Which Step 0b′ path: (a) latent-model gate extension, (b) reframe to the
+  level-centric floor, or (c) = (a)+(b)? ((c) is my recommendation: (b) is
+  safe regardless; (a) decides whether the strong thesis is testable.)
+- If (a): hierarchical model choice needs care under the integrity rules
+  (Rhat/ESS discipline; long runs on Dondon allowed but not the paper's spine
+  per CLAUDE.md). A model-light alternative worth simulating first:
+  correlation of split-half-averaged AUROC2 with SIMEX-style or
+  errors-in-variables correction, validated exactly like this dispatch.
+- Does Ben want the ~0.05-tolerance criterion on 0a's memory domain (0.057)
+  formally revisited, or is the r ≥ 0.998 per-subject agreement sufficient
+  closure? (My view: sufficient, documented as footnote.)
+- GitHub remote URL still needed for backup.

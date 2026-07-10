@@ -18,10 +18,11 @@ Running state of the project. Cowork updates this at each "Close out"; Code appe
 - 2026-07-10 — Analysis spine = model-light (AUROC2/gamma, bootstrap, multilevel); heavy hierarchical meta-d' optional and cautious, long runs on Dondon only.
 
 ## Next steps
-- [ ] Run dispatch 001: git init + first commit + STEP 0a (fetch Lund data, verify md5/structure, reproduce one basic summary vs shipped MLE fits as external check; STOP and report on any mismatch)
-- [ ] Cowork designs the Step 0b recovery/separability simulation plan (known level + known sensitivity planted; leakage check) → dispatch 002
-- [ ] Step 0 report delivered standalone for Ben to judge the foundation (gate for everything else)
-- [ ] Steps 1–2: component definitions + reliability with bootstrap CIs (gated)
+- [x] Dispatch 001: git init + STEP 0a — PASSED (md5 exact, structure verified)
+- [x] Dispatch 002: STEP 0b recovery/separability simulation — **GATE FAILED** (see results/STEP0_REPORT.md): level measurement validated (r 0.99, no leakage), but AUROC2 recovery 0.59 < 0.7 at 200 trials, gamma leaks set-point (r −0.18), and the null scenario produces a spurious raw level-vs-sensitivity gap (raw Step-3 contrast invalid as designed)
+- [ ] **BLOCKED on gate:** Cowork designs Step 0b′ — candidate paths: (a) validate a latent/multilevel cross-domain correlation estimator in simulation (bring Step 4 machinery into the gate), (b) reframe primary claim around validated level measure + sensitivity measurement-limits finding, (c) both
+- [ ] Ben reads results/STEP0_REPORT.md and rules on direction
+- [ ] Steps 1–2: component definitions + reliability with bootstrap CIs (gated — do not start)
 - [ ] Steps 3–4: core level-vs-informativeness contrast + non-ipsative multilevel decomposition (gated)
 - [ ] Step 5: Confidence DB generalization (subset multi-task studies; data stays out of git)
 - [ ] Step 6: manuscript + claim-status table
@@ -35,3 +36,4 @@ Running state of the project. Cowork updates this at each "Close out"; Code appe
 | 2 | 2026-07-10 | Cowork | Old chat imported & archived to Project memory; scope set to finishing the metacognition ms_v5 (later superseded same day) |
 | 3 | 2026-07-10 | Cowork | Ben delivered BRIEF.md (from-scratch rebuild: level vs informativeness). Scope v2 adopted; CLAUDE.md/PROGRESS.md rewritten; dispatch 001 extended with Step 0a data verification; prior import/run plan cancelled |
 | 4 | 2026-07-10 | Code | Dispatch 001 executed: git init + scaffold commit (cf66ac0); Step 0a PASS (d7ba4d2) — Lund 2025 trial CSV fetched at pinned commit, md5 exact match, structure verified (193,200 rows / 322 subjects / conf 1–7), basic summary reproduced vs shipped MLE fits (diffs 0.022–0.057, r ≥ 0.998; residual = their undocumented preprocessing). R 4.6.1 installed on Dondon; renv still to init; remote push skipped (no URL) |
+| 5 | 2026-07-10 | Code | Dispatch 002 executed: renv init (655bcb2); Step 0b simulation (252dd48) — **GATE FAILED** per preregistered criteria (3d80ec7 = STEP0_REPORT.md): level recovery 0.99/no leakage PASS, but AUROC2 recovery 0.59 < 0.7 @200 trials (reliability-capped, not a bug — exact vs brute force, 0.82 @5000 trials), gamma leaks set-point (−0.18), null scenario yields spurious raw gap 0.27–0.31 (raw Step-3 contrast invalid). Steps 1+ blocked pending Step 0b′ design; remote push skipped (no URL) |
