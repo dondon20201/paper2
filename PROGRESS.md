@@ -21,9 +21,9 @@ Running state of the project. Cowork updates this at each "Close out"; Code appe
 - [x] Dispatch 001: git init + STEP 0a — PASSED (md5 exact, structure verified)
 - [x] Dispatch 002: STEP 0b recovery/separability simulation — **GATE FAILED** (see results/STEP0_REPORT.md): level measurement validated (r 0.99, no leakage), but AUROC2 recovery 0.59 < 0.7 at 200 trials, gamma leaks set-point (r −0.18), and the null scenario produces a spurious raw level-vs-sensitivity gap (raw Step-3 contrast invalid as designed)
 - [x] Dispatch 003: Step 0b′ latent-estimator gate — **FAILED per preregistration, narrowly** (results/STEP0B_PRIME_REPORT.md): d′-partialed parcel CFA passes ALL criteria at 200/200 but misses null-gap bias at 200/100 by 0.012 (+0.082 vs ±0.07, replicated seed 2); d′-partialing now mandatory for any sensitivity claim (raw latent converts d′ correlation into spurious ρ_sens); 0% non-convergence in 480 fits
-- [ ] **DECISION NEEDED (Ben/Cowork):** path forward — (1) floor reframe (level + measurement-limits + two spurious-gap demos), (2) one more preregistered gate round with bias-corrected latent estimator incl. 100/100 config, or (3) scope-restricted design (strong claims from 200/200 pair only, bias bands elsewhere)
-- [ ] Ben reads results/STEP0_REPORT.md + STEP0B_PRIME_REPORT.md and rules on direction
-- [ ] Steps 1–2: component definitions + reliability with bootstrap CIs (gated — do not start)
+- [x] Dispatch 004: Step 0b″ FINAL gate round — **GATE PASSED, NARROW** (results/STEP0B2_FINAL_REPORT.md): calibrated d′-partialed parcel-latent estimator passes all criteria at 200/200 (blind fresh-seed evaluation; CI honesty verified); 200/100 borderline-fails (by 0.011, main seed decisive), 100/100 fails clearly. **STEP 0 CLOSED.** Confirmatory pair: memory×vision only; other pairs descriptive with bias bands
+- [ ] Cowork dispatches Step 1 under the locked design (STEP0B2_FINAL_REPORT.md §3): level = mean conf; sensitivity = AUROC2, d′-partialed; K=4 exchangeable-parcel CFA with frozen 200/200 correction (a=0.040, b=0.75); confirmatory gap test on memory×vision; descriptive tier with bias bands
+- [ ] Steps 1–2: component definitions + reliability with bootstrap CIs (now unblocked, awaiting dispatch)
 - [ ] Steps 3–4: core level-vs-informativeness contrast + non-ipsative multilevel decomposition (gated)
 - [ ] Step 5: Confidence DB generalization (subset multi-task studies; data stays out of git)
 - [ ] Step 6: manuscript + claim-status table

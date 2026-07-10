@@ -15,7 +15,8 @@ exists in `results/` (step0a_*, step0b_SIMULATION_*). Labels follow BRIEF.md §3
 | **0a — data provenance** | **PASSED** |
 | **0b — recovery & separability (simulation)** | **FAILED** on 3 of 6 preregistered criterion families |
 | **0b′ — latent-estimator gate (dispatch 003)** | **FAILED** — one criterion, one config, by 0.012; see `STEP0B_PRIME_REPORT.md` |
-| **STEP 0 GATE OVERALL** | **FAILED — do not proceed to Step 1 as designed** |
+| **0b″ — calibrated estimator, final round (dispatch 004)** | **PASSED, NARROW** — 200/200 passes all criteria; see `STEP0B2_FINAL_REPORT.md` |
+| **STEP 0 GATE OVERALL** | **PASSED, NARROW (final): memory×vision sole confirmatory pair; other pairs descriptive with bias bands. Step 0 closed.** |
 
 The failure is informative, not fatal: the confidence-LEVEL half of the
 measurement framework validated essentially perfectly; what failed is the
@@ -183,11 +184,15 @@ Options for Cowork to weigh (my recommendation is (a)):
 - **(c) Both.** (a) determines whether the strong claim is testable; (b) is
   the floor either way.
 
-**GATE STATUS: FAILED.** Step 0b′ (dispatch 003, option (a)) has since run:
-the parcel-based latent estimator with d′-partialing passes ALL preregistered
-criteria at 200/200 trials and misses exactly one at 200/100 (null-scenario
-gap bias +0.082 vs the ±0.07 bar, replicated on a second seed). The
-d′-confound scenario also showed raw latent estimation converts cross-domain
-type-1 ability into spurious sensitivity correlation — d′-partialing is now a
-standing requirement. Full addendum and the three candidate paths forward:
-**`results/STEP0B_PRIME_REPORT.md`**.
+**GATE STATUS (final): PASSED, NARROW.** The gate went three rounds:
+- 0b (dispatch 002): raw-correlation design FAILED — invents the thesis under
+  a null (this file, Part B).
+- 0b′ (dispatch 003): d′-partialed parcel-latent estimator — passed everything
+  at 200/200, missed one criterion at 200/100 by 0.012; d′-partialing became
+  mandatory (`STEP0B_PRIME_REPORT.md`).
+- 0b″ (dispatch 004, FINAL): shrinkage-calibrated estimator, train/test
+  seed-disjoint, evaluated blind at all three real trial configs. Pre-declared
+  decision tree selected **PASSED, NARROW**: memory×vision (200/200) is the
+  sole confirmatory pair; the four 200/100 pairs and Calories×GDP are
+  descriptive with simulation-measured bias bands. Exact locked Step 1+
+  design: **`STEP0B2_FINAL_REPORT.md` §3**. Step 0 is closed.
