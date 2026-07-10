@@ -1,0 +1,7 @@
+"block","quantity","estimate","ci_lo","ci_hi","n","note","data_type"
+"SECONDARY_R1_zscored","ICC_level",0.43848768201875,NA,NA,322,"rung M1; point estimate only","REALDATA"
+"SECONDARY_R1_zscored","ICC_sens",0.355556162640256,NA,NA,322,"rung M1; point estimate only","REALDATA"
+"SECONDARY_R2_ordinal","ICC_level",0.426281553135629,NA,NA,322,"COMPLETED","REALDATA"
+"SECONDARY_R2_ordinal","ICC_sens",0.323946090760631,NA,NA,322,"COMPLETED","REALDATA"
+"EXPLORATORY_DIAGNOSTIC","r_subject_slopeBLUP_vs_mean_dprime",0.428605112063219,0.334999954001062,0.513832687732342,322,"LMM slope is NOT d'-partialed; confound quantified, not removed","REALDATA"
+"EXPLORATORY_DIAGNOSTIC","r_subjdom_slopeBLUP_vs_dprime",0.387871885685893,0.340331238060728,0.433434645264068,1281,"matched step-1 d'-hat per subject-domain","REALDATA"
