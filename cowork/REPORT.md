@@ -35,7 +35,7 @@ Current status rewritten from the stale scaffold text).
 
 ## Commits
 
-- `bcd9df1` — docs: dispatch 006 from Cowork (hash from git log)
+- `4ac1d1e` — docs: dispatch 006 from Cowork
 - `1cf0dec` — feat: dispatch 006 — CONFIRMATORY memory×vision test
 - final `docs:` commit — this report + session-log line
 
