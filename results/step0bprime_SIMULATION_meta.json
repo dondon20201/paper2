@@ -1,0 +1,81 @@
+{
+  "data_type": "SIMULATION",
+  "script": "analysis/02_latent_gate.R",
+  "run_utc": "2026-07-10 09:40:42",
+  "r_version": "R version 4.6.1 (2026-06-24 ucrt)",
+  "lavaan_version": "0.6.21",
+  "seeds": {
+    "main": 20260710,
+    "second": 42424242
+  },
+  "n_subjects": 322,
+  "n_rep": {
+    "main": 30,
+    "second": 15
+  },
+  "parcels": "K=4 at 200 trials, K=2 at 100 (equal 50-trial parcels)",
+  "scenarios": {
+    "GAP": [0.6, 0.2, 0],
+    "NULLGAP": [0.4, 0.4, 0],
+    "ZEROSENS": [0.4, 0, 0],
+    "DCONF": [0, 0, 0.4]
+  },
+  "configs": [
+    [200, 200],
+    [200, 100]
+  ],
+  "primary_variant": "dprime_partialed",
+  "criteria_raw": {
+    "200/200": {
+      "config": "200/200",
+      "a_gap_bias": true,
+      "a_gap_coverage": true,
+      "a_gap_positive": true,
+      "b_null_gap_bias": false,
+      "b_null_gap_ci_zero": false,
+      "c_zerosens_median": true,
+      "d_dconf_spurious": true,
+      "e_convergence": true,
+      "all_pass": false
+    },
+    "200/100": {
+      "config": "200/100",
+      "a_gap_bias": true,
+      "a_gap_coverage": true,
+      "a_gap_positive": true,
+      "b_null_gap_bias": false,
+      "b_null_gap_ci_zero": true,
+      "c_zerosens_median": true,
+      "d_dconf_spurious": false,
+      "e_convergence": true,
+      "all_pass": false
+    }
+  },
+  "criteria_partialed": {
+    "200/200": {
+      "config": "200/200",
+      "a_gap_bias": true,
+      "a_gap_coverage": true,
+      "a_gap_positive": true,
+      "b_null_gap_bias": true,
+      "b_null_gap_ci_zero": true,
+      "c_zerosens_median": true,
+      "d_dconf_spurious": true,
+      "e_convergence": true,
+      "all_pass": true
+    },
+    "200/100": {
+      "config": "200/100",
+      "a_gap_bias": true,
+      "a_gap_coverage": true,
+      "a_gap_positive": true,
+      "b_null_gap_bias": false,
+      "b_null_gap_ci_zero": true,
+      "c_zerosens_median": true,
+      "d_dconf_spurious": true,
+      "e_convergence": true,
+      "all_pass": false
+    }
+  },
+  "gate_step0bprime_passed": false
+}
