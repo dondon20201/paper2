@@ -1,0 +1,100 @@
+{
+  "data_type": "SIMULATION",
+  "dispatch": "008 Part A",
+  "design": {
+    "n_subjects": 322,
+    "domains": [
+      {
+        "domain": "memory",
+        "n_trials": 200,
+        "p_acc": 0.77,
+        "beta": 4.4925718101
+      },
+      {
+        "domain": "vision",
+        "n_trials": 200,
+        "p_acc": 0.72,
+        "beta": 4.1629515398
+      },
+      {
+        "domain": "Calories",
+        "n_trials": 100,
+        "p_acc": 0.71,
+        "beta": 5.2402066088
+      },
+      {
+        "domain": "GDP",
+        "n_trials": 100,
+        "p_acc": 0.7,
+        "beta": 4.2949485211
+      }
+    ],
+    "sd_int_total": 0.8,
+    "sd_slope_total": 0.4,
+    "sd_slope_total_note": "IMPLEMENTATION CHOICE — dispatch specified mean slope 0.8 and 'slope SDs partitioned by ICC_sens' but not the total slope SD; 0.4 (= mean/2) chosen and flagged in REPORT.md for Cowork audit",
+    "sd_resid": 1.2,
+    "gamma_slope": 0.8,
+    "beta_source": "results/step1_REALDATA_domain_summary.csv (primary, committed)",
+    "planted_int_slope_correlation": 0,
+    "discretization": "round(conf*) clamped to 1..7",
+    "centering_generation": "true p_acc",
+    "centering_fitting": "empirical domain mean (preregistered acc_dc)"
+  },
+  "cells": [
+    {
+      "icc_level": 0.8,
+      "icc_sens": 0.2
+    },
+    {
+      "icc_level": 0.8,
+      "icc_sens": 0.5
+    },
+    {
+      "icc_level": 0.5,
+      "icc_sens": 0.2
+    },
+    {
+      "icc_level": 0.5,
+      "icc_sens": 0.5
+    },
+    {
+      "icc_level": 0.2,
+      "icc_sens": 0.8
+    }
+  ],
+  "n_replicates_per_cell": 10,
+  "seeds": [20260711, 20260712, 20260713, 20260714, 20260715, 20260716, 20260717, 20260718, 20260719, 20260720],
+  "criteria": {
+    "pass_recovery": true,
+    "pass_leakage": true,
+    "pass_sign": true,
+    "pass_convergence": true,
+    "overall": "PASS"
+  },
+  "leakage": [
+    {
+      "comparison": "sens .2->.5 at level .8 (moves level)",
+      "delta_other": -4.5916407496e-05,
+      "pass": true
+    },
+    {
+      "comparison": "sens .2->.5 at level .5 (moves level)",
+      "delta_other": -0.00030812401682,
+      "pass": true
+    },
+    {
+      "comparison": "level .8->.5 at sens .2 (moves sens)",
+      "delta_other": 0.00019582809731,
+      "pass": true
+    },
+    {
+      "comparison": "level .8->.5 at sens .5 (moves sens)",
+      "delta_other": 0.00092494239255,
+      "pass": true
+    }
+  ],
+  "mean_fit_seconds": 6.1910515022,
+  "total_minutes": 5.2229267995,
+  "r_version": "R version 4.6.1 (2026-06-24 ucrt)",
+  "lme4_version": "2.0.1"
+}
