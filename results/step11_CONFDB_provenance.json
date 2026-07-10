@@ -1,0 +1,19 @@
+{
+  "data_type": "REALDATA-EXTERNAL (CONFDB)",
+  "source": "https://osf.io/s46pr (Rahnev et al. 2020, Nat Hum Behav 4:317-325)",
+  "api_enumeration": {
+    "node": "https://api.osf.io/v2/nodes/s46pr/",
+    "folder_listing": "https://api.osf.io/v2/nodes/s46pr/files/osfstorage/5e9ecb6da0ea43006254b422/?page%5Bsize%5D=100",
+    "registrations_checked": "https://api.osf.io/v2/nodes/s46pr/registrations/ -> empty (no registered snapshot exists; live node fetched)"
+  },
+  "node_date_modified": "2025-08-31T19:29:32.140957",
+  "accessed_utc": "2026-07-10 23:51:50",
+  "n_files_enumerated": 361,
+  "n_data_csv": 180,
+  "n_readme": 180,
+  "n_verified": 361,
+  "n_md5_mismatch": 0,
+  "n_missing": 0,
+  "total_bytes_verified": 255175101,
+  "osf_versions_all_1": false
+}

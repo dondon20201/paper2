@@ -21,3 +21,5 @@ Thumbs.db
 .claude/settings.local.json
 # Lund 2025 raw trial data (~11.8 MB, provenance in data/raw/lund2025/README.md)
 data/raw/lund2025/metacognition_trialData_master.csv
+# Confidence Database raw files (~255 MB; provenance in results/step11_CONFDB_manifest.csv)
+data/raw/confidence_db/
