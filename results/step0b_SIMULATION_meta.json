@@ -1,0 +1,76 @@
+{
+  "data_type": "SIMULATION",
+  "script": "analysis/01_recovery_separability.R",
+  "run_utc": "2026-07-10 09:12:39",
+  "r_version": "R version 4.6.1 (2026-06-24 ucrt)",
+  "seeds": {
+    "main": 20260710,
+    "second": 42424242
+  },
+  "n_subjects": 322,
+  "n_boot": 2000,
+  "d_prime_mean": 1.2,
+  "trait_distributions": {
+    "d_prime": "truncnorm(mean 1.2, sd 0.3, min 0.2)",
+    "lambda": "uniform(0.15, 0.85)",
+    "beta": "normal(0, 0.8)"
+  },
+  "empirical_calibration_touch": "read results/step0a_basic_summary.csv for per-domain accuracy range (0.697-0.769) to set d' target; no thesis analysis on real data",
+  "selfcheck": {
+    "level_moves_mean_conf_monotonically": true,
+    "level_leaves_accuracy_flat_range": 0.00359,
+    "level_auroc2_coupling_range": 0.02867883,
+    "sens_moves_auroc2_monotonically": true,
+    "sens_leaves_mean_conf_flat_range": 0.15647,
+    "sens_leaves_accuracy_flat_range": 0.003795,
+    "max_abs_accuracy_vs_target": 0.00297688
+  },
+  "asymptotic_recovery_5000_trials": {
+    "level": 0.99400678,
+    "auroc2": 0.81518836,
+    "gamma": 0.81732172
+  },
+  "criteria": {
+    "level_recovery_200": {
+      "r": 0.98896232,
+      "threshold": 0.9,
+      "pass": true
+    },
+    "level_recovery_100": {
+      "r": 0.98128064,
+      "threshold": 0.9,
+      "pass": true
+    },
+    "sensitivity_auroc2_recovery_200": {
+      "r": 0.59466438,
+      "threshold": 0.7,
+      "pass": false
+    },
+    "sensitivity_gamma_recovery_200": {
+      "r": 0.55491863,
+      "threshold": 0.7,
+      "pass": false
+    },
+    "leakage_level_from_sensitivity_200": {
+      "r": -0.01945993,
+      "ci": [-0.12522646, 0.09134211],
+      "pass": true
+    },
+    "leakage_sensitivity_from_level_200": {
+      "r": -0.0347159,
+      "ci": [-0.14935052, 0.07725926],
+      "pass": true
+    },
+    "detectability_gap_recovered": {
+      "level_gt_sensitivity": true,
+      "truth_in_ci_all": false,
+      "pass": false
+    },
+    "null_no_spurious_raw_gap": {
+      "raw_gap_ci_excludes_zero": [true, true, true],
+      "disattenuated_gaps": [0.07677122, 0.19903159, 0.10770118],
+      "pass": false
+    }
+  },
+  "gate_step0b_passed": false
+}
