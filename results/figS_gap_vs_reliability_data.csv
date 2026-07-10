@@ -1,0 +1,7 @@
+"pair","label","domain_a","domain_b","tier","gap","rel_a","rel_b","geomean_rel"
+"memory_x_vision","mem × vis","memory","vision","CONFIRMATORY (corrected)",0.113100401762733,0.545713262802382,0.272629148173666,0.385716660237648
+"memory_x_Calories","mem × Cal","memory","Calories","NON-CONFIRMATORY (uncorrected, descriptive)",-0.0200653858081981,0.545713262802382,0.305817516987288,0.408520103565609
+"memory_x_GDP","mem × GDP","memory","GDP","NON-CONFIRMATORY (uncorrected, descriptive)",-0.133112341480101,0.545713262802382,0.242109658036834,0.363486521680309
+"vision_x_Calories","vis × Cal","vision","Calories","NON-CONFIRMATORY (uncorrected, descriptive)",0.193777477966527,0.272629148173666,0.305817516987288,0.288746894620237
+"vision_x_GDP","vis × GDP","vision","GDP","NON-CONFIRMATORY (uncorrected, descriptive)",0.296224081582246,0.272629148173666,0.242109658036834,0.256916620395022
+"Calories_x_GDP","Cal × GDP","Calories","GDP","NON-CONFIRMATORY (uncorrected, descriptive)",0.236726786488816,0.305817516987288,0.242109658036834,0.272105447316782
