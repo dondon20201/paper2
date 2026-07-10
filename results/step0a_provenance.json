@@ -1,0 +1,81 @@
+{
+  "fetched_utc": "2026-07-10 08:52:13",
+  "source_repo": "https://github.com/embodied-computation-group/dg-metacognition",
+  "pinned_commit": "0c38aba4eb720a143d126b7c7d4c313a900bc536",
+  "files": {
+    "trial": {
+      "name": "metacognition_trialData_master.csv",
+      "url": "https://raw.githubusercontent.com/embodied-computation-group/dg-metacognition/0c38aba4eb720a143d126b7c7d4c313a900bc536/data_summary/metacognition_trialData_master.csv",
+      "md5": "500b2e6e1eb0e47e717feba5b912ad9f",
+      "bytes": 11837935,
+      "expected_md5": "500b2e6e1eb0e47e717feba5b912ad9f",
+      "expected_bytes": 11837935,
+      "md5_match": true,
+      "size_match": true
+    },
+    "mle": {
+      "name": "mle_fit_data_wide.csv",
+      "url": "https://raw.githubusercontent.com/embodied-computation-group/dg-metacognition/0c38aba4eb720a143d126b7c7d4c313a900bc536/data_summary/mle_fit_data_wide.csv",
+      "md5": "8dafc9a5a87c4c9a9461083d48d9c640",
+      "bytes": 118445
+    }
+  },
+  "structure": {
+    "n_rows": 193200,
+    "n_rows_expected": 193200,
+    "columns": ["subject", "modality", "trial", "signal", "response", "accuracy", "confidence", "rt", "rt_conf", "contrast", "repeat_exclude"],
+    "columns_match": true,
+    "n_subjects": 322,
+    "n_subjects_expected": 322,
+    "modalities": ["Calories", "GDP", "memory", "vision"],
+    "modalities_expected": ["Calories", "GDP", "memory", "vision"],
+    "confidence_values": [1, 2, 3, 4, 5, 6, 7],
+    "confidence_expected": [1, 2, 3, 4, 5, 6, 7],
+    "median_trials_per_subject": [
+      {
+        "modality": "Calories",
+        "median_trials_per_subject": 101
+      },
+      {
+        "modality": "GDP",
+        "median_trials_per_subject": 99
+      },
+      {
+        "modality": "memory",
+        "median_trials_per_subject": 200
+      },
+      {
+        "modality": "vision",
+        "median_trials_per_subject": 200
+      }
+    ]
+  },
+  "structure_ok": true,
+  "max_abs_diff_mean_confidence": 0.06951482,
+  "per_subject_agreement": [
+    {
+      "modality": "memory",
+      "n_matched_subjects": 314,
+      "max_abs_per_subject_diff": 0.25982371,
+      "cor_own_vs_shipped": 0.99869939
+    },
+    {
+      "modality": "Calories",
+      "n_matched_subjects": 318,
+      "max_abs_per_subject_diff": 0.3076403,
+      "cor_own_vs_shipped": 0.99792402
+    },
+    {
+      "modality": "GDP",
+      "n_matched_subjects": 318,
+      "max_abs_per_subject_diff": 0.20758738,
+      "cor_own_vs_shipped": 0.99933369
+    },
+    {
+      "modality": "vision",
+      "n_matched_subjects": 320,
+      "max_abs_per_subject_diff": 0.22311009,
+      "cor_own_vs_shipped": 0.99921264
+    }
+  ]
+}
