@@ -2,12 +2,13 @@
 
 Running state of the project. Cowork updates this at each "Close out"; Code appends a session-log line after each dispatch.
 
-## Current status (2026-07-10, post-dispatch 006)
+## Current status (2026-07-10, post-dispatch 007)
 - Research question per `BRIEF.md`: **"Confidence Level vs Confidence Informativeness: Which Component of Metacognition Is Domain-General?"** — from-scratch mandate held throughout (all code new; data re-fetched, md5-verified at every script entry).
 - **STEP 0 CLOSED (gate PASSED, NARROW at dispatch 004).** Locked design executed: level = mean confidence; sensitivity = AUROC2, d′-partialed; exchangeable-parcel CFA + frozen 200/200 calibration (a=0.0401, b=0.7492).
 - **CONFIRMATORY RESULT (dispatch 006, final, one-shot): corrected gap = 0.11, 95% CI [−0.14, 0.36] → null gap NOT excluded.** ρ_level = 0.42 [0.33, 0.52]; corrected ρ_sens = 0.31 [0.08, 0.54] (domain-general sensitivity real after correction). Methods exhibit: naive raw gap 0.20 [0.05, 0.35] would have falsely "confirmed" the thesis.
+- **DESCRIPTIVE TIER DONE (dispatch 007, all five pairs estimable, NON-CONFIRMATORY):** ρ_level uniform 0.32–0.47 across all pairs; gap heterogeneous — vision pairs +0.19/+0.30, memory×knowledge pairs −0.02/−0.13, Calories×GDP +0.24; every gap carries its frozen systematic band (±0.09 / ±0.10) and none clears CI + band jointly. Consistent with the confirmatory null-not-excluded verdict.
 - Real-data measurement layer + reliabilities + trials-needed curves committed (dispatch 005); firewall held until 006.
-- Repo: 20+ commits, all local — **remote wiring BLOCKED pending Ben providing the URL directly in chat** (permission classifier will not accept a URL sourced from a coordination file).
+- Repo: **GitHub remote WIRED and PUSHED (dispatch 007)** — origin = https://github.com/dondon20201/paper2.git; push after each dispatch from now on.
 - Folder name "paper2" is a placeholder; proposed real name: **metacog** (rename only via explicit dispatch).
 
 ## Decisions
@@ -24,14 +25,15 @@ Running state of the project. Cowork updates this at each "Close out"; Code appe
 - [x] Dispatch 004: Step 0b″ FINAL gate round — **GATE PASSED, NARROW** (results/STEP0B2_FINAL_REPORT.md): calibrated d′-partialed parcel-latent estimator passes all criteria at 200/200 (blind fresh-seed evaluation; CI honesty verified); 200/100 borderline-fails (by 0.011, main seed decisive), 100/100 fails clearly. **STEP 0 CLOSED.** Confirmatory pair: memory×vision only; other pairs descriptive with bias bands
 - [x] Dispatch 005: Steps 1–2 REALDATA + transfer check — **006 CLEARED** (results/step2_REALDATA_transfer_check.md): real parcel reliabilities exceed simulation (memory 3.1×, vision 1.5× — conservative direction); level reliability 0.95–0.99 vs AUROC2 0.39–0.84; trials-needed for rel .7: level 7–15 vs AUROC2 ~110 (memory) / ~360 (vision); d′ split-half NEGATIVE outside memory (staircase artifact, documented). **FIREWALL HELD: no cross-domain quantity computed yet.**
 - [x] Dispatch 006: confirmatory memory×vision test — **DONE, one-shot, numbers final**: corrected gap 0.11 [−0.14, 0.36], null not excluded; both components domain-general (level 0.42, corrected sensitivity 0.31)
-- [ ] Descriptive tier (other 5 pairs with preregistered bias bands) + Step 4 multilevel decomposition — Cowork to dispatch
+- [x] Dispatch 007: descriptive tier (5 pairs, preregistered bias bands) — **DONE, all estimable**: ρ_level 0.32–0.47 uniform; gap heterogeneous (vision-anchored positive, memory×knowledge negative); no descriptive gap clears CI + systematic band
+- [ ] Step 4 multilevel decomposition — Cowork to dispatch
 - [ ] Paper framing decision (Ben): result supports the FLOOR narrative (validated two-component framework; level > sensitivity in point estimate but null gap not excluded; measurement-limits findings; spurious-gap exhibits) rather than the strong thesis
-- [ ] Wire GitHub remote: **Ben must provide the URL directly in chat** (classifier rejects file-sourced URLs); then push all commits
+- [x] Wire GitHub remote — **DONE (dispatch 007)**: Ben pasted the URL in chat; origin added, full history pushed, origin/master verified equal to local HEAD
 - [ ] Steps 3–4: core level-vs-informativeness contrast + non-ipsative multilevel decomposition (gated)
 - [ ] Step 5: Confidence DB generalization (subset multi-task studies; data stays out of git)
 - [ ] Step 6: manuscript + claim-status table
 - [ ] Decide folder rename paper2 → metacog (explicit dispatch)
-- [ ] Ben creates private GitHub repo for backup (Code wires remote + pushes)
+- [x] Ben creates private GitHub repo for backup — done; wired + pushed at dispatch 007
 
 ## Session log
 | # | Date | Surface | Summary |
@@ -46,3 +48,4 @@ Running state of the project. Cowork updates this at each "Close out"; Code appe
 | 8 | 2026-07-10 | Code | Dispatch 005 executed: Steps 1–2 REALDATA (77254c1) — measurement layer (exclusions ≤1.6%), reliabilities w/ CIs (level .95–.99; AUROC2 .84/.59/.47/.39; d′ NEGATIVE outside memory — staircase artifact), trials-needed curves (level 7–15 vs AUROC2 ~110/~360 for rel .7), transfer check → **006 CLEARED** (real parcel rel 1.5–3.1× sim, conservative). Firewall held — zero cross-domain quantities. Remote push skipped (no URL, 5th ask) |
 | — | 2026-07-10 | Cowork | Session 1 close-out: dispatches 001–005 planned & audited; STEP 0 CLOSED (gate PASSED NARROW at 004); Step 1+ design locked; dispatch 005 (real-data measures/reliability/transfer check, cross-domain firewall) loaded; handoff saved to Project |
 | 9 | 2026-07-10 | Code | Dispatch 006 executed: CONFIRMATORY memory×vision (1cf0dec) — **corrected gap = 0.11 [−0.14, 0.36], null NOT excluded** (preregistered wording); ρ_level 0.42 [0.33, 0.52]; corrected ρ_sens 0.31 [0.08, 0.54]; bootstrap agrees; 0/2000 bad fits; naive raw gap 0.20 [0.05, 0.35] = the spurious-confirmation exhibit. Primary numbers FINAL. Remote wiring blocked by permission classifier (URL must come from Ben in chat) |
+| 10 | 2026-07-10 | Code | Dispatch 007 executed: descriptive tier (8305ec9) — all five pairs estimable, NON-CONFIRMATORY: ρ_level 0.32–0.47 uniform; gaps heterogeneous (mem×Cal −0.02, mem×GDP −0.13, vis×Cal +0.19, vis×GDP +0.30, Cal×GDP +0.24), each ± frozen band 0.09/0.10; no gap clears CI + band; landscape consistent with 006 null-not-excluded. **GitHub remote wired + pushed** (URL from Ben in chat); origin/master verified = HEAD |
