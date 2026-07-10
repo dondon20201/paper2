@@ -90,9 +90,12 @@ fit_latent <- function(dat, k_a, k_b) {
     if (is_ok(fit2)) fit <- fit2
   }
   bad <- data.frame(
-    rho_sens = NA_real_, rho_sens_lo = NA_real_, rho_sens_hi = NA_real_,
-    rho_level = NA_real_, rho_level_lo = NA_real_, rho_level_hi = NA_real_,
-    gap = NA_real_, gap_lo = NA_real_, gap_hi = NA_real_,
+    rho_sens = NA_real_, rho_sens_se = NA_real_,
+    rho_sens_lo = NA_real_, rho_sens_hi = NA_real_,
+    rho_level = NA_real_, rho_level_se = NA_real_,
+    rho_level_lo = NA_real_, rho_level_hi = NA_real_,
+    gap = NA_real_, gap_se = NA_real_, gap_lo = NA_real_, gap_hi = NA_real_,
+    cov_rs_rl = NA_real_,
     converged = FALSE, admissible = FALSE
   )
   if (is.null(fit)) {
@@ -108,14 +111,24 @@ fit_latent <- function(dat, k_a, k_b) {
     error = function(e) FALSE
   )
   pe <- lavaan::parameterEstimates(fit)
-  grab <- function(lab) pe[pe$label == lab, c("est", "ci.lower", "ci.upper")]
+  grab <- function(lab) pe[pe$label == lab, c("est", "se", "ci.lower",
+                                              "ci.upper")]
   rs <- grab("rs")
   rl <- grab("rl")
   gp <- grab("gap")
+  # sampling covariance of the two labeled correlations (needed downstream to
+  # propagate a corrected rho_sens into a corrected-gap CI)
+  cov_rs_rl <- tryCatch({
+    v <- lavaan::lavInspect(fit, "vcov")
+    if (all(c("rs", "rl") %in% rownames(v))) v["rs", "rl"] else NA_real_
+  }, error = function(e) NA_real_)
   data.frame(
-    rho_sens = rs$est, rho_sens_lo = rs$ci.lower, rho_sens_hi = rs$ci.upper,
-    rho_level = rl$est, rho_level_lo = rl$ci.lower, rho_level_hi = rl$ci.upper,
-    gap = gp$est, gap_lo = gp$ci.lower, gap_hi = gp$ci.upper,
+    rho_sens = rs$est, rho_sens_se = rs$se,
+    rho_sens_lo = rs$ci.lower, rho_sens_hi = rs$ci.upper,
+    rho_level = rl$est, rho_level_se = rl$se,
+    rho_level_lo = rl$ci.lower, rho_level_hi = rl$ci.upper,
+    gap = gp$est, gap_se = gp$se, gap_lo = gp$ci.lower, gap_hi = gp$ci.upper,
+    cov_rs_rl = cov_rs_rl,
     converged = TRUE, admissible = isTRUE(admissible)
   )
 }

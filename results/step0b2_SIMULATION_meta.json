@@ -1,0 +1,128 @@
+{
+  "data_type": "SIMULATION",
+  "script": "analysis/03_calibrated_gate.R",
+  "run_utc": "2026-07-10 10:04:18",
+  "r_version": "R version 4.6.1 (2026-06-24 ucrt)",
+  "lavaan_version": "0.6.21",
+  "seeds": {
+    "calibration": "1000+i (i = 1..420)",
+    "eval_main": 20260711,
+    "eval_spot": 777
+  },
+  "n_subjects": 322,
+  "r_cal": 20,
+  "r_eval": 30,
+  "r_spot": 15,
+  "calibration_coefs": {
+    "200/200": {
+      "config": "200/200",
+      "n_fit": 140,
+      "a": 0.04011316,
+      "b": 0.74918375,
+      "resid_sd": 0.12214954,
+      "quad_coef": 0.29809594,
+      "quad_p": 0.29732611
+    },
+    "200/100": {
+      "config": "200/100",
+      "n_fit": 140,
+      "a": -0.01501294,
+      "b": 0.93779261,
+      "resid_sd": 0.15986168,
+      "quad_coef": 0.08118891,
+      "quad_p": 0.83353204
+    },
+    "100/100": {
+      "config": "100/100",
+      "n_fit": 137,
+      "a": 0.03438428,
+      "b": 0.75703629,
+      "resid_sd": 0.21564007,
+      "quad_coef": -0.11426637,
+      "quad_p": 0.80902806
+    }
+  },
+  "criteria_main": {
+    "100/100": {
+      "config": "100/100",
+      "a_gap_bias": false,
+      "a_gap_coverage": true,
+      "a_gap_positive": true,
+      "b_null_gap_bias": false,
+      "b_null_gap_ci_zero": true,
+      "c_zerosens_median": true,
+      "d_dconf_spurious": true,
+      "e_convergence": true,
+      "f_ci_honesty": true,
+      "all_pass": false
+    },
+    "200/100": {
+      "config": "200/100",
+      "a_gap_bias": false,
+      "a_gap_coverage": true,
+      "a_gap_positive": true,
+      "b_null_gap_bias": true,
+      "b_null_gap_ci_zero": true,
+      "c_zerosens_median": true,
+      "d_dconf_spurious": true,
+      "e_convergence": true,
+      "f_ci_honesty": true,
+      "all_pass": false
+    },
+    "200/200": {
+      "config": "200/200",
+      "a_gap_bias": true,
+      "a_gap_coverage": true,
+      "a_gap_positive": true,
+      "b_null_gap_bias": true,
+      "b_null_gap_ci_zero": true,
+      "c_zerosens_median": true,
+      "d_dconf_spurious": true,
+      "e_convergence": true,
+      "f_ci_honesty": true,
+      "all_pass": true
+    }
+  },
+  "criteria_spot": {
+    "100/100": {
+      "config": "100/100",
+      "a_gap_bias": true,
+      "a_gap_coverage": true,
+      "a_gap_positive": true,
+      "b_null_gap_bias": true,
+      "b_null_gap_ci_zero": true,
+      "c_zerosens_median": false,
+      "d_dconf_spurious": false,
+      "e_convergence": true,
+      "f_ci_honesty": true,
+      "all_pass": false
+    },
+    "200/100": {
+      "config": "200/100",
+      "a_gap_bias": true,
+      "a_gap_coverage": true,
+      "a_gap_positive": true,
+      "b_null_gap_bias": true,
+      "b_null_gap_ci_zero": true,
+      "c_zerosens_median": true,
+      "d_dconf_spurious": true,
+      "e_convergence": true,
+      "f_ci_honesty": true,
+      "all_pass": true
+    },
+    "200/200": {
+      "config": "200/200",
+      "a_gap_bias": true,
+      "a_gap_coverage": true,
+      "a_gap_positive": true,
+      "b_null_gap_bias": true,
+      "b_null_gap_ci_zero": true,
+      "c_zerosens_median": true,
+      "d_dconf_spurious": true,
+      "e_convergence": true,
+      "f_ci_honesty": true,
+      "all_pass": true
+    }
+  },
+  "decision_tree_branch": "GATE PASSED, NARROW: memory x vision (200/200) sole confirmatory pair; other pairs descriptive with bias bands"
+}
