@@ -1,0 +1,158 @@
+{
+  "data_type": "SIMULATION",
+  "dispatch": "010 Part A",
+  "purpose": "Null-reference intervals for the RAW level-vs-sensitivity gap in the 4 selected Confidence Database studies under a true-null world (true r_level = true r_sens = rho). SIMULATION REFERENCE ONLY - not a correction, not a test; nothing in this tier is confirmatory.",
+  "design": {
+    "rho_null": [0.3, 0.45],
+    "n_rep": 500,
+    "seeds": "20260711 + rep (same sequence per study x scenario, per dispatch)",
+    "tuning": "per-task coordinate bisection (2 rounds, log-scale, common random numbers, tuning cohort n = 3000 ) of trait SDs so simulated odd/even Spearman-Brown reliabilities match committed step11 values",
+    "thresholds": "K-1 equally spaced latent cuts on [-1.5, 1.5]",
+    "gate": "PASS iff achieved reliabilities within +/- 0.05 of committed targets for all 4 cells in >= 3 of 4 studies"
+  },
+  "matched_parameters": {
+    "Arbuzova_2021_expt2": {
+      "n_subjects": 41,
+      "k_scale": 6,
+      "tasks": [
+        {
+          "task": "1",
+          "n_trials": 553,
+          "p_acc": 0.7089502,
+          "mean_level": 0.57495428,
+          "mean_auroc2": 0.62073076,
+          "rel_level_target": 0.99621743,
+          "rel_auroc2_target": 0.87876076,
+          "d_base": 0.43473008,
+          "sigL": 0.74644017,
+          "sigS": 0.25942648,
+          "m": 0.23507529
+        },
+        {
+          "task": "2",
+          "n_trials": 599,
+          "p_acc": 0.7194213,
+          "mean_level": 0.59685439,
+          "mean_auroc2": 0.60781652,
+          "rel_level_target": 0.99453035,
+          "rel_auroc2_target": 0.89337525,
+          "d_base": 0.38697496,
+          "sigL": 0.57447924,
+          "sigS": 0.28024019,
+          "m": 0.32366838
+        }
+      ]
+    },
+    "Arbuzova_unpub_3": {
+      "n_subjects": 40,
+      "k_scale": 4,
+      "tasks": [
+        {
+          "task": "memory",
+          "n_trials": 185,
+          "p_acc": 0.73261247,
+          "mean_level": 0.52095415,
+          "mean_auroc2": 0.72919114,
+          "rel_level_target": 0.96960807,
+          "rel_auroc2_target": 0.61531379,
+          "d_base": 0.86319144,
+          "sigL": 0.46930929,
+          "sigS": 0.24589136,
+          "m": -0.10414314
+        },
+        {
+          "task": "visual",
+          "n_trials": 180,
+          "p_acc": 0.7135,
+          "mean_level": 0.55361111,
+          "mean_auroc2": 0.6281612,
+          "rel_level_target": 0.97705321,
+          "rel_auroc2_target": 0.75612905,
+          "d_base": 0.46242965,
+          "sigL": 0.52575331,
+          "sigS": 0.33144924,
+          "m": 0.15200951
+        }
+      ]
+    },
+    "Bang_2019_Exp2": {
+      "n_subjects": 201,
+      "k_scale": 4,
+      "tasks": [
+        {
+          "task": "1",
+          "n_trials": 100,
+          "p_acc": 0.73706468,
+          "mean_level": 0.50600332,
+          "mean_auroc2": 0.65151066,
+          "rel_level_target": 0.98702205,
+          "rel_auroc2_target": 0.78605709,
+          "d_base": 0.55069779,
+          "sigL": 1.05335203,
+          "sigS": 0.5020314,
+          "m": -0.100525
+        },
+        {
+          "task": "2",
+          "n_trials": 100,
+          "p_acc": 0.71606965,
+          "mean_level": 0.49296849,
+          "mean_auroc2": 0.64142237,
+          "rel_level_target": 0.98605819,
+          "rel_auroc2_target": 0.78692091,
+          "d_base": 0.51231772,
+          "sigL": 1.01467679,
+          "sigS": 0.47232395,
+          "m": -0.14653583
+        }
+      ]
+    },
+    "Haddara_2022_Expt1": {
+      "n_subjects": 443,
+      "k_scale": 4,
+      "tasks": [
+        {
+          "task": "1",
+          "n_trials": 330,
+          "p_acc": 0.76650934,
+          "mean_level": 0.63019586,
+          "mean_auroc2": 0.64189185,
+          "rel_level_target": 0.99589933,
+          "rel_auroc2_target": 0.90346062,
+          "d_base": 0.51409524,
+          "sigL": 0.9682419,
+          "sigS": 0.44258098,
+          "m": 0.52142405
+        },
+        {
+          "task": "2",
+          "n_trials": 150,
+          "p_acc": 0.74632054,
+          "mean_level": 0.58791071,
+          "mean_auroc2": 0.62101046,
+          "rel_level_target": 0.99230773,
+          "rel_auroc2_target": 0.79729336,
+          "d_base": 0.43576966,
+          "sigL": 1.03575158,
+          "sigS": 0.43945986,
+          "m": 0.33929515
+        }
+      ]
+    }
+  },
+  "study_pass": {
+    "Arbuzova_2021_expt2": true,
+    "Arbuzova_unpub_3": true,
+    "Bang_2019_Exp2": true,
+    "Haddara_2022_Expt1": true
+  },
+  "worst_abs_rel_dev_across_scenarios": {
+    "Arbuzova_2021_expt2": 0.01600274,
+    "Arbuzova_unpub_3": 0.01114299,
+    "Bang_2019_Exp2": 0.02150485,
+    "Haddara_2022_Expt1": 0.00779692
+  },
+  "gate": "PASS",
+  "r_version": "R version 4.6.1 (2026-06-24 ucrt)",
+  "run_utc": "2026-07-11 07:10:09 UTC"
+}
