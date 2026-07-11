@@ -2,149 +2,190 @@
 
 <!-- Written by Claude Code after completing each dispatch. Cowork reads this to plan next steps. Overwrite the placeholder sections below; keep the section headings. -->
 
-**Status:** COMPLETE — **Step 4 GATE PASSED → real-data decomposition run**; figures done; all pushed
-**Dispatch #:** 008
+**Status:** COMPLETE — CD fetched + 361/361 VERIFIED; 4 studies SELECTED mechanically; measures + reliabilities in; **firewall held (zero cross-task quantities)**; pushed
+**Dispatch #:** 009
 **Date:** 2026-07-10
 
 ## What was done
 
-All four parts, in order. Part A (gate) PASSED cleanly, so Part B ran; Parts
-C and D unconditional as dispatched.
+All five parts. Every reported number below is REALDATA-EXTERNAL (CONFDB),
+VERIFIED (computed this run from md5-verified files by committed code) and
+lives in a results/ CSV.
 
-**Part A — gate (SIMULATION):** all 50 replicates (5 cells × 10, seeds
-20260711–20260720 per cell) converged at rung **M1** — the ladder never
-fired. Recovery bias ≤ ~0.05 per component per cell (criterion ≤ 0.10);
-leakage across matched cell pairs ≤ 0.001 (criterion ≤ 0.10); sign of
-Δ_ICC correct 10/10 in all three binding cells. **GATE: PASS on all four
-criteria.** Ipsative exhibit, (0.5, 0.5) cell: naive mean-subtraction
-manufactures mean centered r = **−0.310** (theory ≈ −1/3) while the same
-data's LMM recovers 0.492/0.516 — the paper's methods exhibit, now with
-simulated ground truth behind it.
+**Part A — fetch + provenance (`analysis/11_confdb_fetch.R`):** OSF project
+s46pr enumerated via the OSF v2 API ("Confidence Database" folder + root
+`Database_Information.xlsx`). **No registered/versioned snapshot of the node
+exists** (registrations endpoint returns empty — recorded in the provenance
+JSON), so the pin is: access timestamp (2026-07-10 UTC), each file's
+OSF-reported md5/sha256, and each file's OSF version — **all 361 files are
+version 1**, i.e. never modified since upload. Download = each file's
+canonical `https://osf.io/download/<guid>/` link, binary mode, 2 retries
+then MISSING. Result: **361/361 VERIFIED against OSF md5s (180 data CSVs +
+180 readmes + 1 metadata sheet, 255,175,101 bytes), 0 MD5_MISMATCH, 0
+MISSING** — no MISSING rows were needed but the mechanism is in the script.
+Raw files land in `data/raw/confidence_db/` (gitignored this dispatch).
 
-**One implementation decision to audit:** the dispatch fixed the mean
-resolution slope (0.8) and said "slope SDs partitioned by ICC_sens" but
-never specified the TOTAL slope SD. I chose **0.4** (= mean/2; ~2% of
-person-domain slopes negative), documented it in the meta JSON, and did not
-treat it as preregistered. If you want a different magnitude the gate is
-cheap to rerun (5 min total).
+**Part B — inventory (`analysis/12_confdb_inventory.R`):** all **180 study
+CSVs parsed, 0 parse failures, 0 encoding fixes needed**. Inventory records
+structure only: columns vs the CD standard, n rows/subjects, task-like
+column (exact `Task` preferred, else name containing "task"), per
+subject(-task) trial counts, observed confidence scale (n distinct, range,
+integer flag, % missing), accuracy mechanism (0/1 `Accuracy` column, else
+`Stimulus`==`Response` equality, else none), training column + its observed
+values. 13 studies have zero mechanically-usable clean trials — all are
+genuine oddball formats, RECORDED not repaired (see Issues #3).
 
-**Part B — real data (gate-conditional):** primary trial set, step-1
-qualifying subject-domains (322 subjects, 1,281 subject-domains, 182,892
-trials; 341 trials in non-qualifying subject-domains dropped). Note on one
-ambiguity: the dispatch said subject-domains "exactly those present in
-step1 primary rows" — I read "present" as the step-1 QUALIFYING set (the
-non-qualifying rows have NA measures and were excluded from every prior
-analysis; including them would be the new exclusion decision). Point fit
-landed on **M1, converged, non-singular** — no ladder rung was ever used on
-real data either. Bootstrap ran at full **B = 500** (5 s/fit, projected
-0.7 h — no downgrade), **0 failed, 0 escalated**.
+**Part C — mechanical selection (same script, separate output):** funnel
+**180 files → 180 parsed → 21 multi-task within-subject → 4 pass S1 → 4
+pass S1–S4 → 4 SELECTED**: `Arbuzova_2021_expt2`, `Arbuzova_unpub_3`,
+`Bang_2019_Exp2`, `Haddara_2022_Expt1`. S2/S3 eliminated nobody that
+passed S1; **S4: the metadata sheet has NO dedicated flag/exclusion column**
+— per the dispatch it would auto-pass, but since a free-text `Notes` column
+exists I keyword-scanned it (fixed regex, in-script:
+exclud|problem|warning|caution|do not use|corrupt|erroneous|unreliable) and
+it raised **zero flags**; both facts recorded. Independent hand-check: S1
+for Bang_2019_Exp2 recomputed with fresh code (no shared helpers) = 201
+qualified subjects, matching the pipeline exactly.
 
-**Part C — figures:** both figures + underlying-data CSVs + captions
-written; every plotted value read from committed CSVs and asserted against
-the audited values (all assertions passed; no recomputation). Base-R
-graphics — no new package dependencies beyond the dispatched lme4/ordinal.
+**Part D — measures + reliabilities (`analysis/13_confdb_measures.R`):**
+**1,525 subject×task rows across 10 study-task cells** (every cell with
+≥60 clean trials; all subjects included, not just S1-qualified, so you can
+subset either way for 010). Per row: n clean trials, mean accuracy, LEVEL
+(mean confidence normalized by the study's own observed clean-trial range —
+constants recorded on every row: Arbuzova_2021_expt2 1–6, others 1–4), raw
+AUROC2 (no d′-partialing, per dispatch), same-task d′-hat (log-linear; all
+10 cells have exactly 2 stimulus values so it is defined everywhere).
+Split-half = odd/even by within-cell row order, Spearman-Brown,
+subject-bootstrap B=500.
 
-**Part D:** session-02 note committed and folded into PROGRESS.md;
-renv.lock updated with lme4 + ordinal (**Ben: run `renv::snapshot()` to
-double-check next time you're in R** — I ran it non-interactively and
-committed the result); pushed.
+**FIREWALL: HELD.** No correlation, covariance, regression, or difference
+between tasks' measures exists anywhere in this dispatch. Auditable by
+reading: `R/confdb.R` (per-file/per-cell helpers only), script 13 (every
+loop is over one study-task cell; the only cross-task-ish field anywhere is
+`best_pair_n_subjects` in the selection CSV, which is a structural count of
+subject overlap — no measure is involved). The measures CSV is one row per
+subject×task with no cross-task columns.
+
+**Part E:** `.gitignore` entry added; `git status --porcelain | grep -c
+confidence_db` = **0** (proof: no raw CD file staged); readxl added to
+renv.lock (**Ben: run `renv::snapshot()` to double-check next time you're
+in R** — I ran it non-interactively and committed the result).
 
 ## Files changed / created
 
-- `R/multilevel.R` — shared ladder/ICC/ipsative machinery
-- `analysis/08_step4_recovery_gate.R` + `results/step8_SIMULATION_step4gate_{recovery,summary}.csv`, `step8_SIMULATION_step4gate_meta.json`, `step8_SIMULATION_ipsative_exhibit.csv`
-- `analysis/09_step4_multilevel.R` + `results/step9_REALDATA_step4_multilevel.{csv,md}`, `step9_REALDATA_step4_diagnostics.csv`, `step9_REALDATA_ipsative_exhibit.csv`, `step9_REALDATA_step4_meta.json`
-- `analysis/10_landscape_figures.R` + `figures/fig_landscape.{pdf,png}`, `figures/figS_gap_vs_reliability.{pdf,png}`, `figures/fig_captions.md`, `results/fig_landscape_data.csv`, `results/figS_gap_vs_reliability_data.csv`
-- `renv.lock`; `cowork/sessions/2026-07-10-session-02.md`; `PROGRESS.md`; `cowork/DISPATCH.md`
+- `analysis/11_confdb_fetch.R` + `results/step11_CONFDB_manifest.csv`, `results/step11_CONFDB_provenance.json`
+- `R/confdb.R` (shared defensive parse + preregistered cleaning rules)
+- `analysis/12_confdb_inventory.R` + `results/step11_CONFDB_inventory.csv`, `results/step11_CONFDB_selection.csv`
+- `analysis/13_confdb_measures.R` + `results/step11_CONFDB_measures.csv`, `results/step11_CONFDB_reliability.csv`
+- `.gitignore` (data/raw/confidence_db/), `renv.lock` (readxl)
+- `cowork/REPORT.md`, `PROGRESS.md`, `cowork/DISPATCH.md` (docs commit)
 
 ## Commits
 
-- `b8f1d93` — docs: dispatch 008 from Cowork + session-02 note + PROGRESS fold-in
-- `be8d904` — chore: renv lockfile (lme4, ordinal)
-- `d91967a` — feat: Part A gate — **GATE PASSED**
-- `01c2b8e` — feat: Part C figures
-- `a60304c` — feat: Part B multilevel decomposition
-- final `docs:` commit — this report + session-log line (pushed; = origin/master HEAD when you audit)
+- `87bf01d` — chore: readxl in renv lockfile
+- `1b2b4e4` — feat: Part A fetch + provenance
+- `99ba813` — feat: Parts B+C inventory + selection
+- `1dededa` — feat: Part D measures + reliabilities
+- final `docs:` commit — this report + PROGRESS log line + the 009 dispatch text (pushed; = origin/master HEAD when you audit)
 
 ## Results
 
-All labeled per BRIEF §3. Tier: **STEP4_MULTILEVEL (preregistered,
-NON-CONFIRMATORY)** — variance-share estimand, NOT the Step-3 latent gap;
-nothing re-tests 006.
+**Selected studies (all pass S1–S4; numbers from the selection CSV):**
 
-**PRIMARY decomposition (REALDATA, rung M1, cluster bootstrap B=500):**
+| Study | Tasks (qualifying) | N subj total | S1 qualified | Best pair N | Conf scale (observed) |
+|---|---|---|---|---|---|
+| Arbuzova_2021_expt2 | skittles-trajectories × skittles-angles (Task 1×2) | 43 | 41 | 41 | 1–6, 6 values |
+| Arbuzova_unpub_3 | memory, motor, visual, visuomotor | 41 | 40 | 40 (memory×visual) | 1–4, 4 values |
+| Bang_2019_Exp2 | coarse × fine Gabor discrimination (Task 1×2) | 201 | 201 | 201 | 1–4, 4 values |
+| Haddara_2022_Expt1 | letter (X/O) × color (red/blue) grids (Task 1×2) | 443 | 443 | 443 | 1–4, 4 values |
 
-| Quantity | Estimate | 95% CI |
-|---|---|---|
-| ICC_level (person-general share of set-point variance) | 0.44 | [0.37, 0.52] |
-| ICC_sens (person-general share of resolution variance) | 0.34 | [0.26, 0.42] |
-| **Δ_ICC** | **0.11** | **[0.0015, 0.21]** |
+All four use `Stimulus`==`Response` accuracy (no usable Accuracy column;
+readmes confirm identical 1/2 coding of Stimulus and Response in each).
+Mean accuracy per cell 0.70–0.77 (staircased or difficulty-matched
+designs), d′-hat 1.1–1.6 — all sensible.
 
-The preregistered wording branch fired on "CI excludes zero," and the MD
-states it with hedges as required. **BUT — adversarial flag, read before
-using this:** the exclusion margin is 0.0015, SMALLER than the Monte-Carlo
-error of a B=500 percentile bound (analytically ~±0.006 under a normal
-approximation to the bootstrap draws, SE ≈ 0.053). A different bootstrap
-seed could put the bound on either side of zero. The honest presentation is
-"Δ_ICC ≈ 0.11, boundary-significant — zero is at the very edge of the
-interval," not "excludes zero." I recommend the paper treat this as
-directionally consistent with 006's +0.11 point estimate (a nice
-parallelism: two different estimands, same magnitude, same
-can't-quite-exclude-zero verdict) rather than as a standalone positive. If
-you want to lean on the exclusion, dispatch a higher-B verification run
-(B=2000 ≈ 2.7 h) — do NOT quietly reuse this one.
+**Reliability headlines (split-half SB, 95% subject-bootstrap CI; full
+table in `results/step11_CONFDB_reliability.csv`):**
 
-**Variance components (full precision in CSV):** set-point: person 0.276
-[0.207, 0.352] vs person×domain 0.347 [0.304, 0.389]; resolution slope:
-person 0.088 [0.062, 0.119] vs person×domain 0.173 [0.143, 0.205];
-residual 2.89.
+- **LEVEL: 0.97–1.00 in all 10 cells.** Floor of the 20 CI bounds: 0.94.
+- **AUROC2: 0.62–0.90.** Weakest: Arbuzova_unpub_3 memory 0.62 [0.25,
+  0.80] (~186 trials); strongest: Haddara task 1 0.90 [0.88, 0.92] (330
+  trials). Bang (100 trials/task): 0.79 both tasks.
 
-**Robustness:** R1 (z within domain): 0.44 / 0.36 — consistent. R2
-(ordinal clmm, COMPLETED within cap): 0.43 / 0.32 — consistent. The
-decomposition is not a raw-scale or Gaussian artifact.
+The Lund pattern — level reliability at ceiling, sensitivity reliability
+substantially lower and trial-count-bound — **reproduces across all four
+external studies before any contrast is computed.** The 60-trial floor
+priced in by the dispatch shows up exactly as expected (Bang/Arbuzova cells
+sit lower than Haddara's 330-trial cell).
 
-**Exploratory diagnostics (the standing d′ caution, quantified):** subject
-slope-BLUPs correlate with mean d′-hat at r = 0.43 [0.33, 0.51];
-subject-domain slope-BLUPs with matched d′-hat at r = 0.39 [0.34, 0.43].
-The resolution slope substantially tracks type-1 performance — one more
-reason it must never be presented as AUROC2-style sensitivity.
-
-**Ipsative exhibits (sim + real, methods only):** simulation (planted
-0.5/0.5): naive centered correlations mean −0.310 vs theory −1/3, LMM
-recovers the truth. Real data: centered correlations range −0.667
-(memory×vision!) to +0.083, mean −0.298. The prior project's "domain-general
-bias ≈ −0.39 within-subject" number now has a complete, quantified
-explanation sitting in two CSVs.
-
-**Figures:** `fig_landscape` (six pairs, CI whiskers, systematic-band
-rectangles on the five descriptive pairs, mem×vis marked CONFIRMATORY) and
-`figS_gap_vs_reliability` (labeled scatter, no line/correlation/test,
-EXPLORATORY in the title and caption). Captions in `figures/fig_captions.md`
-carry the band-is-not-a-CI warning and the vision×GDP defensive sentence.
+**Near-misses for the record (top of the S1-fail list, from the selection
+CSV):** Matthews_2019 (24 qualified subj), Xu_2019_Exp2 (21), Samaha_2017
+exp1/exp3 (20 each), Song_2011 (18), Ye_2018 (18). All fail only the
+40-subject floor. Reported for completeness — criteria stay frozen; any
+loosening is yours to re-preregister in writing.
 
 ## Issues & blockers
 
-None blocking. For the record:
-1. The Δ_ICC zero-exclusion knife-edge (above) — decision needed on
-   presentation before the manuscript.
-2. The slope-SD implementation choice in the gate (above) — auditable,
-   rerunnable.
-3. The dispatch's "CI method (both parts)" clause: I applied bootstrap CIs
-   to Part B only; Part A's gate criteria are means/counts over replicates
-   (its outputs spec lists no CIs, and 25,000 bootstrap fits inside the gate
-   would violate its own time rule). Flagging the interpretation rather
-   than silently deciding it.
-4. `setTimeLimit` was the R2 cap mechanism; clmm finished well inside it,
-   so the cap was never exercised.
+None blocking. For the audit trail:
+
+1. **Two mechanical-rule fixes made during Part B, both data-driven and
+   committed** (the first inventory run exposed them): (a) Training-column
+   rule — the CD standard says 0/1 but Desender_2014/2016 use
+   `main`/`training1`/`training2`; the initial `!=0` rule wrongly dropped
+   ALL their trials. Final rule: training iff lowercased value matches
+   `^1$|^training` (the snapshot's complete observed value sets are {0},
+   {0,1}, {main,training1,training2} — recorded in the inventory). (b) Two
+   files (Rahnev_2021, Zheng_2023_NOC) name the subject column
+   `subject_id`, not `Subj_idx` — added as the only accepted variant.
+   Neither file is multi-task; neither fix changed the funnel or selection.
+2. **Readme↔data naming mismatch (maintainer-side):** `data_Arbuzova_2021_
+   expt1/expt2.csv` have no same-named readmes; the matching descriptions
+   are `readme_Arbuzova_unpub_1/2.txt` (study published mid-database;
+   files renamed inconsistently). Structure checks were run on the DATA
+   files; the readme mapping is inferred (unpub_1 ↔ expt2 matches: 2 tasks,
+   43 subjects incl. 2 task-1-only, 6-point scale).
+3. **13 zero-clean-trial studies, all recorded as oddballs, none repaired**
+   (exact list in the inventory; verified reasons): 6 wide-format files
+   with no standard `Confidence` column (AguilarLleyda ×2, Konishi_2019,
+   Matthews_2018_exp1/exp2, Matthews_unpub — several of these ARE
+   multi-task and could be reshaped if you ever want them, but that would
+   be a new preregistered decision); Akdogan_2017 ×3, Dildine_unpub,
+   Duyan_unpub_Exp1 (continuous stimulus/response spaces, no derivable
+   binary correctness); Desender_2021_PsyRes (correctness in a nonstandard
+   `Correct` column); Desender_2016 (its `Confidence` column contains the
+   strings `easy`/`diff` — a binary difficulty judgment, not numeric
+   confidence).
+4. **Facts you'll want for the 010 preregistration:** (a) Bang_2019_Exp2
+   contains 3% catch trials (`Catch_trial` column) — the preregistered
+   cleaning does not drop them (not in the dispatch's rule set; flagged
+   rather than silently filtered) — and its readme says subjects 179–201
+   were excluded by the AUTHORS for poor performance but are present in
+   the file. (b) Haddara_2022_Expt1 has a between-subject Feedback
+   manipulation (Task 1 only; Task 2 feedback-free for everyone). (c)
+   Arbuzova_2021_expt2 has 3 conditions (visuomotor/motor/visual) NESTED
+   within each task; Arbuzova_unpub_3's motor/visuomotor "tasks" are the
+   two conditions of one skittles paradigm (readme wording) — whether they
+   count as distinct domains is an interpretation call for 010. (d)
+   Arbuzova error-marked trials arrive as NaN confidence and are dropped
+   by the missing-confidence rule automatically.
+5. S3 is partially entailed by S1 as implemented (accuracy-derivability is
+   part of the clean-trial definition, so a study with no accuracy
+   mechanism can't reach 60 clean trials); S3 still independently asserts
+   both accuracy classes occur per qualifying task. No study was decided
+   by this subtlety.
 
 ## Questions / decisions needed for planning
 
-- Presentation of Δ_ICC (knife-edge exclusion vs boundary wording vs
-  higher-B verification dispatch) — my recommendation above.
-- Step 4 is done; remaining BRIEF steps: Step 5 (Confidence DB
-  generalization — large download, stays out of git) and Step 6
-  (manuscript + claim-status table). The claim-status table now has a rich
-  set of VERIFIED rows to draw from; the parallel 0.11s (latent gap,
-  Δ_ICC) and the twin ipsative exhibits (sim + real) are, to my eye, the
-  paper's methodological core.
-- GitHub push routine held: pushed after this dispatch's commits.
+- **010 contrast prereg inputs are ready:** 4 studies, 10 study-task cells,
+  best-pair Ns 41/40/201/443, reliabilities as above. Decisions you'll
+  need to freeze: task-pair choice where >2 tasks (Arbuzova_unpub_3),
+  whether motor/visuomotor count as separate domains, Bang catch-trial and
+  author-excluded-subject handling, Haddara feedback-group handling
+  (pool/split/covariate), estimator (raw vs d′-partialed AUROC2 — d′-hats
+  are already in the measures CSV), and disattenuation presentation
+  (sensitivity range only, per BRIEF).
+- Zero-selected did NOT happen; no loosening decision needed. If you want
+  more studies, the near-miss list + the reshapeable wide-format
+  multi-task files are the two documented expansion paths (both would be
+  new preregistrations).
+- Push done; origin/master = the final docs commit below.
