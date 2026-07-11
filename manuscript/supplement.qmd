@@ -1,0 +1,174 @@
+---
+title: "Supplementary tables [PLACEHOLDER — companion to ms.qmd]"
+author: "Ben [Author]"
+date: "2026-07-11"
+format:
+  typst:
+    number-sections: false
+    toc: false
+    fontsize: 9pt
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r setup}
+#| include: false
+# Supplement — every table is rendered DIRECTLY from a committed results CSV
+# (values come from the file, not hand-typed). A few sentinel stopifnot guards
+# assert structural facts (row counts, one known value per source) so the
+# render fails if an input drifts. results/ is READ-ONLY input.
+suppressWarnings(suppressMessages(library(here)))
+res <- function(...) here::here("results", ...)
+fmt <- function(x, k = 2) formatC(as.numeric(x), format = "f", digits = k)
+ci  <- function(lo, hi, k = 2) paste0("[", fmt(lo, k), ", ", fmt(hi, k), "]")
+kb  <- function(df, cap) knitr::kable(df, caption = cap, align = "l")
+
+s7  <- read.csv(res("step7_REALDATA_descriptive.csv"), stringsAsFactors = FALSE)
+s15 <- read.csv(res("step15_CONFDB_contrast.csv"), stringsAsFactors = FALSE)
+s14 <- read.csv(res("step14_SIMULATION_confdb_nullref.csv"), stringsAsFactors = FALSE)
+r2  <- read.csv(res("step2_REALDATA_reliability.csv"), stringsAsFactors = FALSE)
+r11 <- read.csv(res("step11_CONFDB_reliability.csv"), stringsAsFactors = FALSE)
+s8i <- read.csv(res("step8_SIMULATION_ipsative_exhibit.csv"), stringsAsFactors = FALSE)
+s9i <- read.csv(res("step9_REALDATA_ipsative_exhibit.csv"), stringsAsFactors = FALSE)
+
+# sentinel guards
+stopifnot(nrow(s7) == 5L)
+stopifnot(abs(s7$rho_level[s7$pair=="vision_x_GDP"] - 0.464) < 5e-4)
+stopifnot(sum(s15$subset=="exploratory_pairs" & s15$quantity=="gap") == 6L)
+stopifnot(nrow(s14) == 8L)
+prettypair <- function(p) gsub("_x_", " x ", p)
+```
+
+# S1. Full descriptive tier (Lund, five pairs) {#sec-s1}
+
+Uncorrected latent correlations; each gap carries its frozen systematic-bias
+band. Source: `results/step7_REALDATA_descriptive.csv`.
+
+```{r}
+s1 <- data.frame(
+  Pair = prettypair(s7$pair),
+  `n (both / complete)` = paste0(s7$n_both, " / ", s7$n_complete),
+  `rho_level [95% CI]` = paste0(fmt(s7$rho_level), " ", ci(s7$rho_level_lo, s7$rho_level_hi)),
+  `rho_sens (uncorr.) [95% CI]` = paste0(fmt(s7$rho_sens_uncorrected), " ", ci(s7$rho_sens_lo, s7$rho_sens_hi)),
+  `gap [95% CI]` = paste0(fmt(s7$gap_uncorrected), " ", ci(s7$gap_lo, s7$gap_hi)),
+  band = paste0("+/-", fmt(s7$bias_band, 2)),
+  check.names = FALSE, stringsAsFactors = FALSE)
+kb(s1, NULL)
+```
+
+# S2. Arbuzova_unpub_3 — all six pairs (EXPLORATORY) {#sec-s2}
+
+Exploratory. Motor and visuomotor are two conditions of one skittles
+paradigm, so only memory × visual is a clean cross-domain pair. Source:
+`results/step15_CONFDB_contrast.csv` (subset `exploratory_pairs`).
+
+```{r}
+ex <- s15[s15$subset == "exploratory_pairs", ]
+pairs <- unique(ex$pair)
+getq <- function(p, q, col) ex[[col]][ex$pair == p & ex$quantity == q]
+s2 <- data.frame(
+  Pair = pairs,
+  n = sapply(pairs, function(p) unique(ex$n_subjects[ex$pair == p])),
+  `r_level [95% CI]` = sapply(pairs, function(p) paste0(fmt(getq(p,"r_level","estimate"))," ",ci(getq(p,"r_level","ci_lo"),getq(p,"r_level","ci_hi")))),
+  `r_sens [95% CI]` = sapply(pairs, function(p) paste0(fmt(getq(p,"r_sens","estimate"))," ",ci(getq(p,"r_sens","ci_lo"),getq(p,"r_sens","ci_hi")))),
+  `gap [95% CI]` = sapply(pairs, function(p) paste0(fmt(getq(p,"gap","estimate"))," ",ci(getq(p,"gap","ci_lo"),getq(p,"gap","ci_hi")))),
+  check.names = FALSE, stringsAsFactors = FALSE, row.names = NULL)
+kb(s2, NULL)
+```
+
+# S3. Confidence Database secondaries {#sec-s3}
+
+Bang catch-inclusion and author-exclusion variants, Haddara feedback-group
+heterogeneity check, and Spearman (scale-robustness) and un-partialed
+(d′-confound exhibit) correlations. No tests; side-by-side reporting only.
+Source: `results/step15_CONFDB_contrast.csv`.
+
+```{r}
+subs <- s15[s15$subset %in% c("B-s1","B-s2","H-s1_feedback","H-s1_no_feedback"), ]
+units <- unique(subs$subset)
+gq <- function(u,q,col) subs[[col]][subs$subset==u & subs$quantity==q]
+s3a <- data.frame(
+  Unit = c("B-s1 (Bang, catch-included)","B-s2 (Bang, no author-excluded 179-201)",
+           "H-s1 feedback (Haddara Task-1 feedback)","H-s1 no-feedback (Haddara Task-1 no-fb)"),
+  n = sapply(units, function(u) unique(subs$n_subjects[subs$subset==u])),
+  `r_level [95% CI]` = sapply(units, function(u) paste0(fmt(gq(u,"r_level","estimate"))," ",ci(gq(u,"r_level","ci_lo"),gq(u,"r_level","ci_hi")))),
+  `r_sens [95% CI]` = sapply(units, function(u) paste0(fmt(gq(u,"r_sens","estimate"))," ",ci(gq(u,"r_sens","ci_lo"),gq(u,"r_sens","ci_hi")))),
+  `gap [95% CI]` = sapply(units, function(u) paste0(fmt(gq(u,"gap","estimate"))," ",ci(gq(u,"gap","ci_lo"),gq(u,"gap","ci_hi")))),
+  check.names = FALSE, stringsAsFactors = FALSE, row.names = NULL)
+kb(s3a, "S3a. Bang/Haddara subset variants.")
+
+studies <- c("Arbuzova_2021_expt2","Arbuzova_unpub_3","Bang_2019_Exp2","Haddara_2022_Expt1")
+sp <- s15[s15$subset=="primary" & s15$tier=="SECONDARY", ]
+gsp <- function(st,q,col) sp[[col]][sp$study==st & sp$quantity==q]
+s3b <- data.frame(
+  Study = studies,
+  `Spearman r_level [95% CI]` = sapply(studies,function(s) paste0(fmt(gsp(s,"r_level_spearman","estimate"))," ",ci(gsp(s,"r_level_spearman","ci_lo"),gsp(s,"r_level_spearman","ci_hi")))),
+  `Spearman r_sens [95% CI]` = sapply(studies,function(s) paste0(fmt(gsp(s,"r_sens_spearman","estimate"))," ",ci(gsp(s,"r_sens_spearman","ci_lo"),gsp(s,"r_sens_spearman","ci_hi")))),
+  `r_sens_raw (un-partialed) [95% CI]` = sapply(studies,function(s) paste0(fmt(gsp(s,"r_sens_raw","estimate"))," ",ci(gsp(s,"r_sens_raw","ci_lo"),gsp(s,"r_sens_raw","ci_hi")))),
+  check.names = FALSE, stringsAsFactors = FALSE, row.names = NULL)
+kb(s3b, "S3b. Scale-robustness (Spearman) and the d'-confound exhibit (un-partialed r_sens).")
+```
+
+# S4. Null-reference simulation: achieved vs. target reliabilities {#sec-s4}
+
+The per-study SIMULATION null-reference gate matched each study's split-half
+reliabilities; the table shows achieved vs. target and the resulting
+true-null raw-gap interval. Gate PASS: worst reliability deviation 0.022.
+Source: `results/step14_SIMULATION_confdb_nullref.csv`.
+
+```{r}
+s4 <- data.frame(
+  Study = s14$study,
+  `rho_null` = fmt(s14$rho_null, 2),
+  `rel level a (ach/tgt)` = paste0(fmt(s14$achieved_rel_level_a,3),"/",fmt(s14$target_rel_level_a,3)),
+  `rel AUROC2 a (ach/tgt)` = paste0(fmt(s14$achieved_rel_auroc2_a,3),"/",fmt(s14$target_rel_auroc2_a,3)),
+  `rel level b (ach/tgt)` = paste0(fmt(s14$achieved_rel_level_b,3),"/",fmt(s14$target_rel_level_b,3)),
+  `rel AUROC2 b (ach/tgt)` = paste0(fmt(s14$achieved_rel_auroc2_b,3),"/",fmt(s14$target_rel_auroc2_b,3)),
+  `max abs dev` = fmt(s14$max_abs_rel_dev, 3),
+  `null raw-gap [2.5%, 97.5%]` = ci(s14$gap_raw_null_lo, s14$gap_raw_null_hi),
+  check.names = FALSE, stringsAsFactors = FALSE)
+kb(s4, NULL)
+```
+
+# S5. Reliability tables {#sec-s5}
+
+```{r}
+sh <- r2[r2$kind=="splithalf_SB", ]
+s5a <- data.frame(
+  Domain = sh$domain, Measure = sh$measure,
+  `reliability [95% CI]` = paste0(fmt(sh$reliability)," ",ci(sh$ci_lo, sh$ci_hi)),
+  n = sh$n_subjects, check.names = FALSE, stringsAsFactors = FALSE, row.names = NULL)
+kb(s5a, "S5a. Lund split-half (Spearman-Brown) reliabilities. Source: step2_REALDATA_reliability.csv.")
+
+s5b <- data.frame(
+  Study = r11$study, Task = r11$task, Measure = r11$measure,
+  `reliability [95% CI]` = paste0(fmt(r11$rel_sb)," ",ci(r11$ci_lo, r11$ci_hi)),
+  n = r11$n_subjects, check.names = FALSE, stringsAsFactors = FALSE, row.names = NULL)
+kb(s5b, "S5b. Confidence Database odd/even (Spearman-Brown) reliabilities. Source: step11_CONFDB_reliability.csv.")
+```
+
+# S6. Ipsative artifact exhibit (METHODS EXHIBIT — never evidence) {#sec-s6}
+
+The naive grand-mean-centered within-subject correlations that the
+non-ipsative multilevel model exists to avoid: manufactured negativity in
+real data and in matched simulation under a planted null. Sources:
+`results/step9_REALDATA_ipsative_exhibit.csv`,
+`results/step8_SIMULATION_ipsative_exhibit.csv`.
+
+```{r}
+s6a <- data.frame(
+  Pair = prettypair(paste0(s9i$domain_a,"_x_",s9i$domain_b)),
+  `naive centred r (real)` = fmt(s9i$r_centered, 3),
+  check.names = FALSE, stringsAsFactors = FALSE)
+kb(s6a, "S6a. Real-data naive-centred correlations (memory x vision -0.667 ... Calories x GDP 0.083).")
+
+# simulation: mean over replicates per pair
+agg <- aggregate(r_centered ~ domain_a + domain_b, data = s8i, FUN = mean)
+s6b <- data.frame(
+  Pair = prettypair(paste0(agg$domain_a,"_x_",agg$domain_b)),
+  `naive centred r (sim, mean over 10 reps)` = fmt(agg$r_centered, 3),
+  check.names = FALSE, stringsAsFactors = FALSE)
+kb(s6b, "S6b. Simulation planted-null naive-centred correlations (mechanical expectation ~ -1/3 for four exchangeable domains).")
+```
