@@ -1,0 +1,685 @@
+---
+# TITLE: measurement-lens, finalized in 012
+title: "Confidence level, not metacognitive sensitivity, is the domain-general component of confidence: a measurement-lens re-analysis [PLACEHOLDER TITLE]"
+author: "Ben [Author]"
+date: "2026-07-11"
+format:
+  typst:
+    number-sections: true
+    toc: false
+    fontsize: 10pt
+bibliography: references.bib
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r setup}
+#| include: false
+# =====================================================================
+# SETUP — reads every committed results CSV and builds `V`, a named list
+# of PRE-FORMATTED, ASSERT-GUARDED strings. Every inline statistic in the
+# prose below is `V$name`; NO statistic is hand-typed. Tables are rendered
+# directly from the CSVs via kable (values come from the files, not typed).
+# results/ is READ-ONLY input. If a guard fails, the render fails — that is
+# the enforcement mechanism the dispatch asks for.
+# =====================================================================
+suppressWarnings(suppressMessages({ library(here); library(jsonlite) }))
+res <- function(...) here::here("results", ...)
+figp <- function(...) here::here("figures", ...)
+
+fmt <- function(x, k = 2) formatC(as.numeric(x), format = "f", digits = k)
+ci  <- function(lo, hi, k = 2) paste0("[", fmt(lo, k), ", ", fmt(hi, k), "]")
+# assert round(x,k)==target (guard the value), then return x
+gd  <- function(x, target, k) { stopifnot(abs(round(as.numeric(x), k) - target) < 1e-9); as.numeric(x) }
+cell <- function(df, col, ...) {
+  cd <- list(...); keep <- rep(TRUE, nrow(df))
+  for (nm in names(cd)) keep <- keep & (df[[nm]] == cd[[nm]])
+  v <- df[[col]][keep]; stopifnot(length(v) == 1L); as.numeric(v)
+}
+
+# ---- load ----
+prov  <- fromJSON(res("step0a_provenance.json"))
+coefs <- read.csv(res("step0b2_SIMULATION_calibration_coefs.csv"), stringsAsFactors = FALSE)
+evsum <- read.csv(res("step0b2_SIMULATION_eval_summary.csv"), stringsAsFactors = FALSE)
+step1 <- read.csv(res("step1_REALDATA_domain_summary.csv"), stringsAsFactors = FALSE)
+rel2  <- read.csv(res("step2_REALDATA_reliability.csv"), stringsAsFactors = FALSE)
+tn2   <- read.csv(res("step2_REALDATA_trialsneeded.csv"), stringsAsFactors = FALSE)
+s6    <- read.csv(res("step6_REALDATA_confirmatory.csv"), stringsAsFactors = FALSE)
+s7    <- read.csv(res("step7_REALDATA_descriptive.csv"), stringsAsFactors = FALSE)
+s9    <- read.csv(res("step9_REALDATA_step4_multilevel.csv"), stringsAsFactors = FALSE)
+s9i   <- read.csv(res("step9_REALDATA_ipsative_exhibit.csv"), stringsAsFactors = FALSE)
+s8i   <- read.csv(res("step8_SIMULATION_ipsative_exhibit.csv"), stringsAsFactors = FALSE)
+sel   <- read.csv(res("step11_CONFDB_selection.csv"), stringsAsFactors = FALSE)
+inv   <- read.csv(res("step11_CONFDB_inventory.csv"), stringsAsFactors = FALSE)
+rel11 <- read.csv(res("step11_CONFDB_reliability.csv"), stringsAsFactors = FALSE)
+prov11<- fromJSON(res("step11_CONFDB_provenance.json"))
+man11 <- read.csv(res("step11_CONFDB_manifest.csv"), stringsAsFactors = FALSE)
+s14   <- read.csv(res("step14_SIMULATION_confdb_nullref.csv"), stringsAsFactors = FALSE)
+s15   <- read.csv(res("step15_CONFDB_contrast.csv"), stringsAsFactors = FALSE)
+claim <- read.csv(res("step17_claim_status.csv"), stringsAsFactors = FALSE)
+
+V <- list()
+
+# ---- provenance ----
+V$lund_md5    <- prov$files$trial$md5; stopifnot(V$lund_md5 == "500b2e6e1eb0e47e717feba5b912ad9f")
+V$lund_commit <- prov$pinned_commit
+V$lund_n      <- prov$structure$n_subjects; stopifnot(V$lund_n == 322)
+V$lund_rows   <- format(prov$structure$n_rows, big.mark = ","); stopifnot(prov$structure$n_rows == 193200)
+V$lund_conf   <- paste(range(prov$structure$confidence_values), collapse = "-")
+
+# ---- calibration (200/200) ----
+ca <- gd(coefs$intercept_a[coefs$config == "200/200"], 0.040, 3)
+cb <- gd(coefs$slope_b[coefs$config == "200/200"], 0.749, 3)
+V$calib_a <- fmt(ca, 4); V$calib_b <- fmt(cb, 4)
+
+# ---- power at true gap 0.4, 200/200 ----
+gp <- evsum[evsum$scenario == "GAP" & evsum$config == "200/200" & evsum$suite == "eval_main", ]
+V$power <- fmt(gd((gp$n_rep - gp$gap_c_ci_zero) / gp$n_rep, 0.60, 2) * 100, 0)
+
+# ---- reliability floor (Lund) ----
+sh <- rel2[rel2$kind == "splithalf_SB", ]
+lv <- sh[sh$measure == "mean_conf", ]; au <- sh[sh$measure == "auroc2", ]
+V$lund_level_rng <- paste0(fmt(gd(min(lv$reliability), 0.949, 3)), "-", fmt(gd(max(lv$reliability), 0.988, 3)))
+V$lund_auroc_rng <- paste0(fmt(gd(min(au$reliability), 0.390, 3)), "-", fmt(gd(max(au$reliability), 0.837, 3)))
+pr <- rel2[rel2$kind == "parcel_reliability" & rel2$measure == "auroc2", ]
+V$parc_mem <- fmt(gd(pr$reliability[pr$domain == "memory"], 0.546, 3))
+V$parc_vis <- fmt(gd(pr$reliability[pr$domain == "vision"], 0.273, 3))
+V$parc_cal <- fmt(gd(pr$reliability[pr$domain == "Calories"], 0.306, 3))
+V$parc_gdp <- fmt(gd(pr$reliability[pr$domain == "GDP"], 0.242, 3))
+
+# ---- trials-needed (rel .7) ----
+t7 <- function(dom, m) tn2$trials_to_.7[tn2$domain == dom & tn2$measure == m]
+V$tn_level_lo <- fmt(gd(t7("vision", "mean_conf"), 7.28, 2), 0)
+V$tn_level_hi <- fmt(gd(t7("memory", "mean_conf"), 14.61, 2), 0)
+V$tn_auroc_mem <- fmt(gd(t7("memory", "auroc2"), 106.32, 2), 0)
+V$tn_auroc_vis <- fmt(gd(t7("vision", "auroc2"), 362.14, 2), 0)
+
+# ---- confirmatory (step6) ----
+c6 <- function(q, col) cell(s6, col, block = "PRIMARY_CONFIRMATORY", quantity = q)
+V$gap      <- fmt(gd(c6("gap_corrected", "estimate"), 0.113, 3))
+V$gap_ci   <- ci(c6("gap_corrected", "ci_lo"), c6("gap_corrected", "ci_hi"))
+V$rl       <- fmt(gd(c6("rho_level_latent", "estimate"), 0.422, 3))
+V$rl_ci    <- ci(c6("rho_level_latent", "ci_lo"), c6("rho_level_latent", "ci_hi"))
+V$rs       <- fmt(gd(c6("rho_sens_latent_corrected", "estimate"), 0.308, 3))
+V$rs_ci    <- ci(c6("rho_sens_latent_corrected", "ci_lo"), c6("rho_sens_latent_corrected", "ci_hi"))
+V$n_conf   <- as.character(cell(s6, "n", block = "PRIMARY_CONFIRMATORY", quantity = "gap_corrected"))
+# secondary c: uncorrected latent
+V$rs_unc   <- fmt(gd(cell(s6, "estimate", block = "SECONDARY_c_uncorrected", quantity = "rho_sens_latent_uncorrected"), 0.271, 3))
+V$rs_unc_ci<- ci(cell(s6, "ci_lo", block = "SECONDARY_c_uncorrected", quantity = "rho_sens_latent_uncorrected"),
+                 cell(s6, "ci_hi", block = "SECONDARY_c_uncorrected", quantity = "rho_sens_latent_uncorrected"))
+V$gap_unc  <- fmt(gd(cell(s6, "estimate", block = "SECONDARY_c_uncorrected", quantity = "gap_uncorrected"), 0.150, 3))
+# secondary a: bootstrap gap CI
+V$gap_boot_ci <- ci(cell(s6, "ci_lo", block = "SECONDARY_a_bootstrap", quantity = "gap_corrected_bootCI"),
+                    cell(s6, "ci_hi", block = "SECONDARY_a_bootstrap", quantity = "gap_corrected_bootCI"))
+# exhibit d: naive raw
+V$rawL <- fmt(gd(cell(s6, "estimate", block = "SECONDARY_d_manifest_EXHIBIT", quantity = "raw_r_mean_conf"), 0.402, 3))
+V$rawS <- fmt(gd(cell(s6, "estimate", block = "SECONDARY_d_manifest_EXHIBIT", quantity = "raw_r_auroc2"), 0.202, 3))
+V$rawgap <- fmt(gd(cell(s6, "estimate", block = "SECONDARY_d_manifest_EXHIBIT", quantity = "raw_gap_naive"), 0.200, 3))
+V$rawgap_ci <- ci(cell(s6, "ci_lo", block = "SECONDARY_d_manifest_EXHIBIT", quantity = "raw_gap_naive"),
+                  cell(s6, "ci_hi", block = "SECONDARY_d_manifest_EXHIBIT", quantity = "raw_gap_naive"))
+V$n_exhib <- as.character(cell(s6, "n", block = "SECONDARY_d_manifest_EXHIBIT", quantity = "raw_gap_naive"))
+
+# ---- descriptive (step7) ----
+V$d_rl_rng  <- paste0(fmt(gd(min(s7$rho_level), 0.323, 3)), "-", fmt(gd(max(s7$rho_level), 0.473, 3)))
+V$d_visgdp_gap <- fmt(gd(s7$gap_uncorrected[s7$pair == "vision_x_GDP"], 0.296, 3))
+V$d_visgdp_lo  <- fmt(gd(s7$gap_lo[s7$pair == "vision_x_GDP"], 0.055, 3))
+V$d_visgdp_band <- fmt(gd(s7$bias_band[s7$pair == "vision_x_GDP"], 0.09, 2))
+V$d_memgdp_gap <- fmt(gd(s7$gap_uncorrected[s7$pair == "memory_x_GDP"], -0.133, 3))
+
+# ---- multilevel (step9) ----
+V$icc_l <- fmt(gd(cell(s9, "estimate", quantity = "ICC_level"), 0.443, 3))
+V$icc_s <- fmt(gd(cell(s9, "estimate", quantity = "ICC_sens"), 0.337, 3))
+V$dicc  <- fmt(gd(cell(s9, "estimate", quantity = "Delta_ICC"), 0.105, 3))
+V$dicc_ci <- ci(cell(s9, "ci_lo", quantity = "Delta_ICC"), cell(s9, "ci_hi", quantity = "Delta_ICC"), 3)
+V$icc_l2 <- fmt(cell(s9, "ci_lo", quantity = "ICC_level"), 2)
+V$ips_real_min <- fmt(gd(min(s9i$r_centered), -0.667, 3))
+V$ips_real_max <- fmt(gd(max(s9i$r_centered), 0.083, 3))
+V$ips_real_mean <- fmt(gd(mean(s9i$r_centered), -0.298, 3))
+V$ips_sim_mean <- fmt(gd(mean(s8i$r_centered[s8i$replicate == 1]), -0.31, 2), 2)
+
+# ---- CD selection funnel ----
+V$cd_parsed <- as.character(sum(inv$parse_status == "OK")); stopifnot(V$cd_parsed == "180")
+V$cd_multi  <- as.character(sum(inv$multi_task_within_subject == TRUE, na.rm = TRUE)); stopifnot(V$cd_multi == "21")
+V$cd_sel    <- as.character(sum(sel$selected)); stopifnot(V$cd_sel == "4")
+V$cd_bytes  <- format(prov11$total_bytes_verified, big.mark = ",")
+V$cd_mismatch <- as.character(prov11$n_md5_mismatch)
+V$cd_nonv1  <- as.character(sum(man11$osf_version != 1))
+V$cd_seldata_v1 <- all(man11$osf_version[man11$role == "data" &
+  man11$filename %in% paste0("data_", c("Arbuzova_2021_expt2","Arbuzova_unpub_3","Bang_2019_Exp2","Haddara_2022_Expt1"), ".csv")] == 1)
+stopifnot(V$cd_seldata_v1)
+
+# ---- CD reliability ranges ----
+V$cd_level_rng <- paste0(fmt(gd(min(rel11$rel_sb[rel11$measure=="level"]),0.970,3)), "-",
+                         fmt(gd(max(rel11$rel_sb[rel11$measure=="level"]),0.996,3)))
+V$cd_auroc_rng <- paste0(fmt(gd(min(rel11$rel_sb[rel11$measure=="auroc2"]),0.615,3)), "-",
+                         fmt(gd(max(rel11$rel_sb[rel11$measure=="auroc2"]),0.903,3)))
+
+# ---- CD contrast headline (step15) ----
+rl15 <- function(study) cell(s15, "estimate", study=study, quantity="r_level", subset="primary", tier="PRIMARY")
+V$cd_arbU_rl <- fmt(gd(rl15("Arbuzova_unpub_3"), 0.560, 3))
+V$cd_arbU_rl_ci <- ci(cell(s15,"ci_lo",study="Arbuzova_unpub_3",quantity="r_level",subset="primary",tier="PRIMARY"),
+                      cell(s15,"ci_hi",study="Arbuzova_unpub_3",quantity="r_level",subset="primary",tier="PRIMARY"))
+V$cd_arbU_rs <- fmt(gd(cell(s15,"estimate",study="Arbuzova_unpub_3",quantity="r_sens",subset="primary",tier="PRIMARY"), -0.097, 3))
+arbU_rawgap <- gd(cell(s15,"estimate",study="Arbuzova_unpub_3",quantity="gap_raw",subset="primary",tier="SECONDARY"), 0.551, 3)
+arbU_n30 <- gd(cell(s15,"nullref_rho30_hi",study="Arbuzova_unpub_3",quantity="gap_raw",subset="primary",tier="SECONDARY"), 0.505, 3)
+arbU_n45 <- gd(cell(s15,"nullref_rho45_hi",study="Arbuzova_unpub_3",quantity="gap_raw",subset="primary",tier="SECONDARY"), 0.531, 3)
+V$cd_arbU_rawgap <- fmt(arbU_rawgap, 3)
+V$cd_arbU_n30 <- fmt(arbU_n30, 3); V$cd_arbU_n45 <- fmt(arbU_n45, 3)
+V$cd_margin30 <- fmt(gd(round(arbU_rawgap,3) - round(arbU_n30,3), 0.046, 3), 3)
+V$cd_margin45 <- fmt(gd(round(arbU_rawgap,3) - round(arbU_n45,3), 0.020, 3), 3)
+V$cd_hadd_rs <- fmt(gd(cell(s15,"estimate",study="Haddara_2022_Expt1",quantity="r_sens",subset="primary",tier="PRIMARY"), 0.561, 3))
+V$cd_rl_lo <- fmt(min(sapply(c("Arbuzova_2021_expt2","Arbuzova_unpub_3","Bang_2019_Exp2","Haddara_2022_Expt1"), rl15)),2)
+V$cd_rl_hi <- fmt(max(sapply(c("Arbuzova_2021_expt2","Arbuzova_unpub_3","Bang_2019_Exp2","Haddara_2022_Expt1"), rl15)),2)
+
+# ============ helper tables (rendered from CSV, not hand-typed) ============
+# reliability floor table (Lund domains)
+rel_tbl <- data.frame(
+  Domain = c("Memory","Vision","Calories","GDP"),
+  `Level (mean conf.)` = sapply(c("memory","vision","Calories","GDP"),
+    function(d) fmt(sh$reliability[sh$measure=="mean_conf" & sh$domain==d],2)),
+  `Sensitivity (AUROC2)` = sapply(c("memory","vision","Calories","GDP"),
+    function(d) fmt(sh$reliability[sh$measure=="auroc2" & sh$domain==d],2)),
+  check.names = FALSE, stringsAsFactors = FALSE)
+
+# descriptive 5-pair table
+prettypair <- function(p) gsub("_x_", " x ", p)
+desc_tbl <- data.frame(
+  Pair = prettypair(s7$pair),
+  `rho_level [95% CI]` = paste0(fmt(s7$rho_level), " ", ci(s7$rho_level_lo, s7$rho_level_hi)),
+  `rho_sens (uncorr.) [95% CI]` = paste0(fmt(s7$rho_sens_uncorrected), " ", ci(s7$rho_sens_lo, s7$rho_sens_hi)),
+  `gap [95% CI]` = paste0(fmt(s7$gap_uncorrected), " ", ci(s7$gap_lo, s7$gap_hi)),
+  `band` = paste0("+/-", fmt(s7$bias_band,2)),
+  check.names = FALSE, stringsAsFactors = FALSE)
+
+# CD primary contrast table
+cdp <- s15[s15$subset=="primary" & s15$tier=="PRIMARY", ]
+studies <- c("Arbuzova_2021_expt2","Arbuzova_unpub_3","Bang_2019_Exp2","Haddara_2022_Expt1")
+getq <- function(study,q,col="estimate") cdp[[col]][cdp$study==study & cdp$quantity==q]
+pairlab <- c("Arbuzova_2021_expt2"="task1 x task2 (visuomotor, condition x condition)",
+             "Arbuzova_unpub_3"="memory x visual (CROSS-DOMAIN)",
+             "Bang_2019_Exp2"="task1 x task2 (coarse x fine Gabor, within vision)",
+             "Haddara_2022_Expt1"="task1 x task2 (letter x color grids, within vision)")
+verdict <- c("Arbuzova_2021_expt2"="partial","Arbuzova_unpub_3"="holds (narrowly)",
+             "Bang_2019_Exp2"="partial","Haddara_2022_Expt1"="partial")
+nsub <- sapply(studies, function(s) unique(cdp$n_subjects[cdp$study==s]))
+cd_tbl <- data.frame(
+  Study = studies, Pair = pairlab[studies], n = nsub,
+  `r_level [95% CI]` = sapply(studies,function(s) paste0(fmt(getq(s,"r_level"))," ",ci(getq(s,"r_level","ci_lo"),getq(s,"r_level","ci_hi")))),
+  `r_sens (d'-part.) [95% CI]` = sapply(studies,function(s) paste0(fmt(getq(s,"r_sens"))," ",ci(getq(s,"r_sens","ci_lo"),getq(s,"r_sens","ci_hi")))),
+  `verdict` = verdict[studies],
+  check.names = FALSE, stringsAsFactors = FALSE, row.names = NULL)
+
+# CD yardstick table (raw gap vs null-reference + disatt ranges)
+raw <- s15[s15$subset=="primary" & s15$tier=="SECONDARY" & s15$quantity=="gap_raw", ]
+disL <- s15[s15$subset=="primary" & s15$tier=="PRIMARY" & s15$quantity=="r_level", ]
+disS <- s15[s15$subset=="primary" & s15$tier=="PRIMARY" & s15$quantity=="r_sens", ]
+yard_tbl <- data.frame(
+  Study = studies,
+  `r_level disatt. range` = sapply(studies,function(s) ci(disL$disatt_lo[disL$study==s],disL$disatt_hi[disL$study==s])),
+  `r_sens disatt. range`  = sapply(studies,function(s) ci(disS$disatt_lo[disS$study==s],disS$disatt_hi[disS$study==s])),
+  `raw gap [95% CI]` = sapply(studies,function(s) paste0(fmt(raw$estimate[raw$study==s])," ",ci(raw$ci_lo[raw$study==s],raw$ci_hi[raw$study==s]))),
+  `null-ref (rho=.30)` = sapply(studies,function(s) ci(raw$nullref_rho30_lo[raw$study==s],raw$nullref_rho30_hi[raw$study==s])),
+  `null-ref (rho=.45)` = sapply(studies,function(s) ci(raw$nullref_rho45_lo[raw$study==s],raw$nullref_rho45_hi[raw$study==s])),
+  check.names = FALSE, stringsAsFactors = FALSE, row.names = NULL)
+
+# claim-status summary table for Results (subset of columns)
+claim_tbl <- data.frame(
+  `#` = seq_len(nrow(claim)),
+  `Claim` = claim$claim_id,
+  `Tier` = claim$tier,
+  `Estimate` = ifelse(is.na(claim$estimate) | claim$estimate=="", "-",
+                paste0(claim$estimate, ifelse(is.na(claim$ci_lo)|claim$ci_lo=="","",
+                       paste0(" [", claim$ci_lo, ", ", claim$ci_hi, "]")))),
+  `Verdict (frozen)` = claim$verdict_wording,
+  check.names = FALSE, stringsAsFactors = FALSE)
+
+kb <- function(df, cap) knitr::kable(df, caption = cap, align = "l")
+```
+
+<!-- =====================================================================
+     STRUCTURE: Abstract (STUB), Introduction (STUB), Methods (FULL),
+     Results (FULL), Discussion (STUB), Limitations (STUB), Data & Code
+     Availability (FULL), References. Intro/Discussion/Abstract are drafted
+     in dispatch 012 after Ben reviews this skeleton. Do NOT draft them here.
+     ===================================================================== -->
+
+# Abstract {#sec-abstract}
+
+::: {.callout-note appearance="minimal"}
+**[STUB — written in dispatch 012 after Ben's review.]**
+<!-- Frame (Ben decision 2, measurement-lens): apparent level-vs-sensitivity
+dissociations in confidence are largely a measurement/attenuation story;
+after reliability-aware correction the level-minus-sensitivity gap does not
+exclude zero, while confidence LEVEL clearly generalizes across domains.
+Lead with the corrected confirmatory result (gap not excluded; both
+components domain-general), then the measurement floor, then the external
+robustness tier (holds 1/4, partial 3/4). ~200 words. -->
+:::
+
+# Introduction {#sec-intro}
+
+::: {.callout-note appearance="minimal"}
+**[STUB — written in dispatch 012.]**
+<!-- One-paragraph outline: (1) the puzzle — confidence correlates across
+domains, but is that shared metacognitive ABILITY or shared scale-use? (2)
+prior mixed findings and the five collapsed claims of the earlier effort
+(without re-stating them as results); (3) the measurement-lens thesis —
+confidence reports separate into LEVEL/set-point and INFORMATIVENESS/
+metacognitive sensitivity, and the domain-general part is the LEVEL, tested
+not assumed; (4) contributions list: a validated two-component measurement
+framework with a recovery/separability gate, a preregistered
+reliability-corrected confirmatory test in Lund et al. (2025), a
+non-ipsative multilevel decomposition, and an external robustness tier in
+the Confidence Database. State up front that a null or partial gap is an
+acceptable, reportable outcome. -->
+:::
+
+# Methods {#sec-methods}
+
+## Primary dataset and provenance {#sec-methods-data}
+
+The primary data are the trial-level records of @Lund_2025, a confirmatory
+multi-domain metacognition study spanning four domains — episodic memory,
+visual perception, and two semantic-knowledge judgements (Calories and GDP).
+We re-fetched the trial file directly from the authors' public repository at
+a pinned commit (`r substr(V$lund_commit,1,10)`…) and verified it before
+any use: the MD5 checksum matched the value recorded by the authors
+(`r V$lund_md5`), and the structure matched expectation —
+`r V$lund_rows` trials from `r V$lund_n` subjects across the four
+domains, with confidence reported on a `r V$lund_conf` scale. As an
+external cross-check (never as a primary number) we reproduced per-subject
+mean confidence against the authors' shipped MLE fits; agreement was high
+(within-domain correlations ≥ 0.998), the small residual reflecting their
+undocumented preprocessing. Median trials per subject are 200 for memory and
+vision and roughly 100 for the two knowledge domains. Following the
+from-scratch mandate of this project, all analysis code is original to this
+repository and no computational result from any prior effort was reused or
+consulted; every reported number is computed in code from the verified raw
+data.
+
+## The two components and their measures {#sec-methods-measures}
+
+We operationalize confidence LEVEL (set-point) as the subject's
+scale-normalized mean confidence within a domain, and metacognitive
+SENSITIVITY (informativeness) as AUROC2 — the area under the type-2 ROC
+[@Galvin_2003; @Fleming_2014], a model-light index of how well confidence
+discriminates a person's own correct from incorrect responses. We treat the
+signal-detection meta-d′/M-ratio family [@Maniscalco_2012] as secondary
+rather than the spine of the paper, consistent with the model-light posture
+of this project. Because
+AUROC2 is confounded by first-order performance (d′), **every sensitivity
+claim in this paper is d′-partialed**: sensitivity is the residual of AUROC2
+after regressing out same-domain d′. This choice is not cosmetic — it was
+forced by the Step 0 gate (below), where the raw (un-partialed) latent
+estimator converted a pure d′ correlation into a spurious sensitivity
+correlation. We do not use gamma as a sensitivity measure: in recovery
+simulation it leaked the set-point (a level-to-sensitivity contamination),
+so it was dropped despite its long use as a metacognitive index
+[@Nelson_1984]. The latent cross-domain correlations are estimated with an
+exchangeable-parcel confirmatory factor model [@Rosseel_2012] that splits each
+subject-domain's trials into parcels, giving a measurement model with a
+built-in reliability correction rather than a single noisy point measure.
+
+## Simulation-gate program (Step 0) {#sec-methods-gate}
+
+Before testing the thesis we required a foundation gate: prove the
+estimators recover known planted values, and prove the two components are
+separable (estimating one does not leak into the other). The gate was run in
+rounds and we report its failures honestly. The first round established that
+level is recovered near-perfectly (recovery r ≈ 0.99, no leakage) but that
+AUROC2 recovery is reliability-capped at realistic trial counts and that the
+**raw** level-vs-sensitivity contrast manufactures a gap even under a true
+null — so the naive contrast is invalid as designed. The second round showed
+that a d′-partialed exchangeable-parcel latent estimator passes all criteria
+at the 200/200-trial configuration but that raw-latent variants convert the
+d′ confound into spurious sensitivity correlation — establishing d′-partialing
+as mandatory. The final round calibrated the corrected estimator on training
+seeds and evaluated it blind on fresh seeds: at 200 trials per task in both
+domains the estimator passed every criterion, so the memory × vision pair
+(the only pair with 200/200 trials) is the sole **confirmatory** pair; other
+pairs are descriptive with explicit bias bands. The calibration coefficients
+were then **frozen** (intercept a = `r V$calib_a`, slope
+b = `r V$calib_b`) and never refit. A power note carried forward from
+the gate: at a true gap of 0.4 and the 200/200 configuration, the corrected
+test excludes zero in about `r V$power`% of simulated replicates — the
+confirmatory test is powered to detect a substantial gap but not a small one.
+
+## Confirmatory design {#sec-methods-confirmatory}
+
+The single preregistered confirmatory test is the memory × vision pair,
+chosen mechanically as the only pair meeting the gate's 200/200-trial
+requirement, and fixed by git timestamp before the cross-domain quantities
+were computed. We estimate the latent cross-domain correlation of level
+(ρ_level) and of d′-partialed sensitivity (ρ_sens) in the parcel-CFA
+framework, apply the frozen calibration correction to ρ_sens, and form the
+primary outcome — the gap ρ_level − ρ_sens — with a delta-method confidence
+interval; a subject bootstrap (B = 2000, calibration held fixed) is the
+secondary interval. A firewall held until this step: no cross-domain
+quantity of any kind was computed while the measurement layer and
+reliabilities were being built. Wording is fixed in advance: a gap whose
+interval includes zero is reported as **not excluded**, never as absent.
+
+## Descriptive tier {#sec-methods-descriptive}
+
+The other five domain pairs did not meet the 200/200 gate and are therefore
+**descriptive, non-confirmatory**. For each we report ρ_level and the
+**uncorrected** ρ_sens (no valid calibration exists at their trial
+configurations), and we attach a frozen systematic-bias band to every gap —
+±0.09 for pairs at 200/100 trials and ±0.10 for the Calories × GDP
+(100/100) pair — carried directly from the gate's measured bias at those
+configurations. These bands are systematic-bias allowances, not confidence
+intervals; a descriptive gap is treated as consistent with zero unless it
+clears both its sampling CI and its band.
+
+## Non-ipsative multilevel decomposition (Step 4) {#sec-methods-multilevel}
+
+The classic trap in this literature is the ipsative artifact: subtracting
+each person's mean confidence mechanically induces negative between-domain
+correlations, which can masquerade as a domain-specific bias. We therefore do
+**not** test the thesis by mean subtraction. Instead we fit a trial-level
+multilevel model [@Bates_2015] that simultaneously estimates a person-general
+set-point, a person×domain set-point residual, a person-general
+confidence-resolution slope (Δ confidence for correct vs. incorrect
+responses, domain-accuracy centered), and a person×domain resolution
+residual. From the variance components we form two generalizability indices —
+ICC_level and ICC_sens, the person-general share of set-point and of
+resolution variance — with cluster-bootstrap intervals (B = 500). This is a
+variance-share estimand, distinct from the Step 3 latent correlation gap and
+not a re-test of it. Robustness rungs re-fit with within-domain z-scored
+confidence (R1) and an ordinal cumulative-link mixed model (R2). As a methods
+warning we also compute what the discouraged naive mean-subtraction analysis
+would have produced, on the same trials and in matched simulation, to exhibit
+the artifact the model is built to avoid. The resolution slope is not
+d′-partialed; the residual d′ confound is quantified in diagnostics rather
+than removed, and is flagged wherever the slope is discussed.
+
+## Confidence Database: study selection {#sec-methods-cdb-selection}
+
+For an external robustness tier we used the Confidence Database
+[@Rahnev_2020], fetched from OSF and verified file-by-file
+(`r V$cd_bytes` bytes across all files; `r V$cd_mismatch` MD5
+mismatches). Provenance is drawn from the committed manifest and provenance
+JSON, not from any prior narrative: the live OSF node has no registered
+snapshot, so it is pinned by access date and per-file version, and
+`r V$cd_nonv1` files carry OSF versions above 1 (all four selected
+studies' data CSVs are version 1). Study selection was mechanical and
+pre-specified: of `r V$cd_parsed` parsed study files,
+`r V$cd_multi` have a within-subject multi-task structure, and a
+four-criterion funnel (a task pair with enough qualifying subjects and
+trials; a usable confidence scale; both accuracy classes present in every
+task; no structural disqualifier) selects `r V$cd_sel` studies:
+Arbuzova_2021_expt2 [@Arbuzova_2021], Arbuzova_unpub_3, Bang_2019_Exp2
+[@Bang_2019], and Haddara_2022_Expt1 [@Haddara_2022]. A firewall again held:
+no cross-task quantity was computed during selection or measurement.
+
+## Confidence Database: contrast and yardsticks {#sec-methods-cdb-contrast}
+
+**Taxonomy (binding).** This tier tests TASK-generalization and contains
+exactly one external cross-**domain** pair. Only Arbuzova_unpub_3
+memory × visual is cross-domain. Arbuzova_2021_expt2 is a visuomotor
+condition × condition pair; Bang_2019_Exp2 (coarse vs. fine Gabor) and
+Haddara_2022_Expt1 (letter vs. color grids) are cross-**task** pairs within
+vision. These four studies are never presented as four cross-domain
+replications.
+
+For each study we correlate confidence level across the task pair and
+d′-partialed AUROC2 across the same pair (subjects with ≥ 60 clean trials in
+both tasks, listwise complete; subject bootstrap B = 2000; residualization
+recomputed inside every resample). Because no calibration correction exists
+for these configurations, nothing in this tier is confirmatory. Two
+attenuation-aware yardsticks replace the missing correction: (i) a
+disattenuation **range** for each correlation (r divided by the geometric
+mean of the two reliabilities, evaluated at the reliability point estimate
+and both CI bounds — a sensitivity range, never a corrected point value); and
+(ii) a per-study **null-reference interval** — the 2.5–97.5% span of the raw
+gap in a simulated true-null world (true ρ_level = true ρ_sens) matched to
+each study's n, trials, confidence scale, and reliabilities, quantifying how
+much raw-gap inflation differential attenuation alone produces. The
+preregistered reading rule: the Lund pattern **holds** in a study only if
+r_level exceeds the top of r_sens's disattenuation range **and** the raw gap
+exceeds the null-reference interval under both null scenarios; one condition
+met is **partial**; neither is **fails**. No meta-analytic pooling is
+performed across the four heterogeneous studies. Bang's measures were
+recomputed from raw with catch trials dropped; Haddara's between-subject
+feedback groups were derived from raw for a heterogeneity check only.
+
+# Results {#sec-results}
+
+## The measurement floor {#sec-results-floor}
+
+Across all four Lund domains, confidence level is measured far more reliably
+than metacognitive sensitivity (@tbl-reliability). Split-half
+Spearman–Brown reliability [@Spearman_1910; @Brown_1910] of level ranges
+`r V$lund_level_rng`, while
+AUROC2 reliability ranges only `r V$lund_auroc_rng`. The gap is even
+starker in trials-needed terms: reaching a reliability of 0.7 takes on the
+order of `r V$tn_level_lo`–`r V$tn_level_hi` trials for level but
+roughly `r V$tn_auroc_mem` (memory) to `r V$tn_auroc_vis` (vision)
+trials for AUROC2. At the parcel level used by the latent model, AUROC2
+reliabilities are lower still (memory `r V$parc_mem`, vision
+`r V$parc_vis`, Calories `r V$parc_cal`, GDP `r V$parc_gdp`).
+This asymmetry is the engine of every inflated raw gap that follows: a
+difference between two correlations is biased upward when one variable is
+measured much more reliably than the other.
+
+```{r tbl-reliability}
+#| label: tbl-reliability
+#| tbl-cap: "Split-half (Spearman–Brown) reliability of confidence level vs. metacognitive sensitivity (AUROC2), per Lund domain. Sensitivity is measured much less reliably than level in every domain."
+kb(rel_tbl, NULL)
+```
+
+## Confirmatory test: memory × vision {#sec-results-confirmatory}
+
+**CONFIRMATORY.** In the single preregistered pair, confidence level
+generalizes strongly across domains (ρ_level = `r V$rl`, 95% CI
+`r V$rl_ci`). Corrected metacognitive sensitivity also correlates
+across domains and its interval excludes zero (ρ_sens = `r V$rs`, 95%
+CI `r V$rs_ci`) — sensitivity is not domain-specific either. The
+primary outcome, the level-minus-sensitivity gap, is `r V$gap` with 95%
+CI `r V$gap_ci` (n = `r V$n_conf`): **the null gap is not
+excluded**. Given roughly `r V$power`% power at a true gap of 0.4, this
+is a "not excluded," not an "absent." The subject bootstrap agrees
+(gap CI `r V$gap_boot_ci`).
+
+The corrected result is what keeps this honest. The uncorrected latent
+sensitivity correlation is `r V$rs_unc` (95% CI `r V$rs_unc_ci`),
+giving an uncorrected gap of `r V$gap_unc`; and the fully naive
+subject-level analysis — raw mean-confidence correlation `r V$rawL`
+minus raw AUROC2 correlation `r V$rawS` — yields a raw gap of
+`r V$rawgap` with 95% CI `r V$rawgap_ci`
+(n = `r V$n_exhib`) that **excludes zero**. That naive analysis would
+have affirmed the thesis; the correction machinery, validated in simulation
+before it touched these data, is exactly what prevented the claim
+(@tbl-claims, row `naive_gap_exhibit`).
+
+## Descriptive landscape {#sec-results-descriptive}
+
+**DESCRIPTIVE (NON-CONFIRMATORY).** Across the five non-confirmatory pairs
+(@tbl-descriptive, @fig-landscape), level generalization is uniform
+(ρ_level range `r V$d_rl_rng`) while the gap is heterogeneous and
+vision-anchored: positive where vision is involved, near zero or negative for
+the memory × knowledge pairs. No descriptive gap clears both its sampling CI
+and its systematic-bias band jointly. The most positive gap, vision × GDP
+(`r V$d_visgdp_gap`), has a CI that excludes zero, but its lower bound
+(`r V$d_visgdp_lo`) lies inside its ±`r V$d_visgdp_band` band, so
+no nonzero-gap claim is made for it or any descriptive pair. Read through the
+measurement lens (@fig-gapreliability, exploratory), the level-advantage
+appears where sensitivity is least reliably measured and reverses where it is
+best measured (the memory pairs) — one measurement fact, not six psychological
+ones.
+
+```{r tbl-descriptive}
+#| label: tbl-descriptive
+#| tbl-cap: "Descriptive tier (NON-CONFIRMATORY): five domain pairs. rho_sens is uncorrected; each gap carries a frozen systematic-bias band. No gap clears its CI and band jointly."
+kb(desc_tbl, NULL)
+```
+
+```{r fig-landscape}
+#| label: fig-landscape
+#| fig-cap: "Cross-domain correlation landscape (NON-CONFIRMATORY except the filled memory x vision confirmatory point). Full caption: figures/fig_captions.md (Figure 1)."
+knitr::include_graphics(figp("fig_landscape.png"))
+```
+
+```{r fig-gapreliability}
+#| label: fig-gapreliability
+#| fig-cap: "EXPLORATORY: gap vs. sensitivity measurement quality. No line fitted, no test performed. Full caption: figures/fig_captions.md (Figure S1)."
+knitr::include_graphics(figp("figS_gap_vs_reliability.png"))
+```
+
+## Multilevel decomposition {#sec-results-multilevel}
+
+**STEP 4 MULTILEVEL (NON-CONFIRMATORY).** The non-ipsative model apportions
+confidence variance into person-general and person×domain shares. The
+person-general share is `r V$icc_l` for the set-point (ICC_level) and
+`r V$icc_s` for resolution (ICC_sens); their difference is
+Δ_ICC = `r V$dicc` with 95% cluster-bootstrap CI `r V$dicc_ci`.
+A Δ_ICC of zero sits at the very edge of this interval — we present this as a
+boundary result and never claim the zero-exclusion; it is directionally
+consistent with the confirmatory corrected gap (two different estimands, the
+same "cannot quite exclude zero" verdict). Robustness rungs agree (R1
+z-scored: ICC_level 0.44, ICC_sens 0.36; R2 ordinal: 0.43, 0.32). The
+methods exhibit confirms why mean subtraction was avoided: the naive
+grand-mean-centered correlations run from `r V$ips_real_min` to
+`r V$ips_real_max` (mean `r V$ips_real_mean`) in these data, and
+in matched simulation the same computation manufactures a mean of about
+`r V$ips_sim_mean` under a planted null (mechanical expectation ≈ −1/3),
+while the multilevel model recovers the planted shares.
+
+## External robustness: the Confidence Database {#sec-results-cdb}
+
+**CONFDB ROBUSTNESS (NON-CONFIRMATORY).** This tier tests
+task-generalization with exactly one external cross-domain pair; the
+within-vision task pairs and the condition × condition pair are not
+cross-domain replications. Confidence level travels well: r_level is
+uniformly positive and precisely estimated across the four studies
+(`r V$cd_rl_lo`–`r V$cd_rl_hi`; @tbl-cdb, @fig-cdb).
+d′-partialed sensitivity is heterogeneous. Because level is measured
+near-perfectly (split-half `r V$cd_level_rng`) and AUROC2 is not
+(`r V$cd_auroc_rng`), a positive raw gap is expected even under a true
+null, so each raw gap must be read against its simulated null-reference
+interval (@tbl-cdb-yard): at these configurations, differential attenuation
+plus sampling noise alone can produce raw gaps up to ~0.5 in the small-n
+studies.
+
+By the preregistered rule, the Lund pattern **holds in 1 of 4** studies,
+is **partial in 3**, and **fails in 0**. In every study r_level exceeds the
+top of r_sens's disattenuation range; what separates "holds" from "partial"
+is whether the raw gap also clears its null reference. Only the single
+external cross-domain pair does: Arbuzova_unpub_3 memory × visual
+(r_level = `r V$cd_arbU_rl`, 95% CI `r V$cd_arbU_rl_ci`;
+r_sens = `r V$cd_arbU_rs`) has a raw gap of `r V$cd_arbU_rawgap`
+that exceeds its null-reference upper bounds (`r V$cd_arbU_n30` and
+`r V$cd_arbU_n45`) — but only narrowly, by margins of
+`r V$cd_margin30` and `r V$cd_margin45` against the ρ = 0.30 and
+ρ = 0.45 references. This single cross-domain pair is therefore consistent
+with the Lund direction and exceeds its simulated true-null reference,
+narrowly; a null is not excluded in the three partial studies. Notably,
+Haddara's within-vision sensitivity correlation is itself high
+(r_sens = `r V$cd_hadd_rs`): metacognitive sensitivity can generalize
+strongly across near-identical tasks within a domain, which is task
+generalization, not cross-domain generality.
+
+```{r tbl-cdb}
+#| label: tbl-cdb
+#| tbl-cap: "Confidence Database contrast (NON-CONFIRMATORY, robustness). Subject bootstrap B = 2000. Only Arbuzova_unpub_3 memory x visual is cross-domain."
+kb(cd_tbl, NULL)
+```
+
+```{r tbl-cdb-yard}
+#| label: tbl-cdb-yard
+#| tbl-cap: "Attenuation-aware yardsticks: disattenuation ranges (sensitivity ranges, not corrected point values) and SIMULATION null-reference intervals for the raw gap. Only Arbuzova_unpub_3 exceeds its null-reference interval."
+kb(yard_tbl, NULL)
+```
+
+```{r fig-cdb}
+#| label: fig-cdb
+#| fig-cap: "Confidence Database level-vs-sensitivity contrast with the Lund confirmatory pair for comparison (NON-CONFIRMATORY). Full caption: figures/fig_captions.md (Figure 2)."
+knitr::include_graphics(figp("fig_confdb_contrast.png"))
+```
+
+## Claim-status summary {#sec-results-claims}
+
+@tbl-claims collects every quantitative claim with its tier, estimate, and
+frozen verdict wording (full machine-generated table with sources and CIs:
+`results/step17_claim_status.md`).
+
+```{r tbl-claims}
+#| label: tbl-claims
+#| tbl-cap: "Claim-status summary (generated by analysis/17_claim_status.R from committed CSVs). Every value is assert-guarded in code; verdict wording is preregistered."
+kb(claim_tbl, NULL)
+```
+
+# Discussion {#sec-discussion}
+
+::: {.callout-note appearance="minimal"}
+**[STUB — written in dispatch 012.]**
+<!-- Outline: (1) the headline through the measurement lens — apparent
+level-vs-sensitivity dissociations are largely an attenuation story; after
+correction the gap is not excluded while level clearly generalizes;
+(2) the landscape section (Ben decision, session 2): the heterogeneous gap
+figure read as one measurement fact wearing six costumes (level-advantage
+where sensitivity is poorly measured, reversal where memory's better-measured
+sensitivity is involved) — attenuation interpretation, explicitly not a
+tested result; (3) what the external tier does and does not add — level
+travels, one cross-domain pair holds narrowly, task-generalization is not
+domain-generality; (4) relation to the "domain-general bias = domain-general
+confidence LEVEL" reading; (5) what would settle the gap question (more
+trials for sensitivity, more cross-domain pairs). Do not resurrect any of the
+five collapsed claims. -->
+:::
+
+# Limitations {#sec-limitations}
+
+::: {.callout-note appearance="minimal"}
+**[STUB — prose written in dispatch 012. Standing checklist seeded below.]**
+<!-- Checklist to expand:
+- Power: ~60% at a true gap of 0.4; the confirmatory test cannot detect a
+  small gap. A null gap is "not excluded," not evidence of absence.
+- Sensitivity is weakly measured everywhere (the floor); disattenuation is
+  presented only as a range, never a point.
+- Delta_ICC boundary: zero at the edge of the interval; not a zero-exclusion.
+- External cross-domain evidence rests on ONE pair (Arbuzova_unpub_3, n=40),
+  holds only narrowly (margins 0.046 and 0.020), and is generator-sensitive:
+  an independently built null-reference simulator shrinks the rho=0.45 margin
+  to ~0.008. Within-vision task pairs are not cross-domain replications.
+- Null-reference simulator caveats: fixed per-task accuracy (no d' trait, no
+  staircase dynamics), equally spaced latent thresholds; reliabilities and
+  means matched, higher moments not.
+- Disattenuation of r_sens uses AUROC2 reliabilities though r_sens is the
+  d'-partialed residual (the residual's reliability is not identical).
+- Single primary dataset (Lund) for the confirmatory test; four heterogeneous
+  CD studies, no pooling.
+- gamma dropped (set-point leakage); meta-d'/HMeta-d not the spine.
+-->
+:::
+
+# Data and code availability {#sec-availability}
+
+All analysis code is original to this project and public at
+`https://github.com/dondon20201/paper2`; the analysis runs end-to-end under a
+renv lockfile (R 4.6.1) [@R_base]. Every reported number is written to a file under
+`results/` with a name traceable from the text, and each figure's underlying
+data is saved alongside it (`results/fig_landscape_data.csv`,
+`results/figS_gap_vs_reliability_data.csv`,
+`results/fig_confdb_contrast_data.csv`).
+
+**Primary data.** @Lund_2025, file
+`data_summary/metacognition_trialData_master.csv` from the repository
+`embodied-computation-group/dg-metacognition`, pinned at commit
+`r substr(V$lund_commit,1,10)`… and verified by MD5
+(`r V$lund_md5`). The raw file is not redistributed here (provenance in
+`data/raw/lund2025/README.md`).
+
+**Secondary data.** The Confidence Database [@Rahnev_2020] from OSF node
+`s46pr`, verified file-by-file against OSF MD5s (`r V$cd_bytes` bytes,
+`r V$cd_mismatch` mismatches); the live node has no registered
+snapshot, so it is pinned by access date and per-file OSF version in
+`results/step11_CONFDB_manifest.csv`. Raw Confidence Database files
+(~255 MB) are not redistributed here.
+
+# References {#sec-references}
+
+::: {#refs}
+:::

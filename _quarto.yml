@@ -1,0 +1,5 @@
+project:
+  title: "metacog"
+# Repo-root project file so Quarto/Typst treat the repository as the project
+# root. This lets manuscript/*.qmd reference ../figures and ../results
+# (renders happen in place; no output-dir redirection).

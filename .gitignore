@@ -12,8 +12,13 @@ renv/cellar/
 renv/staging/
 # Quarto / RMarkdown
 /.quarto/
+.quarto/
 *_cache/
 *_files/
+# Quarto rendered artifacts — commit ONLY manuscript/ms.pdf (Ben's read copy);
+# the Typst intermediates and the supplement PDF are regenerated on render.
+manuscript/*.typ
+manuscript/supplement.pdf
 # OS
 .DS_Store
 Thumbs.db
@@ -23,3 +28,5 @@ Thumbs.db
 data/raw/lund2025/metacognition_trialData_master.csv
 # Confidence Database raw files (~255 MB; provenance in results/step11_CONFDB_manifest.csv)
 data/raw/confidence_db/
+
+**/*.quarto_ipynb
