@@ -2,153 +2,182 @@
 
 <!-- Written by Claude Code after completing each dispatch. Cowork reads this to plan next steps. Overwrite the placeholder sections below; keep the section headings. -->
 
-**Status:** COMPLETE — Part A (claim-status table, 9 rows) + Part B (ms.qmd Methods+Results complete, stubs elsewhere) + Part C (supplement S1–S6) + Part D (housekeeping) all in; both docs render clean; grep-checks pass; pushed
-**Dispatch #:** 011
-**Date:** 2026-07-11
+**Status:** COMPLETE — Abstract + Introduction + Discussion + Limitations prose written; title finalized; two 011 hand-typed spots closed; full figure captions inline (guarded); both docs render clean; grep-checks pass; pushed. **FULL FIRST DRAFT.**
+**Dispatch #:** 012
+**Date:** 2026-07-12
 
 ## What was done
 
-Step 6a manuscript skeleton, exactly as scoped. **No analysis was rerun and
-no estimate was recomputed — `results/` was read-only input throughout.** The
-only new numbers file is `results/step17_claim_status.csv/.md`, which READS
-and re-asserts committed values (it computes nothing new).
+Step 6b — the manuscript PROSE, exactly as scoped. **No analysis was rerun and
+no estimate was recomputed — `results/` was read-only input throughout.** Every
+new inline number is a guarded `V$` object read from a committed CSV/JSON.
 
-**Enforcement of "zero hand-typed statistics" (how):** every inline number in
-`ms.qmd` and `supplement.qmd` is a member of a named list `V` built in a
-single setup chunk that reads the committed CSVs; each `V$…` is wrapped in a
-`stopifnot`/`gd()` guard asserting `round(value, k)` equals the cited figure,
-so a drifted input fails the render. Every table is rendered with `knitr::kable`
-directly from a committed CSV (values come from the file, never typed). There
-are no numeric literals in the prose. `analysis/17_claim_status.R` uses the
-same guard pattern for all 9 rows.
+**Part A — Abstract (STUB → prose).** Cowork's authored ~220-word text used
+verbatim, with each numeral swapped for its guarded `V$` object: ρ_level `V$rl`
+(0.42), ρ_sens `V$rs` (0.31, CI excludes zero), corrected gap `V$gap` (0.113),
+naive raw gap `V$rawgap` (0.20). Measurement-lens close ("substantially a
+measurement-reliability artifact").
 
-**Part A — claim-status table (`analysis/17_claim_status.R`):** 9 rows, one
-per claim, columns claim_id / tier / quantity / estimate / ci_lo / ci_hi / n /
-source_csv / verdict_wording (frozen) / figure_ref. All values extracted +
-assert-guarded from the named CSVs. Frozen verdict strings reproduced verbatim.
-Rows: gap_confirmatory (0.113 [-0.138, 0.364], "null gap not excluded");
-rho_level_confirmatory (0.422 [0.328, 0.515]); rho_sens_confirmatory
-(0.308 [0.075, 0.542]); naive_gap_exhibit (0.200 [0.051, 0.353], METHODS
-EXHIBIT); descriptive_landscape (5 pairs, ±0.09/±0.10 bands); step4_decomposition
-(Δ_ICC 0.105 [0.001, 0.210], boundary wording per decision 1); ipsative_exhibit
-(real -0.667, sim planted-null mean -0.31); confdb_tier (r_level
-0.550/0.560/0.574/0.872; holds 1/4 narrowly, partial 3/4; ArbU3 margins
-0.046/0.020 per decision 3); reliability_floor (level .95–1.00 vs AUROC2
-.39–.90 across Lund + 4 CD studies). Output: `results/step17_claim_status.csv`
-and `.md`.
+**Part B — Introduction (STUB → 5 paragraphs).** Written to Cowork's paragraph
+plan: (1) the phenomenon and the domain-general reading; (2) the LEVEL vs
+INFORMATIVENESS conflation, bias ≠ skill; (3) the measurement trap as the pivot
+(differential reliability biases a raw correlation-gap upward under a true null);
+(4) the from-scratch, gated, reliability-corrected approach with the firewall and
+the up-front statement that a null/partial gap is acceptable; (5) explicit
+four-item contributions list ending on the one-sentence measurement-lens thesis.
+Intentionally numeral-free (no statistic to guard); cites `@Lund_2025`,
+`@Rahnev_2020`, `@Fleming_2014`.
 
-**Part B — manuscript (`manuscript/ms.qmd`, `references.bib`, `ms.pdf`):**
-- All headings present: Abstract (STUB), Introduction (STUB w/ outline comment),
-  Methods (FULL, 8 subsections), Results (FULL, 6 subsections in the prescribed
-  order), Discussion (STUB w/ outline incl. the landscape measurement-lens
-  section), Limitations (STUB seeded with the standing checklist), Data & Code
-  Availability (FULL), References.
-- Title is a marked PLACEHOLDER (`<!-- TITLE: measurement-lens, finalized in 012 -->`);
-  Methods/Results prose is written compatible with the measurement-lens frame
-  (decision 2). Δ_ICC uses the boundary wording (decision 1: "sits at the very
-  edge of this interval … never claim the zero-exclusion"). ArbU3 uses the
-  frozen decision-3 wording with the 0.046/0.020 margins in-text. Wording rules
-  honoured: null = "not excluded" (6×), never "absent" as a null descriptor;
-  disattenuation presented as RANGES only ("not corrected point values"); no
-  pooling; binding taxonomy sentence present (within-vision task pairs and the
-  condition×condition pair are NOT cross-domain replications); CD provenance
-  drawn from the manifest/JSON (8 files at OSF v2–v4; all 4 selected studies'
-  data CSVs v1), never the 009 report sentence.
-- Figures: the three committed PNGs are included; captions are kept numeric-free
-  and point to `figures/fig_captions.md` for the full committed caption (the
-  numeric claims live in guarded body prose, so no statistic is hand-typed in a
-  caption). Figure underlying-data CSVs are cited in Availability.
-- `references.bib`: 14 entries (Lund 2025 10.1037/xlm0001462; Confidence DB
-  10.1038/s41562-019-0813-1; Bang 2019; Haddara 2022; Arbuzova 2021;
-  Fleming & Lau 2014; Galvin 2003 (AUROC2); Maniscalco & Lau 2012 (meta-d′);
-  Nelson 1984 (gamma); Spearman 1910 + Brown 1910 (Spearman–Brown); Bates 2015
-  (lme4); Rosseel 2012 (lavaan); R Core Team). All 14 are cited in-text and
-  resolve in the rendered reference list.
+**Part C — Discussion (STUB → 6 paragraphs).** To Cowork's plan: (1) two-sided
+headline through the measurement lens (level generalizes `V$rl`; corrected
+sensitivity `V$rs` excludes zero — not domain-specific; gap `V$gap`/`V$gap_ci`
+not excluded; naive `V$rawgap` excludes zero → artifact); (2) the REQUIRED
+landscape section — heterogeneous gap read as one measurement fact, gaps largest
+where sensitivity is least reliably measured (parcel reliabilities `V$parc_*`),
+explicitly an attenuation *interpretation* not a tested result, with the
+vision × GDP reviewer-proofing sentence; (3) the external tier — level travels
+(`V$cd_rl_lo`–`V$cd_rl_hi`), only Arbuzova_unpub_3 is cross-domain and holds
+narrowly (margins `V$cd_margin30`/`V$cd_margin45`), Haddara within-vision
+sensitivity high (`V$cd_hadd_rs`) = task generalization ≠ domain generality,
+taxonomy binding, no pooling; (4) "domain-general bias = domain-general LEVEL"
+reconciliation with the variance-share side (`V$icc_l` > `V$icc_s`, boundary);
+(5) what would settle it (more trials to lift sensitivity reliability, more
+cross-domain pairs, higher power; the method is the reusable contribution);
+(6) brief close (the measurement-lens moral generalizes). No confirmatory-strength
+language attached to any null/partial result.
 
-**Part C — supplement (`manuscript/supplement.qmd`):** S1 full descriptive-tier
-table (step7); S2 Arbuzova 6-pair exploratory (step15); S3 CD secondaries —
-B-s1/B-s2/H-s1 + Spearman + un-partialed r_sens (step15); S4 null-reference
-achieved-vs-target reliabilities + true-null gap intervals (step14); S5
-reliability tables (step2 + step11); S6 ipsative exhibits (step8/9). Same
-assert-guard + render-from-CSV rule.
+**Part D — Limitations (STUB → Cowork's authored prose).** All eight-plus standing
+items present (power ~60% at true gap 0.4; sensitivity reliability floor →
+disattenuation as range only; Δ_ICC boundary; single dataset / single 200/200
+pair; ArbU3 n = 40 narrow margins; null-simulator caveats; residual-reliability
+caveat; d′ poorly measured / slope not d′-partialed; gamma dropped, meta-d′
+secondary, no pooling). Numerals guarded: `V$power`, `V$cd_arbU_n`,
+`V$cd_margin30`, `V$cd_margin45`. **See deviation #1 below re the 0.008 clause.**
 
-**Part D — housekeeping:** PROGRESS.md status + session-log row 14; this report;
-DISPATCH.md (Cowork 011) committed; renv.lock updated; pushed.
+**Part E — Title.** Cowork's default (measurement-lens) placed in the YAML:
+*"What Generalizes in Metacognition? Confidence Level, Informativeness, and a
+Measurement-Reliability Account of Apparent Dissociations."* The two alternatives
+recorded as YAML comments for Ben.
 
-## Toolchain note (for the audit)
+**Closing the two 011 hand-typed spots.**
+- **R1/R2 robustness quartet** (multilevel Results): now guarded `V$r1_icc_l`
+  (0.44), `V$r1_icc_s` (0.36), `V$r2_icc_l` (0.43), `V$r2_icc_s` (0.32), read +
+  `gd()`-guarded from `results/step9_REALDATA_step4_diagnostics.csv`
+  (SECONDARY_R1_zscored / SECONDARY_R2_ordinal).
+- **MLE cross-check "≥ 0.998"** (Methods §data): a committed source *does* hold
+  it — `step0a_provenance.json` `per_subject_agreement$cor_own_vs_shipped` (four
+  domain correlations, min 0.9979, max 0.9993). Guarded as the range
+  `V$mle_cor_rng` = **0.998–0.999** (rounded, 3 dp), replacing the bare "≥ 0.998".
+  (Chose the range form over "≥ 0.998" because the raw min 0.9979 is fractionally
+  below 0.998 before rounding; the range is unimpeachable and still guarded.)
 
-The repo had no PDF toolchain: knitr/rmarkdown were absent from the renv
-library and no LaTeX is installed. I (a) installed knitr + rmarkdown (+deps)
-into the renv library and recorded them with `renv::snapshot(type = "all")`
-(lockfile now 73 packages; analysis spine — lavaan/lme4/ordinal/Matrix/boot —
-verified still present); and (b) rendered PDF via Quarto's **bundled Typst**
-engine (`format: typst`), which needs no LaTeX. A minimal repo-root
-`_quarto.yml` was added so Typst's project root is the repo (otherwise it
-refuses to load `../figures/*.png`). `quarto render` of both `ms.qmd` and
-`supplement.qmd` succeeds. **`renv::snapshot()` reminder for Ben:** the lock was
-updated this dispatch; if you prefer a leaner lock (type="all" also recorded
-base-recommended packages), re-run an implicit snapshot on your machine.
+**Full figure captions inline.** The complete Fig 1 / Fig S1 / Fig 2 captions from
+`figures/fig_captions.md` are now built in the setup chunk as `V$cap_fig1/…figS1/…fig2`
+`paste0` strings, concatenating guarded `V$` numerals, and referenced via
+`#| fig-cap: !expr V$cap_figN`. The "see fig_captions.md (Figure N)" pointers are
+deleted. Every estimated numeral in a caption is a guarded `V$` (band
+`V$band_200100`/`V$band_calgdp`, `V$d_visgdp_lo`, `V$gap`/`V$gap_ci`, `V$parc_*`,
+`V$cd_level_rng`/`V$cd_auroc_rng`, `V$cd_arbU_rawgap`/`V$cd_arbU_n30`/`V$cd_arbU_n45`).
+
+**Precision convention.** The confirmatory gap and its CIs now render at **3 dp**
+(`V$gap` 0.113; `V$gap_ci` [−0.138, 0.364]; `V$gap_boot_ci` 3 dp) so the in-text
+gap matches the claim-status table and the Fig 1 caption; all other in-text
+correlations stay at 2 dp. This resolved the one pre-existing mismatch (011 body
+showed "0.11" vs the table's "0.113").
+
+## Verification (grep-checks I ran)
+
+Run on the **rendered PDF text** (`pdftotext manuscript/ms.pdf`) unless noted:
+- **No STUB** anywhere (`grep -c STUB` = 0).
+- **"not excluded"** present (×6). **"absent"** occurs only twice, both correct:
+  the Results not-excluded-vs-absent contrast, and the Cowork-sanctioned "largely
+  absent as a *distinguishable* effect" (describing the dissociation/gap, never
+  sensitivity generalization).
+- **Disattenuation = ranges only** ("disattenuation ranges", "only as a range");
+  no single corrected disattenuated point value anywhere.
+- **Taxonomy binding** present ("not four cross-domain replications";
+  "task-generalization, not cross-domain generality").
+- **Δ_ICC boundary wording** present ("very edge of its/this interval",
+  "boundary result").
+- **ArbU3 margins** 0.046 and 0.020 present (guarded).
+- **No confirmatory-strength language** on any null/partial result in Discussion
+  (grepped Discussion for confirm/significant/proves/demonstrates/establishes —
+  only "confirmatory pair/test/result" as tier NAMES, which is allowed).
+- **Zero hand-typed statistics (the acceptance item):** stripped fenced code
+  chunks + inline `` `r …` `` spans + HTML comments from `ms.qmd`, then grepped
+  the surviving prose for digits. Every remaining literal is a **design/method
+  constant** — trial configs (200/200, 200/100, 100/100), planted gap 0.4, null
+  ρ 0.30/0.45, bootstrap B (2000/500), CI level 95%, reliability target 0.7,
+  qualitative gate descriptor r ≈ 0.99, OSF version, ≥ 60 trials, 2.5–97.5% span,
+  frozen bias bands ±0.09/±0.10 — the same operative definition of "statistic"
+  (= a value estimated from data) that the 011 audit used. **No estimated
+  statistic is hand-typed** in prose or captions.
+- Both `ms.qmd` and `supplement.qmd` `quarto render` clean under the renv library;
+  rendered values spot-checked in the PDF (0.113; [−0.138, 0.364]; 0.998–0.999;
+  R1/R2 quartet; margins 0.046 and 0.020; ArbU raw gap 0.551 vs 0.505/0.531; title).
+
+## Deviations from the dispatch (argued, never silent)
+
+1. **The "≈ 0.008" independent-simulator margin (Limitations, Part D) was
+   de-numeralized.** Cowork's Part D text reads "the smaller margin shrinks to
+   about 0.008 under an independently constructed null simulator." **0.008 is not
+   in any committed `results/` CSV** — the only committed null-reference simulator
+   is `step14` (matched to each study's reliabilities/means), which yields the
+   0.046/0.020 margins; the 0.008 comes from Cowork's own independently
+   constructed simulator, external to this repo. Under the binding rules ("NEVER
+   report a number not just computed from raw data in code you can show"; "If a
+   number you want is not in a committed CSV, do not invent it — write the
+   sentence without the numeral"), I could not print it. The clause now reads
+   "…and the smaller margin shrinks further under an independently constructed
+   null simulator — so this replication is directional, not decisive," preserving
+   the generator-sensitivity caveat (Ben's binding decision 3) without the
+   ungrounded numeral. **If Cowork wants 0.008 in the paper, commit the
+   independent simulator's output to `results/` and I will guard it in a
+   follow-up.**
+
+No other deviations. All Cowork-authored text (Abstract, Limitations) used
+verbatim except that one numeral; Intro/Discussion expanded faithfully to the
+plans with no empirical claim beyond the committed results.
 
 ## Files changed / created
 
-- `analysis/17_claim_status.R` (new); `results/step17_claim_status.csv` + `.md` (new)
-- `manuscript/ms.qmd`, `manuscript/references.bib`, `manuscript/supplement.qmd` (new)
-- `manuscript/ms.pdf` (new; committed per dispatch — Ben's read copy)
-- `_quarto.yml` (new); `renv.lock` (knitr/rmarkdown + deps); `.gitignore`
-  (ignore `manuscript/*.typ`, `manuscript/supplement.pdf`, `.quarto/`);
-  removed empty-dir placeholder `manuscript/.gitkeep`
-- `PROGRESS.md` (status + log), `cowork/REPORT.md` (this file), `cowork/DISPATCH.md` (Cowork 011, committed by Code)
+- `manuscript/ms.qmd` — Abstract/Intro/Discussion/Limitations prose; final title
+  in YAML; new guarded `V$` objects (`mle_cor_rng`, `r1/r2_icc_*`, `cd_arbU_n`,
+  `band_200100`, `band_calgdp`, `cap_fig1/figS1/fig2`); confirmatory gap → 3 dp;
+  three `fig-cap` chunks switched to `!expr`; `fig_captions.md` pointers removed.
+- `manuscript/ms.pdf` — re-rendered (committed; Ben's read copy).
+- `manuscript/supplement.pdf` — re-rendered (gitignored; not committed).
+- `PROGRESS.md` — status → FULL FIRST DRAFT; session-log row 15.
+- `cowork/REPORT.md` — this file. `cowork/DISPATCH.md` — Cowork 012 (committed by Code).
+- `figures/fig_captions.md` — unchanged (retained as the caption source of record;
+  its content is now duplicated inline and guarded).
 
 ## Commits
 
-- Part A — claim-status table
-- Part B — ms.qmd (Methods+Results) + references.bib + ms.pdf + _quarto.yml + renv.lock + .gitignore
-- Part C — supplement.qmd
-- final `docs:` commit — this report + PROGRESS.md + DISPATCH.md (hash = latest commit touching REPORT.md; HEAD reported after push)
+- **`5ae2ea7`** — feat: dispatch 012 manuscript prose + title + inline captions +
+  011 loose ends (`manuscript/ms.qmd`, `manuscript/ms.pdf`).
+- final **`docs:`** commit — this report + `PROGRESS.md` + `cowork/DISPATCH.md`
+  (hash = latest commit touching REPORT.md; HEAD reported after push below).
 
-(Exact hashes in `git log`; the report is written before its own commit exists.)
+## Results / state
 
-## Results
+- Manuscript is a **complete first draft**: Abstract, Introduction, Methods,
+  Results, Discussion, Limitations, Data & Code Availability, References — no
+  stubs remain. Renders clean to `manuscript/ms.pdf` under renv (Quarto+Typst).
+- Every reported statistic is a guarded `V$` object or a `kable`-from-CSV cell;
+  the "zero hand-typed statistics" claim is now literally true (audit above).
 
-- `results/step17_claim_status.md` renders the 9-row table; `.csv` is the
-  machine copy. All 9 rows carry assert-guarded values and frozen wording.
-- `manuscript/ms.pdf` and `manuscript/supplement.pdf` both render clean under
-  the renv library (supplement.pdf is gitignored — regenerated on render;
-  only ms.pdf is committed).
-- Acceptance grep-checks (run this dispatch, on ms.qmd): "not excluded" present
-  (6); "absent" appears only as the rule statement ("never as absent") and an
-  explicit denial ("not an 'absent'"), never describing a null AS absent;
-  disattenuation = ranges only ("not corrected point values"); taxonomy
-  sentence present; Δ_ICC boundary wording ("very edge of this interval")
-  present; ArbU3 margins 0.046 and 0.020 present (guarded).
+## Issues & questions for planning
 
-## Issues & blockers
-
-1. **Precision convention.** Prose reports correlations at 2 dp (2 sig figs per
-   BRIEF integrity rule; e.g. ArbU3 r_level renders 0.56), while the
-   claim-status table and the confirmatory gap keep 3 dp as the dispatch froze
-   them (0.113, 0.560). Both are sourced/guarded; flagging the mixed precision
-   in case you want it uniform in 012.
-2. **Uncited-in-prose bib risk (resolved).** Typst's reference list shows only
-   CITED entries, so I wove in-text citations for Spearman/Brown (Spearman–Brown),
-   Maniscalco (meta-d′), Nelson (gamma), Rosseel (lavaan), and R Core Team so
-   all 14 core refs appear. If 012's Intro/Discussion drop any of these
-   attributions, the entry will silently leave the reference list.
-3. **Figure captions.** Kept numeric-free in the .qmd (pointing to
-   `figures/fig_captions.md`) to preserve "zero hand-typed statistics"; the full
-   committed captions are not duplicated verbatim into ms.qmd. If you want the
-   full captions inline, they must become guarded inline-`V$` compositions in 012.
-4. **renv.lock breadth.** `type="all"` recorded base-recommended packages
-   (survival, mgcv, …) alongside knitr/rmarkdown. Harmless for `renv::restore()`
-   but heavier than strictly needed (see toolchain note).
-
-## Questions / decisions needed for planning
-
-1. Ready for dispatch 012 (Abstract + Introduction + Discussion + Limitations
-   prose) once you've read `manuscript/ms.pdf`. The stubs already carry the
-   outline comments and the standing limitations checklist.
-2. Title is a placeholder — 012 should finalise the measurement-lens title/abstract.
-3. Precision convention (issue 1): keep 2 dp in prose / 3 dp in the claim table,
-   or unify?
-4. Full figure captions inline vs. pointer-to-`fig_captions.md` (issue 3) —
-   your call for 012.
+1. **0.008 (deviation #1)** — decide: commit the independent null-simulator output
+   to `results/` (then I guard and restore the numeral), or keep the qualitative
+   "shrinks further" wording. Currently qualitative.
+2. **Precision** — confirmatory gap now 3 dp in-text to match the table; all other
+   correlations 2 dp. Flag if you want the gap CI bounds elsewhere unified too.
+3. **Author/affiliation** — YAML still `author: "Ben [Author]"`; supply the real
+   author line + affiliations when ready.
+4. **Bib coverage unchanged** — all 14 refs still cited (Intro cites Lund/Rahnev/
+   Fleming; the meta-d′/gamma/Spearman–Brown/lavaan/R attributions remain in
+   Methods). No new citations added; no TODO-cite placeholders were needed.
+5. **Next** — ready for Ben's read + a revision pass; folder rename paper2 →
+   metacog still pending an explicit dispatch.
