@@ -1,6 +1,9 @@
 ---
-# TITLE: measurement-lens, finalized in 012
-title: "Confidence level, not metacognitive sensitivity, is the domain-general component of confidence: a measurement-lens re-analysis [PLACEHOLDER TITLE]"
+# TITLE finalized in dispatch 012 (Cowork Part E default, measurement-lens).
+# Alternatives recorded for Ben:
+#  (b) "Is Metacognition Domain-General? Disentangling Confidence Level from Informativeness"
+#  (c) "Apparent Dissociations in Domain-General Metacognition Are Substantially a Measurement Artifact"
+title: "What Generalizes in Metacognition? Confidence Level, Informativeness, and a Measurement-Reliability Account of Apparent Dissociations"
 author: "Ben [Author]"
 date: "2026-07-11"
 format:
@@ -97,9 +100,12 @@ V$tn_auroc_mem <- fmt(gd(t7("memory", "auroc2"), 106.32, 2), 0)
 V$tn_auroc_vis <- fmt(gd(t7("vision", "auroc2"), 362.14, 2), 0)
 
 # ---- confirmatory (step6) ----
+# PRECISION CONVENTION (dispatch 012): the confirmatory gap (point + its CIs)
+# renders at 3 dp to match the claim-status table and Figure 1 caption; all
+# other in-text correlations render at 2 dp (fmt/ci default k = 2).
 c6 <- function(q, col) cell(s6, col, block = "PRIMARY_CONFIRMATORY", quantity = q)
-V$gap      <- fmt(gd(c6("gap_corrected", "estimate"), 0.113, 3))
-V$gap_ci   <- ci(c6("gap_corrected", "ci_lo"), c6("gap_corrected", "ci_hi"))
+V$gap      <- fmt(gd(c6("gap_corrected", "estimate"), 0.113, 3), 3)
+V$gap_ci   <- ci(c6("gap_corrected", "ci_lo"), c6("gap_corrected", "ci_hi"), 3)
 V$rl       <- fmt(gd(c6("rho_level_latent", "estimate"), 0.422, 3))
 V$rl_ci    <- ci(c6("rho_level_latent", "ci_lo"), c6("rho_level_latent", "ci_hi"))
 V$rs       <- fmt(gd(c6("rho_sens_latent_corrected", "estimate"), 0.308, 3))
@@ -110,9 +116,9 @@ V$rs_unc   <- fmt(gd(cell(s6, "estimate", block = "SECONDARY_c_uncorrected", qua
 V$rs_unc_ci<- ci(cell(s6, "ci_lo", block = "SECONDARY_c_uncorrected", quantity = "rho_sens_latent_uncorrected"),
                  cell(s6, "ci_hi", block = "SECONDARY_c_uncorrected", quantity = "rho_sens_latent_uncorrected"))
 V$gap_unc  <- fmt(gd(cell(s6, "estimate", block = "SECONDARY_c_uncorrected", quantity = "gap_uncorrected"), 0.150, 3))
-# secondary a: bootstrap gap CI
+# secondary a: bootstrap gap CI (3 dp — same gap, convention above)
 V$gap_boot_ci <- ci(cell(s6, "ci_lo", block = "SECONDARY_a_bootstrap", quantity = "gap_corrected_bootCI"),
-                    cell(s6, "ci_hi", block = "SECONDARY_a_bootstrap", quantity = "gap_corrected_bootCI"))
+                    cell(s6, "ci_hi", block = "SECONDARY_a_bootstrap", quantity = "gap_corrected_bootCI"), 3)
 # exhibit d: naive raw
 V$rawL <- fmt(gd(cell(s6, "estimate", block = "SECONDARY_d_manifest_EXHIBIT", quantity = "raw_r_mean_conf"), 0.402, 3))
 V$rawS <- fmt(gd(cell(s6, "estimate", block = "SECONDARY_d_manifest_EXHIBIT", quantity = "raw_r_auroc2"), 0.202, 3))
@@ -172,6 +178,83 @@ V$cd_margin45 <- fmt(gd(round(arbU_rawgap,3) - round(arbU_n45,3), 0.020, 3), 3)
 V$cd_hadd_rs <- fmt(gd(cell(s15,"estimate",study="Haddara_2022_Expt1",quantity="r_sens",subset="primary",tier="PRIMARY"), 0.561, 3))
 V$cd_rl_lo <- fmt(min(sapply(c("Arbuzova_2021_expt2","Arbuzova_unpub_3","Bang_2019_Exp2","Haddara_2022_Expt1"), rl15)),2)
 V$cd_rl_hi <- fmt(max(sapply(c("Arbuzova_2021_expt2","Arbuzova_unpub_3","Bang_2019_Exp2","Haddara_2022_Expt1"), rl15)),2)
+V$cd_arbU_n <- as.character(unique(s15$n_subjects[s15$study == "Arbuzova_unpub_3" & s15$subset == "primary"]))
+stopifnot(V$cd_arbU_n == "40")
+
+# ---- MLE external cross-check (Methods §data): guard the >=0.998 claim ----
+# provenance JSON per-subject own-vs-shipped correlations, one per domain.
+mlecor <- prov$per_subject_agreement$cor_own_vs_shipped
+V$mle_cor_rng <- paste0(fmt(gd(min(mlecor), 0.998, 3), 3), "-", fmt(gd(max(mlecor), 0.999, 3), 3))
+
+# ---- Step-4 robustness quartet (R1 z-scored, R2 ordinal); guard hand-typed vals ----
+s9d <- read.csv(res("step9_REALDATA_step4_diagnostics.csv"), stringsAsFactors = FALSE)
+r1 <- function(q) cell(s9d, "estimate", block = "SECONDARY_R1_zscored", quantity = q)
+r2 <- function(q) cell(s9d, "estimate", block = "SECONDARY_R2_ordinal", quantity = q)
+V$r1_icc_l <- fmt(gd(r1("ICC_level"), 0.438, 3), 2)
+V$r1_icc_s <- fmt(gd(r1("ICC_sens"),  0.356, 3), 2)
+V$r2_icc_l <- fmt(gd(r2("ICC_level"), 0.426, 3), 2)
+V$r2_icc_s <- fmt(gd(r2("ICC_sens"),  0.324, 3), 2)
+
+# ---- frozen systematic-bias bands (for inline Figure 1 caption) ----
+V$band_200100 <- fmt(gd(s7$bias_band[s7$pair == "vision_x_GDP"],   0.09, 2), 2)
+V$band_calgdp <- fmt(gd(s7$bias_band[s7$pair == "Calories_x_GDP"], 0.10, 2), 2)
+
+# ============ full figure captions inline (every numeral a guarded V$) ============
+# Built here from the guarded V$ strings and referenced via `#| fig-cap: !expr`.
+# Design constants (trial configs 200/100, null rho 0.30/0.45, 2.5-97.5% span,
+# CI level) are method parameters, not estimated statistics, and appear as text.
+V$cap_fig1 <- paste0(
+  "Cross-domain correlation landscape. Top: latent correlation of confidence ",
+  "level (set-point) for each of the six domain pairs, with 95% delta-method ",
+  "CIs. Bottom: the gap (rho_level - rho_sens) per pair. memory x vision ",
+  "(filled point) is the preregistered CONFIRMATORY pair: its rho_sens is ",
+  "calibration-corrected and its gap carries no systematic band. The five open ",
+  "points are NON-CONFIRMATORY / DESCRIPTIVE: their sensitivity correlations ",
+  "are uncorrected (these trial-count configurations failed the blind ",
+  "calibration gate), and each gap therefore carries a shaded rectangle - the ",
+  "frozen systematic-bias allowance (+/-", V$band_200100, " for 200/100-trial ",
+  "pairs, +/-", V$band_calgdp, " for Calories x GDP). The shaded bands are ",
+  "systematic-bias allowances, NOT confidence intervals; whiskers are sampling ",
+  "CIs only. Note vision x GDP: its CI excludes 0, but its lower bound (",
+  V$d_visgdp_lo, ") lies inside its +/-", V$band_200100, " band, so no ",
+  "nonzero-gap claim is made for any descriptive pair. The confirmatory result ",
+  "(gap = ", V$gap, ", 95% CI ", V$gap_ci, ") does not exclude a null gap.")
+
+V$cap_figS1 <- paste0(
+  "EXPLORATORY: gap vs sensitivity measurement quality. Each pair's gap (as in ",
+  "Figure 1) against the geometric mean of its two domains' raw, pre-partialing ",
+  "AUROC2 parcel reliabilities (memory ", V$parc_mem, ", vision ", V$parc_vis,
+  ", Calories ", V$parc_cal, ", GDP ", V$parc_gdp, "). No line is fitted, no ",
+  "correlation computed, no test performed: with six non-independent points ",
+  "this display is EXPLORATORY. The measurement-lens reading - the ",
+  "level-advantage appears where sensitivity is least reliably measured and ",
+  "reverses where it is best measured (memory pairs) - is offered as ",
+  "interpretation of residual attenuation, not as a tested result.")
+
+V$cap_fig2 <- paste0(
+  "Confidence Database level-vs-sensitivity contrast (NON-CONFIRMATORY, ",
+  "robustness tier) with the Lund confirmatory pair for comparison. Left: ",
+  "cross-task correlations of confidence LEVEL (filled) and metacognitive ",
+  "sensitivity (open; CD rows d'-partialed AUROC2, Lund row ",
+  "calibration-corrected) with 95% CIs; gray brackets are the r_sens ",
+  "disattenuation RANGES - sensitivity ranges, never corrected point values. ",
+  "Right: the RAW gap (r_level - r_sens_raw) per CD study with 95% CI, against ",
+  "SIMULATION null-reference intervals - the 2.5-97.5% span of the raw gap in a ",
+  "true-null world (true r_level = true r_sens = 0.30 dotted / 0.45 dashed) ",
+  "matched to each study's n, trials, scale, and reliabilities. Raw gaps are ",
+  "inflated by differential attenuation (level split-half reliabilities ",
+  V$cd_level_rng, " vs AUROC2 ", V$cd_auroc_rng, "), so a positive raw gap is ",
+  "expected even under a true null; only Arbuzova_unpub_3 memory x visual ",
+  "exceeds its null-reference intervals (raw gap ", V$cd_arbU_rawgap,
+  " vs upper bounds ", V$cd_arbU_n30, " / ", V$cd_arbU_n45, "). This tier tests ",
+  "TASK-generalization with exactly one external cross-domain pair: only ",
+  "Arbuzova_unpub_3 memory x visual is cross-DOMAIN; Arbuzova_2021_expt2 is a ",
+  "visuomotor condition x condition pair, and Bang_2019_Exp2 and ",
+  "Haddara_2022_Expt1 are within-vision task pairs - these four studies are not ",
+  "four cross-domain replications. The Lund row is the preregistered ",
+  "CONFIRMATORY (corrected) result: its gap (", V$gap, ", 95% CI ", V$gap_ci,
+  ") does not exclude a null. Null-reference intervals are a simulation ",
+  "reference, not a correction and not a test.")
 
 # ============ helper tables (rendered from CSV, not hand-typed) ============
 # reliability floor table (Lund domains)
@@ -247,34 +330,106 @@ kb <- function(df, cap) knitr::kable(df, caption = cap, align = "l")
 
 # Abstract {#sec-abstract}
 
-::: {.callout-note appearance="minimal"}
-**[STUB — written in dispatch 012 after Ben's review.]**
-<!-- Frame (Ben decision 2, measurement-lens): apparent level-vs-sensitivity
-dissociations in confidence are largely a measurement/attenuation story;
-after reliability-aware correction the level-minus-sensitivity gap does not
-exclude zero, while confidence LEVEL clearly generalizes across domains.
-Lead with the corrected confirmatory result (gap not excluded; both
-components domain-general), then the measurement floor, then the external
-robustness tier (holds 1/4, partial 3/4). ~200 words. -->
-:::
+Confidence in one's own judgements correlates across cognitive domains, a
+pattern usually read as evidence for domain-general metacognitive ability. But
+"confidence" conflates two separable quantities: its LEVEL — a person's average
+confidence, or set-point — and its INFORMATIVENESS, the metacognitive
+sensitivity with which confidence discriminates correct from incorrect
+responses. Because level is measured far more reliably than sensitivity, a naive
+comparison of their cross-domain correlations manufactures an apparent
+level-over-sensitivity advantage even when none exists. Using a preregistered,
+reliability-corrected estimator validated by simulation before it touched the
+data, we ask which component is domain-general in a four-domain confidence study
+[@Lund_2025]. Confidence level generalizes strongly across domains
+(ρ_level = `r V$rl`). Corrected metacognitive sensitivity also correlates across
+domains (ρ_sens = `r V$rs`, 95% CI excluding zero) — it is not domain-specific.
+The level-minus-sensitivity gap that a strong dissociation account predicts is
+`r V$gap`, with a 95% CI that does not exclude zero; the same analysis without
+correction would have "confirmed" a dissociation (raw gap `r V$rawgap`,
+excluding zero). A non-ipsative multilevel decomposition and an external
+robustness tier across four Confidence Database studies reproduce the pattern:
+level travels, while the dissociation does not survive attenuation-aware
+analysis. Apparent dissociations between confidence components in metacognition
+are, in substantial part, a measurement-reliability artifact.
 
 # Introduction {#sec-intro}
 
-::: {.callout-note appearance="minimal"}
-**[STUB — written in dispatch 012.]**
-<!-- One-paragraph outline: (1) the puzzle — confidence correlates across
-domains, but is that shared metacognitive ABILITY or shared scale-use? (2)
-prior mixed findings and the five collapsed claims of the earlier effort
-(without re-stating them as results); (3) the measurement-lens thesis —
-confidence reports separate into LEVEL/set-point and INFORMATIVENESS/
-metacognitive sensitivity, and the domain-general part is the LEVEL, tested
-not assumed; (4) contributions list: a validated two-component measurement
-framework with a recovery/separability gate, a preregistered
-reliability-corrected confirmatory test in Lund et al. (2025), a
-non-ipsative multilevel decomposition, and an external robustness tier in
-the Confidence Database. State up front that a null or partial gap is an
-acceptable, reportable outcome. -->
-:::
+People are, to a degree, aware of when they are right and when they are wrong,
+and they express that awareness as confidence in their own judgements
+[@Fleming_2014]. A striking regularity in the metacognition literature is that
+confidence appears to travel across otherwise unrelated tasks: someone who
+reports high or well-calibrated confidence about a perceptual judgement tends to
+do so about a memory judgement as well. This cross-domain coherence is widely
+taken as evidence for a domain-general metacognitive faculty — a single
+self-monitoring capacity that operates over the outputs of many different
+cognitive systems. Whether such a general capacity exists, and what exactly it
+would consist of, matters both for theories of metacognition and for the
+practical hope that a person's self-assessment in one setting tells us something
+about their self-assessment in another.
+
+The difficulty is that "confidence" is not one thing. A confidence report
+carries at least two separable quantities. The first is its LEVEL, or set-point:
+how high a person runs the dial on average — a response-style or scale-use
+tendency that is largely independent of whether the confidence is deserved. The
+second is its INFORMATIVENESS, or metacognitive sensitivity: how well a person's
+confidence discriminates their own correct from incorrect responses. These can
+dissociate in principle, and they support very different claims. A shared
+set-point across domains is a domain-general *bias* — a person who simply tends
+to feel sure of themselves everywhere. A shared sensitivity across domains is a
+domain-general *skill* — a genuine self-monitoring ability that generalizes.
+Much prior work reports cross-domain confidence correlations without cleanly
+separating these two, so it is often unclear which of the two — bias or skill —
+the reported generality actually reflects.
+
+This ambiguity would be a minor definitional matter were it not compounded by a
+measurement hazard that runs in a specific direction. Confidence level is
+measured almost perfectly from a modest number of trials, because it is just an
+average. Metacognitive sensitivity, by contrast, is estimated from the
+covariation between confidence and accuracy within a person, is bounded by the
+number of trials available, and is measured poorly at realistic trial counts. A
+difference between two correlations is biased upward when one of the two
+variables is measured much more reliably than the other. It follows that a raw,
+uncorrected comparison of level-generalization against sensitivity-generalization
+will tend to *manufacture* an apparent advantage of level over sensitivity even
+when the two are equally domain-general in truth. Any honest test of whether the
+domain-general part of confidence is its level rather than its informativeness
+must therefore confront differential reliability head-on, rather than reading a
+raw gap between two correlations at face value. This measurement hazard is the
+pivot around which the present paper is built.
+
+We take a deliberately conservative, from-scratch approach. Before computing any
+cross-domain quantity, we build and validate a two-component measurement layer in
+simulation, requiring that each component's estimator recovers its known planted
+value and that the two components are separable — that estimating one does not
+leak into the other. That gate forces two design choices that are not cosmetic:
+metacognitive sensitivity must be partialed for first-order performance, and one
+domain pair alone meets the trial-count requirement for a calibrated,
+reliability-corrected confirmatory test. Around that single preregistered test
+we place explicitly weaker tiers — a descriptive survey of the remaining domain
+pairs with frozen bias allowances, a non-ipsative multilevel decomposition that
+avoids the mean-subtraction artifact known to plague this literature, and an
+external robustness tier drawn from an independent multi-study database — each
+carried with attenuation-aware yardsticks rather than raw comparisons. We keep a
+firewall between building the measurement layer and testing the thesis, and we
+fix the reporting wording in advance. We state plainly at the outset that a null
+or partial dissociation is an acceptable, reportable outcome: the design is
+powered to detect a substantial level-over-sensitivity gap, not a small one, and
+we report what the data show either way.
+
+This paper makes four contributions. First, a validated two-component
+measurement framework for confidence with an explicit recovery-and-separability
+gate, so that the estimators are known to work before they are trusted. Second, a
+preregistered, reliability-corrected confirmatory test of which component is
+domain-general in the four-domain study of @Lund_2025. Third, a non-ipsative
+multilevel decomposition that asks which component carries the cross-domain
+covariance without inducing the ipsative artifact of naive mean subtraction.
+Fourth, an external robustness tier across four multi-task studies from the
+Confidence Database [@Rahnev_2020], each read against a simulated null reference
+rather than pooled. The thesis these tiers converge on is a measurement-lens one:
+what looks, in prior-style analyses, like a dissociation in which confidence
+level generalizes and metacognitive sensitivity does not is, once measurement
+reliability is handled honestly, largely absent as a *distinguishable* effect —
+while confidence level itself clearly does generalize across domains.
 
 # Methods {#sec-methods}
 
@@ -291,8 +446,8 @@ any use: the MD5 checksum matched the value recorded by the authors
 domains, with confidence reported on a `r V$lund_conf` scale. As an
 external cross-check (never as a primary number) we reproduced per-subject
 mean confidence against the authors' shipped MLE fits; agreement was high
-(within-domain correlations ≥ 0.998), the small residual reflecting their
-undocumented preprocessing. Median trials per subject are 200 for memory and
+(within-domain correlations `r V$mle_cor_rng` across the four domains), the
+small residual reflecting their undocumented preprocessing. Median trials per subject are 200 for memory and
 vision and roughly 100 for the two knowledge domains. Following the
 from-scratch mandate of this project, all analysis code is original to this
 repository and no computational result from any prior effort was reused or
@@ -518,13 +673,13 @@ kb(desc_tbl, NULL)
 
 ```{r fig-landscape}
 #| label: fig-landscape
-#| fig-cap: "Cross-domain correlation landscape (NON-CONFIRMATORY except the filled memory x vision confirmatory point). Full caption: figures/fig_captions.md (Figure 1)."
+#| fig-cap: !expr V$cap_fig1
 knitr::include_graphics(figp("fig_landscape.png"))
 ```
 
 ```{r fig-gapreliability}
 #| label: fig-gapreliability
-#| fig-cap: "EXPLORATORY: gap vs. sensitivity measurement quality. No line fitted, no test performed. Full caption: figures/fig_captions.md (Figure S1)."
+#| fig-cap: !expr V$cap_figS1
 knitr::include_graphics(figp("figS_gap_vs_reliability.png"))
 ```
 
@@ -539,7 +694,8 @@ A Δ_ICC of zero sits at the very edge of this interval — we present this as a
 boundary result and never claim the zero-exclusion; it is directionally
 consistent with the confirmatory corrected gap (two different estimands, the
 same "cannot quite exclude zero" verdict). Robustness rungs agree (R1
-z-scored: ICC_level 0.44, ICC_sens 0.36; R2 ordinal: 0.43, 0.32). The
+z-scored: ICC_level `r V$r1_icc_l`, ICC_sens `r V$r1_icc_s`; R2 ordinal:
+`r V$r2_icc_l`, `r V$r2_icc_s`). The
 methods exhibit confirms why mean subtraction was avoided: the naive
 grand-mean-centered correlations run from `r V$ips_real_min` to
 `r V$ips_real_max` (mean `r V$ips_real_mean`) in these data, and
@@ -595,7 +751,7 @@ kb(yard_tbl, NULL)
 
 ```{r fig-cdb}
 #| label: fig-cdb
-#| fig-cap: "Confidence Database level-vs-sensitivity contrast with the Lund confirmatory pair for comparison (NON-CONFIRMATORY). Full caption: figures/fig_captions.md (Figure 2)."
+#| fig-cap: !expr V$cap_fig2
 knitr::include_graphics(figp("fig_confdb_contrast.png"))
 ```
 
@@ -613,47 +769,135 @@ kb(claim_tbl, NULL)
 
 # Discussion {#sec-discussion}
 
-::: {.callout-note appearance="minimal"}
-**[STUB — written in dispatch 012.]**
-<!-- Outline: (1) the headline through the measurement lens — apparent
-level-vs-sensitivity dissociations are largely an attenuation story; after
-correction the gap is not excluded while level clearly generalizes;
-(2) the landscape section (Ben decision, session 2): the heterogeneous gap
-figure read as one measurement fact wearing six costumes (level-advantage
-where sensitivity is poorly measured, reversal where memory's better-measured
-sensitivity is involved) — attenuation interpretation, explicitly not a
-tested result; (3) what the external tier does and does not add — level
-travels, one cross-domain pair holds narrowly, task-generalization is not
-domain-generality; (4) relation to the "domain-general bias = domain-general
-confidence LEVEL" reading; (5) what would settle the gap question (more
-trials for sensitivity, more cross-domain pairs). Do not resurrect any of the
-five collapsed claims. -->
-:::
+Read through the measurement lens, these results tell a two-sided story that
+resists both of the overclaims available here. On one side, confidence level
+generalizes strongly and reliably across domains: in the preregistered
+confirmatory pair its cross-domain correlation is `r V$rl`, and it is uniformly
+positive everywhere else we look. On the other side, once metacognitive
+sensitivity is corrected for its poor reliability, it too correlates across
+domains, with an interval that excludes zero (`r V$rs`) — so sensitivity is not
+domain-specific either. The quantity a strong dissociation account cares about,
+the level-minus-sensitivity gap, is `r V$gap` with a 95% CI of `r V$gap_ci` that
+does not exclude zero. The contrast that makes the point sharpest is internal to
+the same data: the naive subject-level analysis yields a gap of `r V$rawgap`
+whose interval *excludes* zero and would have affirmed a dissociation, whereas
+the reliability-corrected analysis of the identical subjects and domains does
+not. The apparent dissociation that prior-style analyses would report is, in
+substantial part, a differential-reliability artifact. This cuts in both
+directions at once: against overclaiming a level-over-sensitivity dissociation,
+and against the opposite conclusion that metacognitive sensitivity fails to
+generalize.
+
+The descriptive landscape across the remaining domain pairs is best read the
+same way — as one measurement fact wearing several costumes rather than several
+psychological facts. The level-minus-sensitivity gap is heterogeneous across
+pairs: it is most positive where vision is involved and reverses to near zero or
+negative for the pairs that involve memory. That pattern tracks measurement
+quality rather than psychology. Metacognitive sensitivity is estimated most
+reliably in memory (parcel reliability `r V$parc_mem`) and least reliably in the
+other domains (vision `r V$parc_vis`, Calories `r V$parc_cal`, GDP
+`r V$parc_gdp`); the apparent level advantage is largest exactly where
+sensitivity is measured worst, and it shrinks or reverses where memory's
+better-measured sensitivity enters the pair. We present this as an attenuation
+*interpretation*, not a tested result: the gap-versus-reliability display
+(@fig-gapreliability) fits no line and performs no test, and with a handful of
+non-independent pairs it could not. It is worth being explicit about the one
+descriptive pair whose sampling interval excludes zero, vision × GDP: its lower
+bound still lies inside its frozen systematic-bias band, so even there we make no
+nonzero-gap claim. The heterogeneity that a psychological account would have to
+explain domain by domain is, on this reading, the shadow of a single asymmetry in
+how well the two components can be measured.
+
+The external tier from the Confidence Database adds a genuine but bounded piece
+of evidence, and its structure must be stated carefully. Confidence level again
+travels well: its cross-task correlation is positive and precisely estimated in
+every one of the four studies (`r V$cd_rl_lo`–`r V$cd_rl_hi`). Metacognitive
+sensitivity is where the taxonomy matters. Only one of the four pairs is
+genuinely cross-**domain** (Arbuzova_unpub_3, memory × visual); the others are a
+condition × condition pair and two within-vision task pairs, which test
+task-generalization, not cross-domain generality, and are never presented as
+cross-domain replications. By the preregistered rule the Lund pattern holds in
+that single cross-domain pair only narrowly: its raw gap clears its simulated
+null reference by margins of just `r V$cd_margin30` and `r V$cd_margin45`, so the
+replication is directional rather than decisive, and a null is not excluded in
+the three task-generalization pairs. Tellingly, one of those within-vision pairs
+shows a strong sensitivity correlation (`r V$cd_hadd_rs`): metacognitive
+sensitivity clearly *can* generalize across near-identical tasks within a domain.
+That is a demonstration of task generalization, and it should not be mistaken for
+evidence of cross-domain metacognitive skill — the two are different claims, and
+only the former is on display here.
+
+These results also let us reconcile the paper with the older claim that
+metacognition harbours a domain-general trait. The signal that most robustly
+survives across domains, in every tier, is the confidence set-point — the level
+component. The multilevel decomposition tells the same story from the
+variance-share side: the person-general share of the set-point (`r V$icc_l`) sits
+above that of confidence resolution (`r V$icc_s`), with their difference a
+boundary result that never claims to exclude zero. What this suggests is that a
+good deal of what has been described as "domain-general metacognition" may be
+domain-general confidence *bias* — shared scale-use, a stable set-point — rather
+than a shared metacognitive *ability*. That is a more modest object than a
+general self-monitoring faculty, and it is the one the present data most clearly
+support; it does not deny that sensitivity generalizes, only that the evidence
+here cannot cleanly separate a generalizing sensitivity from a generalizing
+set-point once reliability is handled honestly.
+
+What would settle the question the confirmatory test leaves open is more
+measurement, not more theory. The corrected test is powered to detect a
+substantial gap and not a small one, and metacognitive sensitivity sits on a
+reliability floor throughout these data. Lifting sensitivity off that floor —
+more trials per task, so that its reliability approaches the near-ceiling of
+level — would let a reliability-corrected gap be estimated with far less
+uncertainty. So would more genuinely cross-domain pairs, rather than the largely
+within-domain task pairs that the available databases mostly offer, and
+higher-powered confirmatory designs built for a small effect. The reusable
+contribution of this paper is not the particular verdict in this dataset but the
+machinery that produced it: a recovery-and-separability gate, an explicit
+reliability correction validated before use, and simulated null references in
+place of raw comparisons.
+
+The moral generalizes beyond these four domains. Wherever two metacognitive
+quantities are measured with very different reliability — and confidence level
+and metacognitive sensitivity almost always are — comparing their cross-domain
+correlations without correction will invite a manufactured dissociation. The
+honest version of the question is not "does level generalize more than
+sensitivity?" but "does it generalize more than differential attenuation alone
+would predict?" In these data, once that question is asked properly, confidence
+level clearly generalizes, and the apparent gap between the two components does
+not survive.
 
 # Limitations {#sec-limitations}
 
-::: {.callout-note appearance="minimal"}
-**[STUB — prose written in dispatch 012. Standing checklist seeded below.]**
-<!-- Checklist to expand:
-- Power: ~60% at a true gap of 0.4; the confirmatory test cannot detect a
-  small gap. A null gap is "not excluded," not evidence of absence.
-- Sensitivity is weakly measured everywhere (the floor); disattenuation is
-  presented only as a range, never a point.
-- Delta_ICC boundary: zero at the edge of the interval; not a zero-exclusion.
-- External cross-domain evidence rests on ONE pair (Arbuzova_unpub_3, n=40),
-  holds only narrowly (margins 0.046 and 0.020), and is generator-sensitive:
-  an independently built null-reference simulator shrinks the rho=0.45 margin
-  to ~0.008. Within-vision task pairs are not cross-domain replications.
-- Null-reference simulator caveats: fixed per-task accuracy (no d' trait, no
-  staircase dynamics), equally spaced latent thresholds; reliabilities and
-  means matched, higher moments not.
-- Disattenuation of r_sens uses AUROC2 reliabilities though r_sens is the
-  d'-partialed residual (the residual's reliability is not identical).
-- Single primary dataset (Lund) for the confirmatory test; four heterogeneous
-  CD studies, no pooling.
-- gamma dropped (set-point leakage); meta-d'/HMeta-d not the spine.
--->
-:::
+Several limitations bound these conclusions. First, the confirmatory test is
+powered to detect only a substantial dissociation: at a true gap of 0.4 the
+corrected test excludes zero roughly `r V$power`% of the time, so the null gap we
+report is "not excluded" rather than evidence of no dissociation — the design
+cannot distinguish a true null from a small gap it is underpowered to find.
+Second, metacognitive sensitivity is weakly measured everywhere in these data
+(split-half AUROC2 reliability far below that of confidence level); we therefore
+present disattenuation only as a range, never as a corrected point estimate, and
+treat the reliability asymmetry as a systematic feature rather than a nuisance to
+be fully removed. Third, the multilevel Δ_ICC is a boundary result: a Δ_ICC of
+zero sits at the very edge of its interval, within Monte-Carlo error of the
+bound, so we do not claim a zero-exclusion. Fourth, the confirmatory test rests
+on a single dataset and a single 200/200-trial domain pair (memory × vision); the
+other pairs are explicitly descriptive. Fifth, the external cross-domain evidence
+rests on a single small study (Arbuzova_unpub_3, n = `r V$cd_arbU_n`) that clears
+its simulated null reference only narrowly (margins `r V$cd_margin30` and
+`r V$cd_margin45`), and the smaller margin shrinks further under an independently
+constructed null simulator — so this replication is directional, not decisive;
+the remaining external pairs are within-vision task pairs or a condition pair and
+test task-generalization, not cross-domain generality. Sixth, the null-reference
+simulator matches each study's reliabilities and means but not higher moments,
+and uses fixed per-task accuracy with equally spaced latent thresholds. Seventh,
+the Confidence-Database disattenuation applies AUROC2 reliabilities to the
+d′-partialed residual, whose reliability is not identical to that of raw AUROC2.
+Eighth, first-order sensitivity (d′) is itself poorly measured outside the memory
+domain, and the multilevel resolution slope is not d′-partialed (the residual
+confound is quantified, not removed). Finally, gamma was excluded as a
+sensitivity measure because it leaked the set-point in recovery simulation, and
+we treat the meta-d′/M-ratio family as secondary; no meta-analytic pooling is
+performed across the heterogeneous Confidence-Database studies.
 
 # Data and code availability {#sec-availability}
 
