@@ -258,13 +258,15 @@ V$cap_fig2 <- paste0(
 
 # ============ helper tables (rendered from CSV, not hand-typed) ============
 # reliability floor table (Lund domains)
+# NOTE: sapply() returns a NAMED vector; without unname()/row.names=NULL those
+# names become data-frame row names and kable prints them as a phantom column.
 rel_tbl <- data.frame(
   Domain = c("Memory","Vision","Calories","GDP"),
-  `Level (mean conf.)` = sapply(c("memory","vision","Calories","GDP"),
-    function(d) fmt(sh$reliability[sh$measure=="mean_conf" & sh$domain==d],2)),
-  `Sensitivity (AUROC2)` = sapply(c("memory","vision","Calories","GDP"),
-    function(d) fmt(sh$reliability[sh$measure=="auroc2" & sh$domain==d],2)),
-  check.names = FALSE, stringsAsFactors = FALSE)
+  `Level (mean conf.)` = unname(sapply(c("memory","vision","Calories","GDP"),
+    function(d) fmt(sh$reliability[sh$measure=="mean_conf" & sh$domain==d],2))),
+  `Sensitivity (AUROC2)` = unname(sapply(c("memory","vision","Calories","GDP"),
+    function(d) fmt(sh$reliability[sh$measure=="auroc2" & sh$domain==d],2))),
+  check.names = FALSE, stringsAsFactors = FALSE, row.names = NULL)
 
 # descriptive 5-pair table
 prettypair <- function(p) gsub("_x_", " x ", p)
@@ -280,6 +282,11 @@ desc_tbl <- data.frame(
 cdp <- s15[s15$subset=="primary" & s15$tier=="PRIMARY", ]
 studies <- c("Arbuzova_2021_expt2","Arbuzova_unpub_3","Bang_2019_Exp2","Haddara_2022_Expt1")
 getq <- function(study,q,col="estimate") cdp[[col]][cdp$study==study & cdp$quantity==q]
+# Short display labels keep Study out of the n / r_level columns (the long keys
+# forced a line break that collided those columns in the Typst render). The map is
+# assert-guarded so an unexpected study id fails the render rather than mislabelling.
+studylab <- c("Arbuzova_2021_expt2"="Arbuzova 2021 E2", "Arbuzova_unpub_3"="Arbuzova unpub 3",
+              "Bang_2019_Exp2"="Bang 2019 E2", "Haddara_2022_Expt1"="Haddara 2022 E1")
 pairlab <- c("Arbuzova_2021_expt2"="task1 x task2 (visuomotor, condition x condition)",
              "Arbuzova_unpub_3"="memory x visual (CROSS-DOMAIN)",
              "Bang_2019_Exp2"="task1 x task2 (coarse x fine Gabor, within vision)",
@@ -287,11 +294,12 @@ pairlab <- c("Arbuzova_2021_expt2"="task1 x task2 (visuomotor, condition x condi
 verdict <- c("Arbuzova_2021_expt2"="partial","Arbuzova_unpub_3"="holds (narrowly)",
              "Bang_2019_Exp2"="partial","Haddara_2022_Expt1"="partial")
 nsub <- sapply(studies, function(s) unique(cdp$n_subjects[cdp$study==s]))
+stopifnot(all(studies %in% names(studylab)))
 cd_tbl <- data.frame(
-  Study = studies, Pair = pairlab[studies], n = nsub,
-  `r_level [95% CI]` = sapply(studies,function(s) paste0(fmt(getq(s,"r_level"))," ",ci(getq(s,"r_level","ci_lo"),getq(s,"r_level","ci_hi")))),
-  `r_sens (d'-part.) [95% CI]` = sapply(studies,function(s) paste0(fmt(getq(s,"r_sens"))," ",ci(getq(s,"r_sens","ci_lo"),getq(s,"r_sens","ci_hi")))),
-  `verdict` = verdict[studies],
+  Study = unname(studylab[studies]), Pair = unname(pairlab[studies]), n = unname(nsub),
+  `r_level [95% CI]` = unname(sapply(studies,function(s) paste0(fmt(getq(s,"r_level"))," ",ci(getq(s,"r_level","ci_lo"),getq(s,"r_level","ci_hi"))))),
+  `r_sens (d'-part.) [95% CI]` = unname(sapply(studies,function(s) paste0(fmt(getq(s,"r_sens"))," ",ci(getq(s,"r_sens","ci_lo"),getq(s,"r_sens","ci_hi"))))),
+  `verdict` = unname(verdict[studies]),
   check.names = FALSE, stringsAsFactors = FALSE, row.names = NULL)
 
 # CD yardstick table (raw gap vs null-reference + disatt ranges)
@@ -299,33 +307,47 @@ raw <- s15[s15$subset=="primary" & s15$tier=="SECONDARY" & s15$quantity=="gap_ra
 disL <- s15[s15$subset=="primary" & s15$tier=="PRIMARY" & s15$quantity=="r_level", ]
 disS <- s15[s15$subset=="primary" & s15$tier=="PRIMARY" & s15$quantity=="r_sens", ]
 yard_tbl <- data.frame(
-  Study = studies,
-  `r_level disatt. range` = sapply(studies,function(s) ci(disL$disatt_lo[disL$study==s],disL$disatt_hi[disL$study==s])),
-  `r_sens disatt. range`  = sapply(studies,function(s) ci(disS$disatt_lo[disS$study==s],disS$disatt_hi[disS$study==s])),
-  `raw gap [95% CI]` = sapply(studies,function(s) paste0(fmt(raw$estimate[raw$study==s])," ",ci(raw$ci_lo[raw$study==s],raw$ci_hi[raw$study==s]))),
-  `null-ref (rho=.30)` = sapply(studies,function(s) ci(raw$nullref_rho30_lo[raw$study==s],raw$nullref_rho30_hi[raw$study==s])),
-  `null-ref (rho=.45)` = sapply(studies,function(s) ci(raw$nullref_rho45_lo[raw$study==s],raw$nullref_rho45_hi[raw$study==s])),
+  Study = unname(studylab[studies]),
+  `r_level disatt. range` = unname(sapply(studies,function(s) ci(disL$disatt_lo[disL$study==s],disL$disatt_hi[disL$study==s]))),
+  `r_sens disatt. range`  = unname(sapply(studies,function(s) ci(disS$disatt_lo[disS$study==s],disS$disatt_hi[disS$study==s]))),
+  `raw gap [95% CI]` = unname(sapply(studies,function(s) paste0(fmt(raw$estimate[raw$study==s])," ",ci(raw$ci_lo[raw$study==s],raw$ci_hi[raw$study==s])))),
+  `null-ref (rho=.30)` = unname(sapply(studies,function(s) ci(raw$nullref_rho30_lo[raw$study==s],raw$nullref_rho30_hi[raw$study==s]))),
+  `null-ref (rho=.45)` = unname(sapply(studies,function(s) ci(raw$nullref_rho45_lo[raw$study==s],raw$nullref_rho45_hi[raw$study==s]))),
   check.names = FALSE, stringsAsFactors = FALSE, row.names = NULL)
 
 # claim-status summary table for Results (subset of columns)
+# The full tier strings are 30-40 characters and wrapped into a column so narrow
+# that rows collided across the page break. Short codes carry the same information;
+# the dagger and the key are spelled out in the caption. Guarded: an unmapped tier
+# fails the render. VALUES are untouched -- only the tier LABEL is abbreviated, and
+# estimates/CIs are formatted (not retyped) from the committed CSV.
+tiermap <- c("CONFIRMATORY" = "Confirmatory",
+             "METHODS EXHIBIT" = "Methods exhibit",
+             "DESCRIPTIVE (NON-CONFIRMATORY)" = "Descriptive*",
+             "STEP4 MULTILEVEL (NON-CONFIRMATORY)" = "Multilevel*",
+             "CONFDB ROBUSTNESS (NON-CONFIRMATORY)" = "ConfDB*",
+             "FLOOR / METHODS" = "Floor / methods")
+stopifnot(all(claim$tier %in% names(tiermap)))
+num3 <- function(x) ifelse(is.na(suppressWarnings(as.numeric(x))), NA_character_,
+                           formatC(as.numeric(x), format = "f", digits = 3))
+est3 <- num3(claim$estimate); lo3 <- num3(claim$ci_lo); hi3 <- num3(claim$ci_hi)
 claim_tbl <- data.frame(
   `#` = seq_len(nrow(claim)),
-  `Claim` = claim$claim_id,
-  `Tier` = claim$tier,
-  `Estimate` = ifelse(is.na(claim$estimate) | claim$estimate=="", "-",
-                paste0(claim$estimate, ifelse(is.na(claim$ci_lo)|claim$ci_lo=="","",
-                       paste0(" [", claim$ci_lo, ", ", claim$ci_hi, "]")))),
+  `Claim` = gsub("_", " ", claim$claim_id),
+  `Tier` = unname(tiermap[claim$tier]),
+  `Estimate [95% CI]` = ifelse(is.na(est3), "-",
+                ifelse(is.na(lo3), est3, paste0(est3, " [", lo3, ", ", hi3, "]"))),
   `Verdict (frozen)` = claim$verdict_wording,
-  check.names = FALSE, stringsAsFactors = FALSE)
+  check.names = FALSE, stringsAsFactors = FALSE, row.names = NULL)
 
 kb <- function(df, cap) knitr::kable(df, caption = cap, align = "l")
 ```
 
 <!-- =====================================================================
-     STRUCTURE: Abstract (STUB), Introduction (STUB), Methods (FULL),
-     Results (FULL), Discussion (STUB), Limitations (STUB), Data & Code
-     Availability (FULL), References. Intro/Discussion/Abstract are drafted
-     in dispatch 012 after Ben reviews this skeleton. Do NOT draft them here.
+     STRUCTURE: Abstract, Introduction, Methods, Results, Discussion,
+     Limitations, Data & Code Availability, References -- ALL FULL PROSE
+     as of dispatch 012. (The earlier STUB notice here was stale and is
+     removed; nothing in this file is a placeholder.)
      ===================================================================== -->
 
 # Abstract {#sec-abstract}
@@ -740,6 +762,7 @@ generalization, not cross-domain generality.
 ```{r tbl-cdb}
 #| label: tbl-cdb
 #| tbl-cap: "Confidence Database contrast (NON-CONFIRMATORY, robustness). Subject bootstrap B = 2000. Only Arbuzova_unpub_3 memory x visual is cross-domain."
+#| tbl-colwidths: [13, 31, 6, 18, 20, 12]
 kb(cd_tbl, NULL)
 ```
 
@@ -763,7 +786,8 @@ frozen verdict wording (full machine-generated table with sources and CIs:
 
 ```{r tbl-claims}
 #| label: tbl-claims
-#| tbl-cap: "Claim-status summary (generated by analysis/17_claim_status.R from committed CSVs). Every value is assert-guarded in code; verdict wording is preregistered."
+#| tbl-cap: "Claim-status summary (generated by analysis/17_claim_status.R from committed CSVs). Every value is assert-guarded in code; verdict wording is fixed in advance. Tier key: Confirmatory = the single calibrated memory x vision test; Methods exhibit = an analysis shown to demonstrate an artifact, never a claim; Descriptive, Multilevel and ConfDB (marked *) are explicitly NON-CONFIRMATORY tiers; Floor / methods = the measurement-reliability baseline. A dash means the row summarises several quantities rather than one estimate; full values are in results/step17_claim_status.md."
+#| tbl-colwidths: [4, 14, 14, 20, 48]
 kb(claim_tbl, NULL)
 ```
 
