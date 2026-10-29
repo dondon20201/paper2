@@ -2,110 +2,108 @@
 
 <!-- Written by Claude Code after completing each dispatch. Cowork reads this to plan next steps. Overwrite the placeholder sections below; keep the section headings. -->
 
-**Status:** COMPLETE. The public replication copy is built, verified, rendered and pushed: `https://github.com/dondon20201/Git-For-Metacognition-Paper`, `main` = **`2a599ca`** (one commit, fresh history). There are four argued deviations, listed below. The main one: I excluded one tracked raw-data file, because "copy every tracked file" conflicts with "never copy raw data". paper2's content is unchanged. **No analysis was rerun.**
-**Dispatch #:** 014
-**Date:** 2026-10-28
+**Status:** COMPLETE. Ben's three decisions are applied to both repos, and every check passed. paper2 = **`de8497f`** (task commit, pushed). Public copy = **`6c9303c`** (pushed; `ls-remote` = local HEAD). There are three argued deviations, all in how checks were carried out; none changes content beyond the dispatch. **No analysis was rerun except `analysis/10_landscape_figures.R`.**
+**Dispatch #:** 015
+**Date:** 2026-10-29
 
 ## What was done
 
-**Part A: build the copy** (`C:\Dev\Git-For-Metacognition-Paper`; the folder did not exist beforehand).
-- **Source.** `git -C paper2 ls-files` at HEAD `6acef84` lists **116** tracked files.
-- **Excluded (10).**
-  - Per the dispatch: `BRIEF.md`, `CLAUDE.md`, `PROGRESS.md`, the old `README.md`, and `cowork/` (5 files: DISPATCH, REPORT, 3 session notes). `_inbox/` and `.claude/` contain no tracked files, so there was nothing to exclude there.
-  - Plus `data/raw/lund2025/mle_fit_data_wide.csv` (Deviation 1).
-- **Copied 106 files.** Each was exported from the HEAD blob with `git cat-file blob HEAD:<path>` (byte-exact).
-  - Why not copy the working tree: on Dondon (`core.autocrlf=true`), some working-tree files are CRLF (e.g. `renv.lock`, `results/*.csv`) while the HEAD blobs are LF.
-- **MD5 check: 106 / 106 copied files match** their paper2 HEAD blob.
-- **Required-file check.** Everything the dispatch lists is in `ls-files` and was copied: `R/`, `analysis/00–17`, `results/`, `figures/`, the four manuscript files, `renv.lock`, `.Rprofile`, `renv/{activate.R,settings.json,.gitignore}`, `_quarto.yml`, `.gitignore`, `.gitattributes`, and the data READMEs. **Nothing is missing.**
-- **`data/raw/` in the copy:** only `data/raw/.gitkeep` and `data/raw/lund2025/README.md`. No data file.
-- **Size:** 2,911,765 bytes (106 files) after Part A. The final committed tree is **107 files, 2,913,836 bytes (~2.8 MiB)**.
+**Part A: paper2**
+- **Re-measure (in-scope = 107 tracked files, i.e. all but `BRIEF.md`, `CLAUDE.md`, `PROGRESS.md`, `README.md`, `cowork/`).** Case-insensitive `pre-?regist` on the HEAD blobs gives **33 files, 108 occurrences**: `preregistered` 79, `Preregistered` 17, `preregistration` 8, `PREREGISTERED` 4, `Preregistration` 0. This **matches Cowork's count exactly**. There are no other forms and no hyphenated `pre-regist…`.
+- **Identifier check before substituting.** Every hit in `R/` and `analysis/` is in a comment or a string literal. None is an R identifier, so the hyphen cannot break syntax.
+- **A.1 substitution.** The map was applied in dispatch order to each HEAD blob (byte-exact read, raw write).
+  - **Counts by form:** 4 / 17 / 79 / 0 / 8. That is 108 replacements in 33 files.
+  - **Generating scripts and their committed outputs are both covered:**
+    - `09` line 148 ↔ the `tier` column in `step9_…_multilevel.csv` (8)
+    - `06` line 200 ↔ the `note` cell in `step6_…confirmatory.csv`
+    - `08` / `09` ↔ the two `meta.json` files
+    - `15` ↔ `step15_…md`
+    - `16` line 210 ↔ the Figure 2 caption in `fig_captions.md`
+  - **Word-level diff:** the only changed tokens are the 108 old forms becoming the 108 new ones. One of them is the compound `preregistered-by-default` → `pre-specified-by-default` (`results/STEP0B2_FINAL_REPORT.md:37`).
+  - **Line endings:** all 33 committed blobs are LF (`git ls-files --eol` = `i/lf`; 0 CR bytes).
+- **A.2 numbers guard: 33 / 33 files PASS.** The ordered `[0-9]+` runs are identical before and after.
+- **A.3 Figure 1 legend.** Line 123 now reads `"CONFIRMATORY (corrected)"`. I then ran `analysis/10_landscape_figures.R` under renv; all of its value assertions passed.
+  - **Data CSVs:** `results/fig_landscape_data.csv` and `results/figS_gap_vs_reliability_data.csv` are **byte-identical to HEAD** (LF-normalized md5 match; the working-tree bytes are also unchanged from before the run).
+  - **`figures/fig_captions.md`:** the final diff vs HEAD is **exactly the 2 substitution lines**. See Deviation 1 for how.
+  - **`figures/fig_landscape.png`:** I viewed it. The legend reads **"CONFIRMATORY (corrected)"**. A pixel diff against the HEAD PNG (2100×2400) shows **3,929 differing pixels, all inside one 281×40 px box at the first legend line** (x 900–1180, y 1206–1245), which is where ", dispatch 006" was removed. Every other pixel is identical.
+  - **`figures/fig_landscape.pdf`:** regenerated and committed (legend change plus R's timestamp fields).
+  - **figS:** the PNG is byte-identical. The PDF differed only in timestamps, so I restored it (Deviation 2).
+- **A.4 render.** `quarto render manuscript/ms.qmd` exited 0 with **all 19 chunks run and every assert-guard passing**. The only warnings are the 8 known cosmetic "Duplicated chunk option 'label'" ones. MD5s before and after: the render changed only `manuscript/ms.pdf`.
+- **A.5 PDF wording check: PASS, with one caveat on method** (Deviation 3).
+  - **Pages:** old 16, new 16.
+  - **Hits:** 11 in the old text, 0 in the new.
+  - **Result:** after the substitution map plus whitespace and line-break-hyphen removal, the texts are **identical (37,953 characters)** once a genuine hyphen in a line break is accounted for.
+- **A.6 completeness:** `pre-?regist` (case-insensitive) across in-scope tracked files = **0**. The excluded historical files still contain the old wording, as intended: `PROGRESS.md`, `cowork/DISPATCH.md`, the old `cowork/REPORT.md`, and 3 session notes.
+- **A.7:** commit `de8497f` (36 files: the 33 substituted files, plus `fig_landscape.pdf/.png` and `ms.pdf`). Pushed; `origin/master` = `de8497f`.
 
-**Part B: the two allowed edits** (copy only).
-- `README.md`: written with Cowork's text verbatim.
-- `manuscript/ms.qmd`: `diff` against the paper2 HEAD blob shows **exactly two changed lines**:
-  - line 7: `author: "Brandon Chow"`
-  - line 929: the code URL changed to `https://github.com/dondon20201/Git-For-Metacognition-Paper`
-- LF line endings are preserved. paper2's own `ms.qmd` is untouched (it still reads `Ben [Author]` and `/paper2`).
-
-**Part C: render check in the copy.**
-- **`renv::restore()`:** the first attempt failed on `xfun` because of a renv-cache defect on Dondon (Deviation 2). After the workaround, every lockfile package is installed and all other packages were linked from cache.
-  - `renv::status()` in the copy shows the same state as paper2: 10 recommended packages (class, mgcv, survival, …) are installed and recorded but not used. This is benign.
-  - `quarto check knitr` confirms Quarto's first LibPath is the copy's renv library.
-- **Render:** `quarto render manuscript/ms.qmd` exited 0 with all 19 chunks run. Every `stopifnot` assert-guard passed against the copied `results/`. The only warnings are the 8 cosmetic "Duplicated chunk option 'label'" ones already recorded in 013.
-- **`pdftotext` checks:**
-  - The author reads **"Brandon Chow"**.
-  - The availability section shows the new URL. It line-wraps at the URL's own hyphen: `…/Git-` / `For-Metacognition-Paper`.
-  - **16 pages**, the same as paper2's committed PDF.
-- **Full-text diff** (`pdftotext -layout`) of the copy's PDF against paper2's HEAD PDF: the only differences are the author line and the availability paragraph, which re-wraps because the URL is longer. Every other line is identical.
-- **What the render changed:** I took MD5s of every file before and after the render. Only `manuscript/ms.pdf` changed, plus the gitignored `.quarto/`. Nothing in `results/`, `figures/`, `analysis/` or `R/` was touched.
-- **`supplement.qmd`** was not rendered, as instructed.
-
-**Part D: commit and push the copy.**
-- `git init -b main`, then `origin = https://github.com/dondon20201/Git-For-Metacognition-Paper.git`.
-- **Remote was empty:** `git ls-remote` returned no refs before the push.
-- **One commit, `2a599caf08d301e4bb8640a59246a7df1957434a`:** `Initial release: replication materials for "What Generalizes in Metacognition?"` (plus the usual Co-Authored-By trailer). 107 files.
-- **Blob identity check** (the copy's index against paper2's HEAD tree): **104 / 107 are blob-identical**. The 3 that differ are the intended ones: `README.md` (new text), `manuscript/ms.qmd` (2 edits) and `manuscript/ms.pdf` (re-render).
-- **Push:** `git push -u origin main` succeeded with no force. `git ls-remote origin` shows `refs/heads/main` = `HEAD` = `2a599ca…` = local HEAD.
+**Part B: public copy** (`C:\Dev\Git-For-Metacognition-Paper`)
+- **B.1:** all 36 paths from the Part A commit exist in the copy (none are paper2-only). They were exported from paper2 HEAD with `git cat-file blob`; **36 / 36 MD5-match**.
+- **B.2:** both `ms.qmd` edits were re-applied. `diff` against paper2 HEAD shows **exactly 2 lines**: line 7 `author: "Brandon Chow"` and line 929, the public URL.
+- **B.3:** in `data/raw/lund2025/README.md`, row 21's last cell changed `Yes` → ``No (downloaded by `analysis/00_fetch_verify.R`)``. `diff` against paper2 HEAD shows **exactly 1 line**. The file is LF (it is `-text` there). paper2's copy still says `Yes`.
+- **B.4 render in the copy.**
+  - Exit 0, all 19 chunks, all guards passed. Quarto's first LibPath is the copy's renv library. Only `ms.pdf` changed.
+  - **16 pages.** The author reads **"Brandon Chow"**. The availability section shows `https://github.com/dondon20201/Git-For-Metacognition-Paper` (wrapped at its own hyphen, as in 014). 0 `pre-?regist` hits.
+  - **`pdftotext -layout` diff** against paper2's new PDF: only the author line and the re-wrapped availability paragraph differ.
+- **B.5 whole-repo check.** The copy's index was compared with paper2's HEAD tree.
+  - **103 / 107 files are blob-identical.**
+  - The 4 that differ are exactly the permitted ones: `README.md`, `manuscript/ms.qmd`, `manuscript/ms.pdf`, `data/raw/lund2025/README.md`.
+  - No file exists only in the copy. `data/raw/` holds only `.gitkeep` and the README. `pre-?regist` in tracked files = **0**.
+- **B.6:** a normal commit (no amend), **`6c9303c`** (`6c9303c0bfeade4413cf53c92036831612802af4`), by `dondon20201 <brandonchow2020@gmail.com>`: `Use "pre-specified" wording, clarify Figure 1 legend, correct data README`. Pushed with no force (`2a599ca..6c9303c`). `git ls-remote origin` shows `HEAD` = `refs/heads/main` = local HEAD = `6c9303c…`. The working tree is clean.
 
 ## Deviations from the dispatch (argued, never silent)
 
-1. **`data/raw/lund2025/mle_fit_data_wide.csv` NOT copied.**
-   - **The conflict.** It is tracked in paper2, so A.4 ("copy every remaining tracked file") would include it. But the Constraints ("Never copy raw data into the public copy"), the A.5 check ("no file under `data/raw/` other than README/.gitkeep") and the new README ("Raw data are not redistributed here") all exclude it. I followed the specific constraint over the general rule.
-   - **Why reproduction is unaffected:**
-     - It is the Lund authors' shipped MLE-fit file, i.e. third-party raw data.
-     - `analysis/00_fetch_verify.R` (lines 64–72) downloads it from the pinned commit when it is absent.
-     - The manuscript never reads it; the MLE cross-check reaches the manuscript through `results/step0a_provenance.json`.
-   - **Reversible:** it can be added in a later commit if wanted. Removing it after a public push would not have been.
-2. **renv environment workaround (local, gitignored; no file content changed).**
-   - **The defect.** Dondon's renv cache entry `…/renv/cache/v5/windows/R-4.6/x86_64-w64-mingw32/xfun/0.60/d1d49bb7…/xfun` actually contains **xfun 0.59** (its DESCRIPTION says `Version: 0.59`, built 2026-07-07). paper2's library links to that entry. renv found no `0.59` cache key, so it downloaded xfun 0.59 from CRAN, and the install failed.
-   - **Likely cause** (not verified): a source build. 0.59 is no longer CRAN's current version, and Rtools is not installed on Dondon.
-   - **Workaround.** I created a junction in the copy's gitignored `renv/library` that points `xfun` at the exact binary paper2 renders with, then re-ran `renv::restore()`, which succeeded.
-   - **Scope of the change.** This is environment setup only. Nothing in the repo or the render output changed because of it.
-3. **Git identity for the public commit was not specified in the dispatch, so I asked Ben in chat.**
-   - The two candidates were paper2's `citchow <citchow@gmail.com>` and the existing public sibling `Git-For-Reliability-Paper`'s `dondon20201 <brandonchow2020@gmail.com>`.
-   - **Ben chose `dondon20201 <brandonchow2020@gmail.com>`.** It is set repo-locally in the copy only.
-4. **`git init` ran before the Part C render rather than at Part D.**
-   - paper2 has no `.Rproj` or `.here` file, so `here::here()` finds the project root through `.git`.
-   - Initialising first makes `res()`/`figp()` resolve exactly as they do in paper2. I verified that the root resolves to the copy from `manuscript/`. This has no effect on content.
+1. **`figures/fig_captions.md`: script 10 cannot regenerate the whole file by itself.**
+   - **The problem.** Script 10 `writeLines()` the whole file with only the Figure 1 and Figure S1 captions (30 lines). The Figure 2 section (lines 31–34) is appended later by `analysis/16_confdb_figure.R` ("append once"). Running only script 10, as the dispatch requires, therefore deleted the Figure 2 caption. So the A.3 expectation ("its diff vs HEAD must consist only of the A.1 substitution") could not hold for the raw script output.
+   - **What I did.**
+     1. Verified that script 10's output is **byte-identical to lines 1–30 of the substituted HEAD file**.
+     2. Restored lines 31–34 from the substituted HEAD file. These are the script-16 section, whose source string literal was itself substituted in A.1.
+   - **Why this is correct.** The committed file is exactly what a 10 → 16 rerun produces, and its diff vs HEAD is the 2 substitution lines. I did not run script 16 (Constraints).
+2. **`figures/figS_gap_vs_reliability.pdf` not committed.**
+   - Script 10 regenerates it. The new file differed from HEAD in 20 bytes, **all inside the `/CreationDate` and `/ModDate` fields**; the size is the same (5,396 bytes).
+   - The content is unchanged and its PNG is byte-identical, so I restored the PDF from HEAD to avoid a timestamp-only change in both repos.
+3. **A.5 PDF wording check: the literal procedure produces one false mismatch, so I added one targeted normalization.**
+   - **The cause.** In the new PDF, one line breaks at the genuine hyphen of "pre-|specified" (Discussion: "…across domains: in the pre-" / "specified confirmatory pair…"). The dispatch's "remove line-break hyphens" step turns that into `prespecified`. It is a check artifact; the source reads `pre-specified`.
+     - poppler's default (non-layout) `pdftotext` already drops such hyphens itself, so I switched to `-layout` text, which keeps them.
+   - **What I did.** In the new text only, I kept the hyphen when a line ends in `pre-` and the next line starts with `specifi`. This happened in exactly **1** place. I also removed line-break hyphens in the old text *before* substituting, in case a `prereg-` word had been hyphenated.
+   - **Result:** identical. The line-end hyphen counts are old 27 and new 28, the +1 being this break.
+   - **What remains:** the literal order (substitute → strip) differs at exactly that one position and nowhere else.
 
 ## Observations for Cowork (no action taken)
 
-- **Dangling internal references in the public copy.** Code comments and results reports cite files that are not public. I did not edit them (Constraints).
-  - `cowork/DISPATCH.md #00x` is cited as the preregistration record in `R/multilevel.R`, `analysis/03, 04, 07, 08, 09, 10, 15`, `results/STEP0B_PRIME_REPORT.md` and `results/STEP0B2_FINAL_REPORT.md`.
-  - `BRIEF.md` is cited in `analysis/00, 01, 17`, `results/STEP0_REPORT.md` and `results/step17_claim_status.md`.
-  - This sharpens the still-open "preregistered" decision (013 Part D #3): the public repo now claims preregistration in files the public cannot see.
-- **`data/raw/lund2025/README.md` (copied verbatim) says the MLE file is "In git? Yes".** That is false in the public copy (Deviation 1). Any fix would be a third content edit, so it needs a dispatch.
-- **Internal jargon visible in public source:**
-  - The `ms.qmd` YAML comment (lines 2–5: "TITLE finalized in dispatch 012 … Alternatives recorded for Ben").
-  - The Fig 1 legend "dispatch 006" (already open as 013 Part D #5).
-- **The two manuscripts now diverge.** paper2 `ms.qmd` still says `Ben [Author]` and points to `/paper2`; the public copy says `Brandon Chow` and points to the public URL. Any later manuscript change in paper2 must be propagated to the public copy deliberately. A sync procedure is worth deciding.
-- **Public reproducibility risk (UNVERIFIED cause).** A Windows user without Rtools running `renv::restore()` will probably hit the same xfun 0.59 install failure. macOS/Linux users with compilers, or Windows users with Rtools, should be able to build it.
-- **Dondon cache defect.**
-  - Any project on Dondon whose lockfile records **xfun 0.60** and links that cache entry is actually loading 0.59. cogsci might be affected; I did not check.
-  - paper2 itself is consistent, because its lockfile records 0.59.
-  - The cache could be repaired, e.g. with `renv::purge("xfun")` and then a reinstall, but that is outside this dispatch's scope and affects shared state.
-- **No LICENSE** (decision 2). On GitHub that means default copyright: people can view and fork the repo but get no reuse rights.
-- **The YAML `date: "2026-07-11"` is unchanged in the public PDF**, because only two edits were allowed.
+- **One mechanical result reads a little oddly:** "linear, as pre-specified-by-default — no quadratic term" (`results/STEP0B2_FINAL_REPORT.md:37`). It is a faithful substitution, so I did not reword it.
+- **The 014 observation about dangling references still applies.** Public code comments now say e.g. "pre-specified in cowork/DISPATCH.md #004", which is still a pointer to a file the public cannot see. This dispatch did not ask for a change ("dispatch"/"Cowork" wording stays).
+- **The Figure 1 caption text still says "(dispatch 006)" / "(dispatch 007)"** in `fig_captions.md` and in script 10's caption strings. Only the legend was in scope. The rendered manuscript PDF contains no "dispatch" at all; `ms.qmd` has it only in 4 source comments (lines 2, 29, 103, 349).
+- **PROGRESS.md "Current status"** still lists "preregistered" wording and Fig 1 legend jargon as open Part D items. Updating that is Cowork's close-out; I only appended the session-log row.
+- **Pipeline fragility:** rerunning script 10 alone always drops the Figure 2 caption (Deviation 1). A future dispatch could make script 10 preserve or rewrite only its own sections, or make script 16's append idempotent against a fresh file. That is low priority, because the full pipeline order (10 then 16) is correct.
 
 ## Files changed / created
 
-- **Public copy** (`C:\Dev\Git-For-Metacognition-Paper`, new repo): 106 files copied byte-exact from paper2 HEAD; new `README.md`; `manuscript/ms.qmd` (2 lines); `manuscript/ms.pdf` (re-rendered). Local only and gitignored: `renv/library/`, `.quarto/`.
-- **paper2:** `cowork/REPORT.md` (this file), `PROGRESS.md` (session-log row 17), `cowork/DISPATCH.md` (Cowork's 014, committed by Code). Nothing else.
+- **paper2 (task commit `de8497f`, 36 files):**
+  - `R/confdb.R`, `R/multilevel.R`
+  - `analysis/01–10, 12–17` (17 scripts; `10` also has the legend change)
+  - `figures/fig_captions.md`, `figures/fig_landscape.pdf`, `figures/fig_landscape.png`
+  - `manuscript/ms.qmd`, `manuscript/ms.pdf`
+  - `results/`: `STEP0_REPORT.md`, `STEP0B_PRIME_REPORT.md`, `STEP0B2_FINAL_REPORT.md`, `step2_REALDATA_transfer_check.md`, `step6_REALDATA_confirmatory.{csv,md}`, `step7_REALDATA_descriptive.md`, `step8_SIMULATION_step4gate_meta.json`, `step9_REALDATA_step4_{meta.json,multilevel.csv,multilevel.md}`, `step15_CONFDB_contrast.md`, `step17_claim_status.md`
+- **paper2 (docs commit):** `cowork/REPORT.md` (this file), `PROGRESS.md` (session-log row 18), `cowork/DISPATCH.md` (Cowork's 015, committed by Code).
+- **Public copy (`6c9303c`, 37 files):** the same 36 paths (with `ms.qmd` carrying its 2 copy edits and `ms.pdf` re-rendered in the copy) plus `data/raw/lund2025/README.md` (1 line).
 
 ## Commits
 
-- **Public repo:** **`2a599ca`** (`2a599caf08d301e4bb8640a59246a7df1957434a`): `Initial release: replication materials for "What Generalizes in Metacognition?"`. It is pushed, and `origin/main` was verified equal to local HEAD.
+- **paper2:** **`de8497f`** `fix: dispatch 015 — "pre-specified" wording + Figure 1 legend`. Pushed; `origin/master` verified = `de8497f` at the time of push.
 - **paper2:** the final `docs:` commit holds this report, `PROGRESS.md` and `cowork/DISPATCH.md`. It is the latest commit touching REPORT.md, and it is pushed to `origin/master`.
+- **Public repo:** **`6c9303c`** (`6c9303c0bfeade4413cf53c92036831612802af4`) `Use "pre-specified" wording, clarify Figure 1 legend, correct data README`. Pushed with no force; `ls-remote` = local HEAD.
 
 ## Results / state
 
-- **The public replication repo is live.** It contains every analysis script, all of `results/` and `figures/`, the manuscript source and PDF, and the renv lockfile. It holds no raw data and no internal project-management files.
-- **Intactness is proven by the render.** All assert-guards passed against the copied `results/`, and the PDF text is identical to paper2's apart from the two intended edits.
+- **Both repos say "pre-specified" everywhere in scope:** 0 `pre-?regist` hits in paper2's in-scope files, the public copy's tracked files, and both rendered PDFs.
+- **No number changed anywhere.** The digit-run guard passed on 33/33 files. Figure data CSVs are byte-identical. Both renders passed every assert-guard. The PDF text matches the old text under the substitution map.
+- **Figure 1's legend reads "CONFIRMATORY (corrected)"** in both repos, matching Figure S1.
+- **The public data README is now correct:** `mle_fit_data_wide.csv` → "No (downloaded by `analysis/00_fetch_verify.R`)".
+- **The public copy = paper2 HEAD, except the 4 sanctioned files.**
 
 ## Issues & questions for planning
 
-1. **Add `mle_fit_data_wide.csv` to the public repo?** The default is no; it is re-fetched by `00_fetch_verify.R`. If no, the "In git? Yes" line in `data/raw/lund2025/README.md` should be corrected in a follow-up dispatch.
-2. **Dangling `cowork/DISPATCH.md` and `BRIEF.md` references in the public code and reports.** Leave them, reword them, or publish a redacted preregistration record? This ties to 013 Part D #3.
-3. **paper2 ↔ public-copy sync procedure** for future manuscript or result changes.
-4. **013 Part D editorial decisions remain open.** The author *name* is applied in the public copy only; affiliation, ORCID and email are still missing everywhere.
-5. **Optional:** repair Dondon's renv cache entry for xfun 0.60, and check whether cogsci is affected.
+1. **Should script 10 stop truncating `fig_captions.md`** (Deviation 1)? This only matters if script 10 is ever rerun on its own again.
+2. **Caption text "(dispatch 006/007)"** in `fig_captions.md` and script 10: leave it, or strip it like the legend? This is Ben's call; it is the same class as decision 2.
+3. **Dangling `cowork/DISPATCH.md` / `BRIEF.md` references in public files** remain open from 014 (Issue 2 there).
+4. **Still open from 014:** the paper2 ↔ public sync procedure (this dispatch's export-by-blob + re-apply-3-edits + blob-compare worked cleanly and could be the template); the author block (affiliation, ORCID, email); and the Dondon xfun cache defect.

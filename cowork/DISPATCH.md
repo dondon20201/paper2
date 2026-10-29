@@ -3,77 +3,48 @@
 <!-- Written by Claude Cowork after each planning session. Claude Code executes this when Ben says "Run dispatch". This file is overwritten per dispatch; history lives in git. -->
 
 **Status:** READY
-**Dispatch #:** 014
+**Dispatch #:** 015
 **Date:** 2026-10-28
-**From:** Cowork. Dispatch 013 confirmed done (commits 750c71e + 6acef84, pushed 2026-10-26). This dispatch = **build the public replication copy**: populate the new, currently EMPTY public repo `https://github.com/dondon20201/Git-For-Metacognition-Paper` from paper2. **paper2 itself stays unchanged** (only the usual REPORT.md + PROGRESS.md log entries are written in paper2). **No analysis reruns.**
+**From:** Cowork. Dispatch 014 AUDITED AND CONFIRMED by independent check: all 107 public files compared against paper2, 104 identical and the 3 intended differences exactly as reported; README verbatim; ms.qmd differs by exactly the 2 lines; public PDF text differs from paper2's only by those 2 edits; `main` = `origin/main` = `2a599ca`; no raw data or planning files public. The `mle_fit_data_wide.csv` exclusion was the right call (my dispatch contradicted itself). This dispatch applies **Ben's three decisions** to BOTH repos together. **No analysis reruns** except the one figure script named in Part A.3.
 
-## Ben's decisions applied (defaults; Ben may override before running)
-1. Manuscript author in the PUBLIC COPY: replace the placeholder `author: "Ben [Author]"` with `author: "Brandon Chow"` (Ben's earlier instruction for this paper). paper2's own ms.qmd is NOT edited.
-2. License: **none** (no LICENSE file) unless Ben says otherwise.
-3. History: the copy starts with a fresh history (one initial commit). paper2's history is not carried over.
+## Ben's decisions (binding)
+1. **"Preregistered" becomes "pre-specified" everywhere** in the paper, code, results and figures (same wording as his CPC18 paper). Accurate mechanism stays as written ("fixed by git timestamp before ...").
+2. **Fix the Figure 1 legend** ("CONFIRMATORY (corrected, dispatch 006)" becomes "CONFIRMATORY (corrected)") and **the public copy's data README line** that wrongly says `mle_fit_data_wide.csv` is in git.
+3. **No license.**
 
-## Part A: build the copy
-1. Create `C:\Dev\Git-For-Metacognition-Paper` (sibling of paper2). Fail and report if it already exists and is non-empty.
-2. Source of truth = the files paper2 tracks in git at HEAD (`git -C C:\Dev\paper2 ls-files`). This automatically excludes everything gitignored (raw data, renv/library, rendered supplement PDF, .quarto).
-3. From that list, EXCLUDE these internal project-management paths: `cowork/`, `CLAUDE.md`, `BRIEF.md`, `PROGRESS.md`, `_inbox/`, `.claude/`, and the old one-line `README.md` (replaced in Part B).
-4. Copy every remaining tracked file byte-for-byte, preserving paths. This must include at least: `R/`, `analysis/` (00 to 17), `results/`, `figures/`, `manuscript/ms.qmd`, `manuscript/supplement.qmd`, `manuscript/references.bib`, `manuscript/ms.pdf`, `renv.lock`, `.Rprofile`, `renv/activate.R`, `renv/settings.json`, `renv/.gitignore`, `_quarto.yml`, `.gitignore`, `.gitattributes`, and any tracked `data/` READMEs. If any of these is not in `ls-files`, report it rather than copying an untracked version.
-5. Verify the copy: for every copied file, MD5 must equal the paper2 HEAD version. Report the count (copied / matched). Then confirm no file under `data/raw/` other than README/.gitkeep exists in the copy, and report the total size of the copy.
+## Scope
+- IN SCOPE (both repos): every tracked text file that exists in the public copy, i.e. paper2's tracked files EXCLUDING `BRIEF.md`, `CLAUDE.md`, `PROGRESS.md`, `README.md`, `cowork/`. Those excluded paper2 files are historical planning records and are NOT edited.
+- Expected hits before editing (measured by Cowork on the public copy, case-insensitive `pre-?regist`): **33 files, 108 occurrences** = 79 `preregistered`, 17 `Preregistered`, 8 `preregistration`, 4 `PREREGISTERED`. Re-measure first; if your counts differ, report them and continue only if every extra hit is one of these four forms.
+- Hits include generated outputs: `results/*.md` reports, label cells in `results/step9_REALDATA_step4_multilevel.csv` (8, the `tier` column) and `results/step6_REALDATA_confirmatory.csv` (1, a `note` cell), and `results/step8_SIMULATION_step4gate_meta.json` / `results/step9_REALDATA_step4_meta.json` (1 each). Cowork checked: no code or manuscript chunk reads any of these strings back as a key or asserts on them, so relabelling cannot break a guard.
 
-## Part B: the two edits allowed in the copy (and only in the copy)
-1. **New top-level README.md**, text exactly as below (Cowork-authored).
-2. **manuscript/ms.qmd in the copy only:** (a) the author line per decision 1; (b) in the "Data and code availability" section, change the code URL `https://github.com/dondon20201/paper2` to `https://github.com/dondon20201/Git-For-Metacognition-Paper` (that section currently points readers to the source repo, which the public may not be able to open). Change nothing else in ms.qmd.
+## Part A: paper2
+1. **Substitution**, case-sensitive, applied in this order, to every in-scope file:
+   `PREREGISTERED` → `PRE-SPECIFIED`; `Preregistered` → `Pre-specified`; `preregistered` → `pre-specified`; `Preregistration` → `Pre-specification`; `preregistration` → `pre-specification`.
+   Apply it to BOTH a generating script's string literals AND the committed output that script wrote, so a future rerun reproduces the committed file. Preserve committed line endings (blobs are LF).
+2. **Numbers-untouched guard.** For every file edited in A.1, the ordered list of digit runs (regex `[0-9]+`) must be identical before and after. Report the count of files checked; any mismatch = stop and revert.
+3. **Figure 1 legend.** In `analysis/10_landscape_figures.R` line 123, change `"CONFIRMATORY (corrected, dispatch 006)"` to `"CONFIRMATORY (corrected)"` (matching the supplementary figure's legend at line 159). Then run `analysis/10_landscape_figures.R`. This is the ONE script you may run. It is a plotting script that reads committed results. Afterwards:
+   - `results/fig_landscape_data.csv` and `results/figS_gap_vs_reliability_data.csv` must be byte-identical to HEAD (LF-normalized). If either differs, STOP and restore from HEAD.
+   - `figures/fig_captions.md` is regenerated by the same script; its diff vs HEAD must consist only of the A.1 substitution.
+   - Look at `figures/fig_landscape.png` and confirm the legend reads "CONFIRMATORY (corrected)" and nothing else in the plot changed.
+4. **Render** `manuscript/ms.qmd` under renv. All assert-guards must pass.
+5. **PDF wording check.** Take `pdftotext` of the OLD ms.pdf (HEAD) and the NEW one. Apply the A.1 substitution map to the old text, then remove all whitespace and line-break hyphens from both. They must be identical. Report the page count.
+6. **Completeness.** Case-insensitive `pre-?regist` across in-scope tracked files must return 0.
+7. Commit (`fix:` dispatch 015, "pre-specified" wording + Figure 1 legend) and push paper2.
 
-README.md text:
+## Part B: public copy (`C:\Dev\Git-For-Metacognition-Paper`)
+1. For every path changed by the Part A commit (`git diff --name-only`), excluding paper2-only paths, export the new paper2 HEAD blob into the copy (byte-exact, as in 014).
+2. **Re-apply the copy's two ms.qmd edits** (author line → `author: "Brandon Chow"`; code URL → `https://github.com/dondon20201/Git-For-Metacognition-Paper`). Diff vs paper2 HEAD must be exactly those 2 lines.
+3. **Data README fix (copy only).** In `data/raw/lund2025/README.md`, in the table row for `mle_fit_data_wide.csv`, change the last cell from `Yes` to `No (downloaded by \`analysis/00_fetch_verify.R\`)`. Diff vs paper2 HEAD must be exactly that 1 line. paper2's copy stays `Yes` (true there).
+4. Render `manuscript/ms.qmd` in the copy. All guards must pass; author reads "Brandon Chow"; the availability section shows the public URL; report page count.
+5. **Whole-repo check.** Compared with paper2 HEAD, the ONLY differing files may be `README.md`, `manuscript/ms.qmd` (2 lines), `manuscript/ms.pdf`, `data/raw/lund2025/README.md` (1 line). Everything else blob-identical. `pre-?regist` (case-insensitive) in the copy's tracked files = 0.
+6. Normal commit (no amend): `Use "pre-specified" wording, clarify Figure 1 legend, correct data README`. Push `origin main`. **No force-push.** Verify `git ls-remote origin` = local HEAD; report hash.
 
-```
-# What Generalizes in Metacognition? Confidence Level, Informativeness, and a Measurement-Reliability Account of Apparent Dissociations
-
-Brandon Chow
-
-Replication materials for the paper. Every number reported in the manuscript is computed by the scripts in `analysis/` and written to a file in `results/`. The manuscript reads those files directly, and rendering fails if any reported value does not match its source file.
-
-## Contents
-
-- `analysis/`: numbered analysis scripts, run in order (00 to 17)
-- `R/`: shared functions used by the scripts
-- `results/`: every computed number (CSV and JSON); simulation outputs carry SIMULATION in their file names
-- `figures/`: figures; the data behind each figure is saved in `results/`
-- `manuscript/`: manuscript source (`ms.qmd`), supplement, references, and the rendered `ms.pdf`
-- `renv.lock`: exact R package versions
-
-## Data
-
-Raw data are not redistributed here. The scripts download them from their original sources and verify every file before use.
-
-- Lund et al. (2025): trial-level data from `github.com/embodied-computation-group/dg-metacognition` at a pinned commit, verified by MD5 (`analysis/00_fetch_verify.R`; provenance in `results/step0a_provenance.json`).
-- Confidence Database (Rahnev et al., 2020): OSF node `s46pr`, each file checked against its OSF MD5 (`analysis/11_confdb_fetch.R`; manifest in `results/step11_CONFDB_manifest.csv`).
-
-## Reproducing
-
-1. Install R 4.6.1 and Quarto.
-2. In R, from the repository root: `renv::restore()`
-3. Run the scripts in `analysis/` in numerical order.
-4. Render the manuscript: `quarto render manuscript/ms.qmd`
-```
-
-## Part C: render check in the copy
-1. In the copy: `renv::restore()` (renv's global cache on Dondon should make this fast), then `quarto render manuscript/ms.qmd`. The render MUST succeed: its assert-guards re-check every reported number against the copied `results/`, which proves the copy is intact. If it fails, stop and report; do not patch.
-2. `pdftotext manuscript/ms.pdf`: confirm the author reads "Brandon Chow", the availability section shows the new URL, and the page count (paper2's is 16). Keep the re-rendered ms.pdf in the copy.
-3. Do not render supplement.qmd (its PDF is gitignored in paper2 too).
-
-## Part D: commit and push the copy
-1. `git init -b main` in the copy; add remote `origin = https://github.com/dondon20201/Git-For-Metacognition-Paper.git`.
-2. One commit: `Initial release: replication materials for "What Generalizes in Metacognition?"`
-3. Push to `origin main`. Verify with `git ls-remote origin` that `main` equals local HEAD. Report the hash.
-4. If the push is rejected because the remote is not empty, STOP and report; do not force-push.
-
-## Part E: housekeeping in paper2 (logging only)
-1. Overwrite `cowork/REPORT.md` (keep its template): what was copied, MD5 match counts, size, render result, pushed hash, anything excluded or missing.
-2. PROGRESS.md: session-log row 17, one line.
-3. Commit those two files in paper2 (`docs:` commit) and push paper2 as usual. Nothing else in paper2 changes.
+## Part C: housekeeping (paper2)
+1. Overwrite `cowork/REPORT.md`: substitution counts (files / occurrences by form), numbers-guard result, figure check, render results, PDF wording-check result, both pushed hashes.
+2. PROGRESS.md session-log row 18. Commit `docs:` and push paper2.
 
 ## Constraints
-- Never modify paper2's ms.qmd, results/, analysis/, figures/, or any data.
-- Never copy raw data into the public copy.
-- No force-push anywhere.
-- Do not edit code comments or any file content beyond the two Part B edits.
+- No analysis reruns other than `analysis/10_landscape_figures.R`.
+- Do not edit `BRIEF.md`, `CLAUDE.md`, `PROGRESS.md` history rows, or `cowork/` history.
+- Do not change any other wording: references to `cowork/DISPATCH.md`, "dispatch", "Cowork" and "Ben" in comments and reports stay as they are (Ben has not asked for that).
+- No LICENSE file. No force-push anywhere.
