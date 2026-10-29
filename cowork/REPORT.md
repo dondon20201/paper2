@@ -2,108 +2,170 @@
 
 <!-- Written by Claude Code after completing each dispatch. Cowork reads this to plan next steps. Overwrite the placeholder sections below; keep the section headings. -->
 
-**Status:** COMPLETE. Ben's three decisions are applied to both repos, and every check passed. paper2 = **`de8497f`** (task commit, pushed). Public copy = **`6c9303c`** (pushed; `ls-remote` = local HEAD). There are three argued deviations, all in how checks were carried out; none changes content beyond the dispatch. **No analysis was rerun except `analysis/10_landscape_figures.R`.**
-**Dispatch #:** 015
+**Status:** COMPLETE. The public copy's code is comment-free, and every guard C.1–C.7 passed (plus two extra guards and an extra supplement render check). Public copy = **`e30d015`** (pushed with no force; `ls-remote` = local HEAD). paper2 = **`e5c94ff`** (`feat:`, the stripper; pushed). paper2's own code keeps all of its comments. There are two argued deviations, both small: a blank-line edge rule, and not committing a timestamp-only `ms.pdf`. **No analysis was rerun, and no prose, number, label, caption or chunk setting changed.**
+**Dispatch #:** 016
 **Date:** 2026-10-29
 
 ## What was done
 
-**Part A: paper2**
-- **Re-measure (in-scope = 107 tracked files, i.e. all but `BRIEF.md`, `CLAUDE.md`, `PROGRESS.md`, `README.md`, `cowork/`).** Case-insensitive `pre-?regist` on the HEAD blobs gives **33 files, 108 occurrences**: `preregistered` 79, `Preregistered` 17, `preregistration` 8, `PREREGISTERED` 4, `Preregistration` 0. This **matches Cowork's count exactly**. There are no other forms and no hyphenated `pre-regist…`.
-- **Identifier check before substituting.** Every hit in `R/` and `analysis/` is in a comment or a string literal. None is an R identifier, so the hyphen cannot break syntax.
-- **A.1 substitution.** The map was applied in dispatch order to each HEAD blob (byte-exact read, raw write).
-  - **Counts by form:** 4 / 17 / 79 / 0 / 8. That is 108 replacements in 33 files.
-  - **Generating scripts and their committed outputs are both covered:**
-    - `09` line 148 ↔ the `tier` column in `step9_…_multilevel.csv` (8)
-    - `06` line 200 ↔ the `note` cell in `step6_…confirmatory.csv`
-    - `08` / `09` ↔ the two `meta.json` files
-    - `15` ↔ `step15_…md`
-    - `16` line 210 ↔ the Figure 2 caption in `fig_captions.md`
-  - **Word-level diff:** the only changed tokens are the 108 old forms becoming the 108 new ones. One of them is the compound `preregistered-by-default` → `pre-specified-by-default` (`results/STEP0B2_FINAL_REPORT.md:37`).
-  - **Line endings:** all 33 committed blobs are LF (`git ls-files --eol` = `i/lf`; 0 CR bytes).
-- **A.2 numbers guard: 33 / 33 files PASS.** The ordered `[0-9]+` runs are identical before and after.
-- **A.3 Figure 1 legend.** Line 123 now reads `"CONFIRMATORY (corrected)"`. I then ran `analysis/10_landscape_figures.R` under renv; all of its value assertions passed.
-  - **Data CSVs:** `results/fig_landscape_data.csv` and `results/figS_gap_vs_reliability_data.csv` are **byte-identical to HEAD** (LF-normalized md5 match; the working-tree bytes are also unchanged from before the run).
-  - **`figures/fig_captions.md`:** the final diff vs HEAD is **exactly the 2 substitution lines**. See Deviation 1 for how.
-  - **`figures/fig_landscape.png`:** I viewed it. The legend reads **"CONFIRMATORY (corrected)"**. A pixel diff against the HEAD PNG (2100×2400) shows **3,929 differing pixels, all inside one 281×40 px box at the first legend line** (x 900–1180, y 1206–1245), which is where ", dispatch 006" was removed. Every other pixel is identical.
-  - **`figures/fig_landscape.pdf`:** regenerated and committed (legend change plus R's timestamp fields).
-  - **figS:** the PNG is byte-identical. The PDF differed only in timestamps, so I restored it (Deviation 2).
-- **A.4 render.** `quarto render manuscript/ms.qmd` exited 0 with **all 19 chunks run and every assert-guard passing**. The only warnings are the 8 known cosmetic "Duplicated chunk option 'label'" ones. MD5s before and after: the render changed only `manuscript/ms.pdf`.
-- **A.5 PDF wording check: PASS, with one caveat on method** (Deviation 3).
-  - **Pages:** old 16, new 16.
-  - **Hits:** 11 in the old text, 0 in the new.
-  - **Result:** after the substitution map plus whitespace and line-break-hyphen removal, the texts are **identical (37,953 characters)** once a genuine hyphen in a line break is accounted for.
-- **A.6 completeness:** `pre-?regist` (case-insensitive) across in-scope tracked files = **0**. The excluded historical files still contain the old wording, as intended: `PROGRESS.md`, `cowork/DISPATCH.md`, the old `cowork/REPORT.md`, and 3 session notes.
-- **A.7:** commit `de8497f` (36 files: the 33 substituted files, plus `fig_landscape.pdf/.png` and `ms.pdf`). Pushed; `origin/master` = `de8497f`.
+**Part A: `tools/strip_public_comments.R` (paper2 only, base R, run with `Rscript --vanilla`)**
+- **Two modes:**
+  - `strip SRC DEST [...]` writes LF/UTF-8 output and prints counts per file.
+  - `check BEFORE AFTER [...]` runs the guards and exits 1 on any failure.
+- **R code** goes through R's own parser (`getParseData(parse(..., keep.source = TRUE))`), never a regex.
+  - Each `COMMENT` token's text is cut from the end of its line. The tool asserts that the line really ends with that text.
+  - A line left blank by the cut is dropped, and trailing whitespace left behind is trimmed.
+  - Runs of 2+ blank lines collapse to 1. Lines inside a multi-line string literal are protected from this.
+  - Blank lines left at the start or end of the code are dropped (Deviation 1).
+- **.qmd files** are split into YAML / YAML-comment / fence / chunk / HTML-comment / prose lines. The splitter **stops rather than guesses** if it meets an unknown code fence, a YAML block scalar, an inline (part-line) HTML comment or a stray `-->`.
+  - Chunks are stripped as R code, keeping tokens that start with `#|`.
+  - YAML comment lines and whole-line HTML comments are removed.
+  - Every other line (prose, inline `` `r` ``, chunk headers, fences) is passed through untouched.
+- **Config files** (`.gitignore`, `.gitattributes`, `*.yml`): lines whose first non-space character is `#` are deleted. Nothing else changes.
+- **Exclusion list.** No file held the public-copy exclusion list (it lived in the 014/015 reports). `tools/` is now on it, recorded in the tool's header and in the standing procedure below.
+- **Adversarial test on a synthetic R file and a synthetic .qmd** (in the scratchpad, not committed):
+  - **What it contained:** `#` inside a string, a raw string `r"(raw # keep)"`, a multi-line string with blank lines and a `# inside string` line, a backticked `` `#` `` name, a tab before a comment, a commented YAML line, an HTML block, and `#|` lines (including `fig-cap: "a # b"`).
+  - **The output was correct on every case.** The multi-line string's value was checked with `eval` and is byte-exact.
+  - **Tamper test: all 7 tampered outputs were REJECTED.** The tampering was: a changed number, an added line, an edited string, a blank line removed inside a string, a lost `#|` line, changed prose, and a YAML comment left in.
 
-**Part B: public copy** (`C:\Dev\Git-For-Metacognition-Paper`)
-- **B.1:** all 36 paths from the Part A commit exist in the copy (none are paper2-only). They were exported from paper2 HEAD with `git cat-file blob`; **36 / 36 MD5-match**.
-- **B.2:** both `ms.qmd` edits were re-applied. `diff` against paper2 HEAD shows **exactly 2 lines**: line 7 `author: "Brandon Chow"` and line 929, the public URL.
-- **B.3:** in `data/raw/lund2025/README.md`, row 21's last cell changed `Yes` → ``No (downloaded by `analysis/00_fetch_verify.R`)``. `diff` against paper2 HEAD shows **exactly 1 line**. The file is LF (it is `-text` there). paper2's copy still says `Yes`.
-- **B.4 render in the copy.**
-  - Exit 0, all 19 chunks, all guards passed. Quarto's first LibPath is the copy's renv library. Only `ms.pdf` changed.
-  - **16 pages.** The author reads **"Brandon Chow"**. The availability section shows `https://github.com/dondon20201/Git-For-Metacognition-Paper` (wrapped at its own hyphen, as in 014). 0 `pre-?regist` hits.
-  - **`pdftotext -layout` diff** against paper2's new PDF: only the author line and the re-wrapped availability paragraph differ.
-- **B.5 whole-repo check.** The copy's index was compared with paper2's HEAD tree.
-  - **103 / 107 files are blob-identical.**
-  - The 4 that differ are exactly the permitted ones: `README.md`, `manuscript/ms.qmd`, `manuscript/ms.pdf`, `data/raw/lund2025/README.md`.
-  - No file exists only in the copy. `data/raw/` holds only `.gitkeep` and the README. `pre-?regist` in tracked files = **0**.
-- **B.6:** a normal commit (no amend), **`6c9303c`** (`6c9303c0bfeade4413cf53c92036831612802af4`), by `dondon20201 <brandonchow2020@gmail.com>`: `Use "pre-specified" wording, clarify Figure 1 legend, correct data README`. Pushed with no force (`2a599ca..6c9303c`). `git ls-remote origin` shows `HEAD` = `refs/heads/main` = local HEAD = `6c9303c…`. The working tree is clean.
+**Part B: applied in place to the public copy** (29 files: `R/*.R` 6, `analysis/*.R` 18, `ms.qmd`, `supplement.qmd`, `.gitignore`, `.gitattributes`, `_quarto.yml`)
+- **R scripts: 947 `COMMENT` tokens removed = 907 full-line (Cowork's count, exactly) + 40 trailing.** Lines went from 5,965 to 5,034, i.e. 907 comment lines plus 24 exposed leading blank lines (one per file).
+  - The blank-run collapse never fired; 0 lines.
+  - **Per file (removed: full-line / trailing):**
+
+    | File | Removed | Full-line / trailing |
+    |---|---|---|
+    | `R/confdb.R` | 35 | 35/0 |
+    | `R/gate_harness.R` | 7 | 7/0 |
+    | `R/measures.R` | 13 | 10/3 |
+    | `R/multilevel.R` | 30 | 30/0 |
+    | `R/parcels.R` | 26 | 26/0 |
+    | `R/simulate.R` | 26 | 26/0 |
+    | `analysis/00` | 38 | 35/3 |
+    | `analysis/01` | 57 | 52/5 |
+    | `analysis/02` | 45 | 44/1 |
+    | `analysis/03` | 51 | 50/1 |
+    | `analysis/04` | 28 | 27/1 |
+    | `analysis/05` | 37 | 33/4 |
+    | `analysis/06` | 44 | 41/3 |
+    | `analysis/07` | 31 | 30/1 |
+    | `analysis/08` | 58 | 52/6 |
+    | `analysis/09` | 40 | 40/0 |
+    | `analysis/10` | 22 | 22/0 |
+    | `analysis/11` | 34 | 32/2 |
+    | `analysis/12` | 50 | 49/1 |
+    | `analysis/13` | 51 | 49/2 |
+    | `analysis/14` | 68 | 65/3 |
+    | `analysis/15` | 75 | 73/2 |
+    | `analysis/16` | 30 | 30/0 |
+    | `analysis/17` | 51 | 49/2 |
+- **`ms.qmd`:** 51 chunk comments removed (all full-line), 19 `#|` kept, 4 YAML comment lines, 1 HTML block (6 lines). Lines 953 → 892.
+- **`supplement.qmd`:** 6 chunk comments removed, 1 `#|` kept. Lines 174 → 168.
+  - **Both .qmd files together:** 57 chunk comments, 20 `#|` surviving, 4 YAML lines, 1 HTML block. All match Cowork's counts.
+- **Config files:** `.gitattributes` 1, `.gitignore` 10, `_quarto.yml` 3. That is **14** lines, matching Cowork's count.
+- **Total public diff:** 29 files, **+40 −1,052**. The 40 added lines are exactly the 40 trailing-comment truncations; I read all of them.
+- **Why the parser matters:** **35 string or backtick tokens that contain `#`** were left untouched. Examples are markdown headings written by scripts (`"# CONFIRMATORY RESULT — memory × vision (dispatch 006)"`) and the claim table's `` `#` `` column name. A line-regex stripper would have broken these.
+
+**Part C: guards (all PASS)**
+- **C.0 (extra, parser-free) shape check: 29/29.** Each output is its input with lines deleted and trailing `#…` cut off. Nothing was added or rewritten.
+- **C.1 code unchanged: 26/26 code files.**
+  - **What is compared:** the token stream with COMMENTs excluded (type + text), compared per R file and per chunk (9 chunks in ms, 7 in the supplement). **Added:** the parsed expressions (`parse(keep.source = FALSE)`) are also `identical()`, which covers full string values and line structure.
+  - **COMMENT tokens left:** 0 in R files; in the .qmd files, only `#|`.
+  - **Token counts per file** are in the check log, from 404 (`measures.R`) to 4,353 (`15_confdb_contrast.R`).
+- **C.2 chunk settings:** `#|` lines **20 → 20**, with identical text and order (ms 19, supplement 1).
+- **C.3 prose:** lines outside chunks, YAML comments and HTML comments are byte-identical in both .qmd files.
+- **C.4 config:** non-comment lines are identical and in order (2 / 22 / 2 lines), with 0 comment lines left.
+- **C.5 render.** `quarto render manuscript/ms.qmd` in the copy exited 0. **All 19 chunks ran and every assert-guard passed.** The only warnings are the 8 known cosmetic "Duplicated chunk option 'label'" ones.
+  - **PDF text is IDENTICAL** to the committed public `ms.pdf`, both with `pdftotext` (44,398 bytes) and with `pdftotext -layout` (47,617 bytes).
+  - **Pages:** 16 = 16.
+  - **Other files:** MD5s of every tracked file before and after the render show that only `ms.pdf` changed. See Deviation 2.
+  - **Extra:** `supplement.qmd` was rendered before and after stripping. All 15 items ran both times, the `-layout` text is **IDENTICAL**, and it is 4 pages. Its PDF is gitignored and did not exist beforehand, so I deleted it.
+- **C.6 provenance: 29/29 byte-identical.** I stripped each paper2 HEAD blob (`e3b035a`), re-applied the 2 `ms.qmd` edits by exact-string match (each must hit exactly once), and compared with the public file.
+  - Before stripping, the 28 other files were already blob-identical to paper2 HEAD.
+  - The set of changed files equals the in-scope set exactly.
+  - After the commit, **29/29 committed blobs** equal these provenance outputs, and the other 78 tree entries are unchanged.
+- **C.7:** `grep -rnE '^\s*#' R analysis` in the copy → **0 hits**.
+
+**Part D: commits**
+- **Public:** `e30d015` (`e30d0159d5e1c558c0bbaef32f4648803f807669`), `Remove code comments`, by `dondon20201 <brandonchow2020@gmail.com>`. It has 29 files, all LF in the index.
+  - Pushed `6c9303c..e30d015` with **no force**. `git ls-remote origin` shows `HEAD` = `refs/heads/main` = local HEAD. The working tree is clean.
+- **paper2:** `e5c94ff`, `feat: dispatch 016 — parser-based comment stripper for the public copy` (1 file, `tools/strip_public_comments.R`). Pushed together with the docs commit.
 
 ## Deviations from the dispatch (argued, never silent)
 
-1. **`figures/fig_captions.md`: script 10 cannot regenerate the whole file by itself.**
-   - **The problem.** Script 10 `writeLines()` the whole file with only the Figure 1 and Figure S1 captions (30 lines). The Figure 2 section (lines 31–34) is appended later by `analysis/16_confdb_figure.R` ("append once"). Running only script 10, as the dispatch requires, therefore deleted the Figure 2 caption. So the A.3 expectation ("its diff vs HEAD must consist only of the A.1 substitution") could not hold for the raw script output.
-   - **What I did.**
-     1. Verified that script 10's output is **byte-identical to lines 1–30 of the substituted HEAD file**.
-     2. Restored lines 31–34 from the substituted HEAD file. These are the script-16 section, whose source string literal was itself substituted in A.1.
-   - **Why this is correct.** The committed file is exactly what a 10 → 16 rerun produces, and its diff vs HEAD is the 2 substitution lines. I did not run script 16 (Constraints).
-2. **`figures/figS_gap_vs_reliability.pdf` not committed.**
-   - Script 10 regenerates it. The new file differed from HEAD in 20 bytes, **all inside the `/CreationDate` and `/ModDate` fields**; the size is the same (5,396 bytes).
-   - The content is unchanged and its PNG is byte-identical, so I restored the PDF from HEAD to avoid a timestamp-only change in both repos.
-3. **A.5 PDF wording check: the literal procedure produces one false mismatch, so I added one targeted normalization.**
-   - **The cause.** In the new PDF, one line breaks at the genuine hyphen of "pre-|specified" (Discussion: "…across domains: in the pre-" / "specified confirmatory pair…"). The dispatch's "remove line-break hyphens" step turns that into `prespecified`. It is a check artifact; the source reads `pre-specified`.
-     - poppler's default (non-layout) `pdftotext` already drops such hyphens itself, so I switched to `-layout` text, which keeps them.
-   - **What I did.** In the new text only, I kept the hyphen when a line ends in `pre-` and the next line starts with `specifi`. This happened in exactly **1** place. I also removed line-break hyphens in the old text *before* substituting, in case a `prereg-` word had been hyphenated.
-   - **Result:** identical. The line-end hyphen counts are old 27 and new 28, the +1 being this break.
-   - **What remains:** the literal order (substitute → strip) differs at exactly that one position and nowhere else.
+1. **Blank lines at the start or end of R code are dropped** (an extra rule in `strip_r`).
+   - **Why.** Every one of the 24 R files begins with a header comment block followed by a blank line. Under the literal rules, **all 24 public scripts would have opened with an empty line**.
+   - **Effect.** Exactly 24 lines, one per file, each the exposed leading blank. No chunk had an edge blank.
+   - **Safety.** C.0 and C.1 cover it: blank lines are not code, and the token streams and parse trees are identical.
+2. **`manuscript/ms.pdf` not committed: the re-render differs only in metadata.**
+   - The text is identical (C.5) and the size is the same (440,334 bytes). The bytes differ at 56 positions in 5 regions: `/ModDate` and `/CreationDate`, the XMP `ModifyDate` and `CreateDate`, and the per-render `InstanceID` (in the XMP and in the trailer `/ID`).
+   - `DocumentID`, `startxref` and all page content are unchanged.
+   - I restored it from HEAD (MD5 `0844c008…`), as in 015 Deviation 2. So the public commit has 29 files, not 30.
 
 ## Observations for Cowork (no action taken)
 
-- **One mechanical result reads a little oddly:** "linear, as pre-specified-by-default — no quadratic term" (`results/STEP0B2_FINAL_REPORT.md:37`). It is a faithful substitution, so I did not reword it.
-- **The 014 observation about dangling references still applies.** Public code comments now say e.g. "pre-specified in cowork/DISPATCH.md #004", which is still a pointer to a file the public cannot see. This dispatch did not ask for a change ("dispatch"/"Cowork" wording stays).
-- **The Figure 1 caption text still says "(dispatch 006)" / "(dispatch 007)"** in `fig_captions.md` and in script 10's caption strings. Only the legend was in scope. The rendered manuscript PDF contains no "dispatch" at all; `ms.qmd` has it only in 4 source comments (lines 2, 29, 103, 349).
-- **PROGRESS.md "Current status"** still lists "preregistered" wording and Fig 1 legend jargon as open Part D items. Updating that is Cowork's close-out; I only appended the session-log row.
-- **Pipeline fragility:** rerunning script 10 alone always drops the Figure 2 caption (Deviation 1). A future dispatch could make script 10 preserve or rewrite only its own sections, or make script 16's append idempotent against a fresh file. That is low priority, because the full pipeline order (10 then 16) is correct.
+- **014's "dangling `cowork/DISPATCH.md` references in public code" is now resolved for comments,** since they are gone. "dispatch NNN" text survives in two places:
+  - **24 string-literal lines in `analysis/05–09`.** Report headings, notes and a JSON field (`dispatch = "008 Part A"`). These are code and were out of scope.
+  - **Prose and data files:** `figures/fig_captions.md`, 9 `results/*.md`, 2 `meta.json`, and a BibTeX `%` comment in `references.bib` (line 2: "(dispatch 011)"). `references.bib` was on the do-not-touch list.
+- **`supplement.qmd`'s public source still has** `title: "Supplementary tables [PLACEHOLDER — companion to ms.qmd]"` and `author: "Ben [Author]"`. Its PDF is not committed, but the source is public.
+- **`ms.qmd` prose now has two consecutive blank lines** where the HTML block was (before `# Abstract`). C.3 requires prose to be byte-identical, so I did not collapse them. Markdown renders them as one break, and the PDF text is identical.
+- **The invariant has changed.** The public copy no longer equals "paper2 HEAD except the sanctioned files". It is now "strip(paper2 HEAD) + the 3 sanctioned edits + the public README". The blob-identity check from 014/015 is replaced by C.6.
+- **Windows line endings:** git warns "LF will be replaced by CRLF" in the copy (autocrlf). That only affects future checkouts. The blobs are LF, and the tool refuses CR input.
 
 ## Files changed / created
 
-- **paper2 (task commit `de8497f`, 36 files):**
-  - `R/confdb.R`, `R/multilevel.R`
-  - `analysis/01–10, 12–17` (17 scripts; `10` also has the legend change)
-  - `figures/fig_captions.md`, `figures/fig_landscape.pdf`, `figures/fig_landscape.png`
-  - `manuscript/ms.qmd`, `manuscript/ms.pdf`
-  - `results/`: `STEP0_REPORT.md`, `STEP0B_PRIME_REPORT.md`, `STEP0B2_FINAL_REPORT.md`, `step2_REALDATA_transfer_check.md`, `step6_REALDATA_confirmatory.{csv,md}`, `step7_REALDATA_descriptive.md`, `step8_SIMULATION_step4gate_meta.json`, `step9_REALDATA_step4_{meta.json,multilevel.csv,multilevel.md}`, `step15_CONFDB_contrast.md`, `step17_claim_status.md`
-- **paper2 (docs commit):** `cowork/REPORT.md` (this file), `PROGRESS.md` (session-log row 18), `cowork/DISPATCH.md` (Cowork's 015, committed by Code).
-- **Public copy (`6c9303c`, 37 files):** the same 36 paths (with `ms.qmd` carrying its 2 copy edits and `ms.pdf` re-rendered in the copy) plus `data/raw/lund2025/README.md` (1 line).
+- **Public copy (`e30d015`, 29 files):** `R/{confdb,gate_harness,measures,multilevel,parcels,simulate}.R`, `analysis/00–17*.R`, `manuscript/ms.qmd`, `manuscript/supplement.qmd`, `.gitignore`, `.gitattributes`, `_quarto.yml`.
+  - **Not touched:** `renv/activate.R`, `renv.lock`, `renv/settings.json`, `.Rprofile`, `README.md`, `references.bib`, `results/`, `figures/` and `data/`. Checked: tree diff = 29 paths.
+- **paper2 (`e5c94ff`):** `tools/strip_public_comments.R` (new).
+- **paper2 (docs commit):** `cowork/REPORT.md` (this file), `PROGRESS.md` (session-log row 19), `cowork/DISPATCH.md` (Cowork's 016, committed by Code).
 
 ## Commits
 
-- **paper2:** **`de8497f`** `fix: dispatch 015 — "pre-specified" wording + Figure 1 legend`. Pushed; `origin/master` verified = `de8497f` at the time of push.
+- **Public repo:** **`e30d015`** (`e30d0159d5e1c558c0bbaef32f4648803f807669`) `Remove code comments`. It is pushed with no force, and `ls-remote` = local HEAD.
+- **paper2:** **`e5c94ff`** `feat: dispatch 016 — parser-based comment stripper for the public copy`.
 - **paper2:** the final `docs:` commit holds this report, `PROGRESS.md` and `cowork/DISPATCH.md`. It is the latest commit touching REPORT.md, and it is pushed to `origin/master`.
-- **Public repo:** **`6c9303c`** (`6c9303c0bfeade4413cf53c92036831612802af4`) `Use "pre-specified" wording, clarify Figure 1 legend, correct data README`. Pushed with no force; `ls-remote` = local HEAD.
 
 ## Results / state
 
-- **Both repos say "pre-specified" everywhere in scope:** 0 `pre-?regist` hits in paper2's in-scope files, the public copy's tracked files, and both rendered PDFs.
-- **No number changed anywhere.** The digit-run guard passed on 33/33 files. Figure data CSVs are byte-identical. Both renders passed every assert-guard. The PDF text matches the old text under the substitution map.
-- **Figure 1's legend reads "CONFIRMATORY (corrected)"** in both repos, matching Figure S1.
-- **The public data README is now correct:** `mle_fit_data_wide.csv` → "No (downloaded by `analysis/00_fetch_verify.R`)".
-- **The public copy = paper2 HEAD, except the 4 sanctioned files.**
+- **Public code has no comments.** R files have 0 COMMENT tokens. The .qmd chunks contain only the 20 `#|` settings. There are no YAML or HTML comments, and the config files have no `#` lines.
+- **Nothing that runs or renders changed.** Token streams and parse trees are identical for all 26 code files, and the manuscript and supplement PDF texts are identical.
+- **paper2 is untouched apart from the new `tools/` file.** All of its comments are kept.
+
+## Standing sync procedure (paper2 → public copy), for every future change
+
+**Public-copy exclusion list (never copied):** `BRIEF.md`, `CLAUDE.md`, `PROGRESS.md`, paper2's `README.md`, `cowork/`, `tools/`, and raw data (`data/raw/lund2025/mle_fit_data_wide.csv`, plus the gitignored raw files). The public `README.md` is public-only and is never overwritten.
+
+**Public edits, re-applied after every export (each must match exactly once):**
+- `manuscript/ms.qmd`: `author: "Ben [Author]"` → `author: "Brandon Chow"`.
+- `manuscript/ms.qmd`: `` `https://github.com/dondon20201/paper2`; `` → `` `https://github.com/dondon20201/Git-For-Metacognition-Paper`; ``.
+- `data/raw/lund2025/README.md`: in the `mle_fit_data_wide.csv` row, the last cell `Yes` → ``No (downloaded by `analysis/00_fetch_verify.R`)``.
+
+**Steps:**
+1. **List the changed paths:** `git -C paper2 diff --name-only <last-synced paper2 commit> HEAD`, minus the exclusion list. The last synced commit is now `e5c94ff` (the public files have the same content as `de8497f`). Record the new one in each report.
+2. **Export each changed HEAD blob byte-exact** into the copy with `git -C paper2 cat-file blob HEAD:<path> > <copy>/<path>`. Never copy the working tree: on Dondon some working-tree files are CRLF.
+3. **Re-apply the public edits** to any exported file they touch. Keep this unstripped version in the scratchpad as BEFORE.
+4. **Strip the in-scope files** (`R/*.R`, `analysis/*.R`, `manuscript/*.qmd`, `.gitignore`, `.gitattributes`, `_quarto.yml`):
+   ```
+   Rscript --vanilla tools/strip_public_comments.R strip <copy>/<f> <copy>/<f>
+   ```
+   - Never strip `renv/activate.R`, `renv.lock`, `renv/settings.json`, `.Rprofile`, `references.bib`, `results/`, `figures/` or `data/`.
+   - **A new file type, or a new code location** (e.g. a new top-level `.R` folder), means extending the tool and its tests first.
+5. **C.0–C.4:** `Rscript --vanilla tools/strip_public_comments.R check <BEFORE> <copy>/<f>`, for each stripped file. Must exit 0.
+6. **C.5 render:** in the copy, `quarto render manuscript/ms.qmd`.
+   - It must exit 0, with all chunks run and all guards passing.
+   - **If the manuscript did not change:** the `pdftotext` and `-layout` text must equal the committed PDF's text, with the same page count. If only metadata differs, restore `ms.pdf` from HEAD.
+   - **If the manuscript did change:** the text must equal paper2's re-rendered PDF text, except the author line and the re-wrapped availability paragraph.
+   - **Optional:** render the supplement before and after, compare the text, then delete its PDF.
+7. **C.6 provenance:** strip the paper2 HEAD blob in the scratchpad, apply the public edits, and `cmp` with the public file. Every in-scope file must be identical. Then compare the whole tree: every public path must be one of the following:
+   - (a) blob-identical to paper2 HEAD;
+   - (b) a C.6-verified stripped file;
+   - (c) a sanctioned edit;
+   - (d) the public `README.md`.
+8. **C.7:** `grep -rnE '^\s*#' R analysis` in the copy must return nothing. A hit inside a multi-line string literal would be a false positive, but the parser count from C.1 is authoritative.
+9. **Commit and push:** a normal commit as `dondon20201 <brandonchow2020@gmail.com>` (repo-local), then `git push origin main` with no force. Check that `git ls-remote origin` = local HEAD, and report the hash.
 
 ## Issues & questions for planning
 
-1. **Should script 10 stop truncating `fig_captions.md`** (Deviation 1)? This only matters if script 10 is ever rerun on its own again.
-2. **Caption text "(dispatch 006/007)"** in `fig_captions.md` and script 10: leave it, or strip it like the legend? This is Ben's call; it is the same class as decision 2.
-3. **Dangling `cowork/DISPATCH.md` / `BRIEF.md` references in public files** remain open from 014 (Issue 2 there).
-4. **Still open from 014:** the paper2 ↔ public sync procedure (this dispatch's export-by-blob + re-apply-3-edits + blob-compare worked cleanly and could be the template); the author block (affiliation, ORCID, email); and the Dondon xfun cache defect.
+1. **`supplement.qmd` placeholder title and "Ben [Author]"** in the public source: add two more public edits, or fix them in paper2? This is Ben's call.
+2. **Leftover "dispatch NNN" text** in public string literals (`analysis/05–09`, which would change script outputs if edited), in `fig_captions.md` / `results/*.md`, and in the `references.bib` comment. Does Ben want these cleaned? It would be a prose or code-output change, so it needs its own dispatch.
+3. **Still open from 015:** script 10 truncates `fig_captions.md` when run alone; the Figure 1 caption still says "(dispatch 006/007)"; the author block (affiliation, ORCID, email); and the Dondon xfun cache defect.
