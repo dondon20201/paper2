@@ -3,47 +3,77 @@
 <!-- Written by Claude Cowork after each planning session. Claude Code executes this when Ben says "Run dispatch". This file is overwritten per dispatch; history lives in git. -->
 
 **Status:** READY
-**Dispatch #:** 013
-**Date:** 2026-10-03
-**From:** Cowork — the dispatch-012 draft was independently audited this session and **passed 124/124 checks** (see Part A). The audit found no wrong number anywhere in the manuscript. It did find **four table-layout defects in the rendered PDF** and a stale structure comment. Those are fixed in the working tree already (see the deviation notice below). This dispatch = **re-render, verify, commit**. **results/ remains strictly READ-ONLY; no analysis reruns anywhere.**
+**Dispatch #:** 014
+**Date:** 2026-10-28
+**From:** Cowork. Dispatch 013 confirmed done (commits 750c71e + 6acef84, pushed 2026-10-26). This dispatch = **build the public replication copy**: populate the new, currently EMPTY public repo `https://github.com/dondon20201/Git-For-Metacognition-Paper` from paper2. **paper2 itself stays unchanged** (only the usual REPORT.md + PROGRESS.md log entries are written in paper2). **No analysis reruns.**
 
-## DEVIATION NOTICE — read first
-Cowork wrote directly to `manuscript/ms.qmd` this session, which the CLAUDE.md workflow normally reserves for Code. The rule exists because of Windows file-truncation issues with direct editing; this write was a single atomic whole-file replacement (not an incremental editor), so that hazard does not apply. **Nothing was committed.** Your working tree has an uncommitted, modified `manuscript/ms.qmd` (929 → 952 lines). Your job is to verify it renders and is correct, then commit it. If the render fails, `manuscript/ms.qmd.bak` is NOT on the machine — recover the previous version with `git checkout manuscript/ms.qmd` and report the failure rather than patching around it.
+## Ben's decisions applied (defaults; Ben may override before running)
+1. Manuscript author in the PUBLIC COPY: replace the placeholder `author: "Ben [Author]"` with `author: "Brandon Chow"` (Ben's earlier instruction for this paper). paper2's own ms.qmd is NOT edited.
+2. License: **none** (no LICENSE file) unless Ben says otherwise.
+3. History: the copy starts with a fresh history (one initial commit). paper2's history is not carried over.
 
-## Part A — What the independent audit checked (context; no action)
-An auditor written from scratch in **Python** (a deliberately different derivation path from the R render) re-read the committed `results/*.csv` and checked the rendered `ms.pdf`:
-- **13/13 IDENTITY** checks — arithmetic relations that must hold: gap = ρ_level − ρ_sens; uncorrected gap likewise; naive gap = raw r_level − raw r_auroc2; ICC_level = v_subj/(v_subj + v_subj:dom); ICC_sens likewise; Δ_ICC = ICC_level − ICC_sens; the Arbuzova margins 0.046 / 0.020; and — the substantive one — **the four preregistered ConfDB verdicts re-derived from the raw disattenuation tops and null-reference bounds, independently reproducing holds 1 / partial 3 / fails 0, with Arbuzova_unpub_3 the single "holds."**
-- **69/69 CONSISTENCY** checks — claim-status table agrees with every source CSV; no descriptive pair clears CI + bias band jointly; vision × GDP's lower bound sits inside its band; level reliability exceeds AUROC2 in every Lund domain and every ConfDB study; bootstrap had 0 failures; R1/R2 within 0.03 of primary; wording discipline ("not excluded" present, "absent" only in the sanctioned distinguishable-effect sense, no overclaim phrases).
-- **42/42 TRANSCRIPTION** checks — every audited statistic appears in the rendered PDF at its stated precision.
+## Part A: build the copy
+1. Create `C:\Dev\Git-For-Metacognition-Paper` (sibling of paper2). Fail and report if it already exists and is non-empty.
+2. Source of truth = the files paper2 tracks in git at HEAD (`git -C C:\Dev\paper2 ls-files`). This automatically excludes everything gitignored (raw data, renv/library, rendered supplement PDF, .quarto).
+3. From that list, EXCLUDE these internal project-management paths: `cowork/`, `CLAUDE.md`, `BRIEF.md`, `PROGRESS.md`, `_inbox/`, `.claude/`, and the old one-line `README.md` (replaced in Part B).
+4. Copy every remaining tracked file byte-for-byte, preserving paths. This must include at least: `R/`, `analysis/` (00 to 17), `results/`, `figures/`, `manuscript/ms.qmd`, `manuscript/supplement.qmd`, `manuscript/references.bib`, `manuscript/ms.pdf`, `renv.lock`, `.Rprofile`, `renv/activate.R`, `renv/settings.json`, `renv/.gitignore`, `_quarto.yml`, `.gitignore`, `.gitattributes`, and any tracked `data/` READMEs. If any of these is not in `ls-files`, report it rather than copying an untracked version.
+5. Verify the copy: for every copied file, MD5 must equal the paper2 HEAD version. Report the count (copied / matched). Then confirm no file under `data/raw/` other than README/.gitkeep exists in the copy, and report the total size of the copy.
 
-**Conclusion: the numbers and the claim discipline are sound. Do not re-run analyses.**
+## Part B: the two edits allowed in the copy (and only in the copy)
+1. **New top-level README.md**, text exactly as below (Cowork-authored).
+2. **manuscript/ms.qmd in the copy only:** (a) the author line per decision 1; (b) in the "Data and code availability" section, change the code URL `https://github.com/dondon20201/paper2` to `https://github.com/dondon20201/Git-For-Metacognition-Paper` (that section currently points readers to the source repo, which the public may not be able to open). Change nothing else in ms.qmd.
 
-## Part B — The fixes already applied to ms.qmd (verify, do not redo)
-All four were *presentation* defects visible in the committed `ms.pdf`; none touched a value.
-1. **Table 1 had a phantom first column** ("memory Memory 0.97 0.84"). Cause: `sapply()` returns a *named* vector, so those names became data-frame row names and `kable` printed them. Fixed with `unname()` + `row.names = NULL`.
-2. **Tables 3 and 4 collided columns.** The long study keys (`Arbuzova_2021_expt2`) wrapped and pushed `n` into `r_level`, rendering as `2010.57` and `4430.87`. Fixed with a short display-label map (`studylab`), assert-guarded via `stopifnot(all(studies %in% names(studylab)))` so an unexpected study id fails the render rather than mislabelling. Remaining `sapply` columns in both tables are now `unname()`d for the same reason as (1).
-3. **Table 5 broke across the page break** — the 30-40 character tier strings wrapped into a column so narrow that rows 8 and 9 interleaved and the page number "12" was absorbed into a cell. Fixed with a guarded `tiermap` of short tier codes (non-confirmatory tiers marked `*`), with the full key spelled out in the table caption. Also, `naive_gap_exhibit` printed as `0.2`; estimates and CIs in this table now format to 3 dp from the CSV via `num3()` (formatted, not retyped).
-4. **Stale structure comment** at the top of the body still declared Abstract/Intro/Discussion/Limitations to be STUBs. Replaced with an accurate note.
+README.md text:
 
-**Integrity check for your report:** confirm the "zero hand-typed statistics" property still holds. The only new literals introduced are *labels* (study display names, tier codes) and the digit counts in `num3()`/`fmt()` calls — no estimated statistic. Grep the prose as you did in 012 and say so explicitly.
+```
+# What Generalizes in Metacognition? Confidence Level, Informativeness, and a Measurement-Reliability Account of Apparent Dissociations
 
-## Part C — Tasks
-1. **Render.** `quarto render manuscript/ms.qmd` under renv → `manuscript/ms.pdf`. Must be clean; all guards must pass (that is the enforcement mechanism). Also re-render `supplement.qmd`.
-2. **Verify the four fixes in the rendered PDF.** Extract text (`pdftotext -layout`) and confirm: Table 1 has exactly three columns; Tables 3 and 4 show `n` separated from `r_level` (no `2010.57`); Table 5 fits without interleaving rows 8 and 9 and shows `0.200` for `naive_gap_exhibit`. If Table 5 still breaks across the page, reduce it further (drop the `#` column, or set the chunk to landscape) and say what you did.
-3. **Re-run the 012 grep-checks** ("not excluded" present; "absent" only in sanctioned uses; disattenuation ranges only; taxonomy sentence; Δ_ICC boundary wording; ArbU3 margins) — they must still pass.
-4. **Commit.** Task commit for the manuscript fix (`fix:` — table rendering defects), then the usual final `docs:` commit for REPORT.md + PROGRESS.md. Push; HEAD hash in the report.
-5. **PROGRESS.md:** session-log row 16; status line noting the independent audit result (124/124) and the table fixes.
+Brandon Chow
 
-## Part D — Open editorial decisions for Ben (DO NOT act on these; report them as open)
-These are judgement calls, not defects, and they are the real remaining distance to submission:
-1. **Author block.** The YAML still reads `author: "Ben [Author]"`. Needs real name, affiliation, ORCID, corresponding-author email. No keywords, funding statement, or conflict-of-interest statement is present; most journals require all three.
-2. **Title.** Three candidates are still in the YAML comments; the default is in place.
-3. **The word "preregistered."** It appears 12+ times, but the mechanism described in Methods is a **git timestamp in a private repo**, not a registry entry (OSF/AsPredicted). A reviewer will ask for the registration. Ben should decide: register retrospectively and say so, or soften to the accurate phrasing ("pre-specified and timestamped before the cross-domain quantities were computed") throughout. **Do not change this wording without Ben's instruction** — it is load-bearing for the paper's claims.
-4. **Reference list is thin (14 entries) for a journal submission.** The Introduction asserts a literature it does not cite: "much prior work reports cross-domain confidence correlations" has no citation behind it, and there is no citation for the reliability/attenuation methodology literature beyond Spearman and Brown. This is the single most likely reviewer complaint. Per CLAUDE.md, **do not fabricate references** — this needs a verified literature pass as its own dispatch.
-5. **Figure 1's legend contains internal project jargon**: "CONFIRMATORY (corrected, dispatch 006)". A reader has no idea what dispatch 006 is. Fixing it means editing `analysis/10_landscape_figures.R` and regenerating the figure, which touches `figures/` — flagged here rather than done, since it is a figure regeneration.
-6. **Notation is inconsistent** between body prose (ρ_level, ρ_sens) and figure captions / table headers (`rho_level`, `r_sens_raw`). Cosmetic, but worth one pass before submission.
+Replication materials for the paper. Every number reported in the manuscript is computed by the scripts in `analysis/` and written to a file in `results/`. The manuscript reads those files directly, and rendering fails if any reported value does not match its source file.
+
+## Contents
+
+- `analysis/`: numbered analysis scripts, run in order (00 to 17)
+- `R/`: shared functions used by the scripts
+- `results/`: every computed number (CSV and JSON); simulation outputs carry SIMULATION in their file names
+- `figures/`: figures; the data behind each figure is saved in `results/`
+- `manuscript/`: manuscript source (`ms.qmd`), supplement, references, and the rendered `ms.pdf`
+- `renv.lock`: exact R package versions
+
+## Data
+
+Raw data are not redistributed here. The scripts download them from their original sources and verify every file before use.
+
+- Lund et al. (2025): trial-level data from `github.com/embodied-computation-group/dg-metacognition` at a pinned commit, verified by MD5 (`analysis/00_fetch_verify.R`; provenance in `results/step0a_provenance.json`).
+- Confidence Database (Rahnev et al., 2020): OSF node `s46pr`, each file checked against its OSF MD5 (`analysis/11_confdb_fetch.R`; manifest in `results/step11_CONFDB_manifest.csv`).
+
+## Reproducing
+
+1. Install R 4.6.1 and Quarto.
+2. In R, from the repository root: `renv::restore()`
+3. Run the scripts in `analysis/` in numerical order.
+4. Render the manuscript: `quarto render manuscript/ms.qmd`
+```
+
+## Part C: render check in the copy
+1. In the copy: `renv::restore()` (renv's global cache on Dondon should make this fast), then `quarto render manuscript/ms.qmd`. The render MUST succeed: its assert-guards re-check every reported number against the copied `results/`, which proves the copy is intact. If it fails, stop and report; do not patch.
+2. `pdftotext manuscript/ms.pdf`: confirm the author reads "Brandon Chow", the availability section shows the new URL, and the page count (paper2's is 16). Keep the re-rendered ms.pdf in the copy.
+3. Do not render supplement.qmd (its PDF is gitignored in paper2 too).
+
+## Part D: commit and push the copy
+1. `git init -b main` in the copy; add remote `origin = https://github.com/dondon20201/Git-For-Metacognition-Paper.git`.
+2. One commit: `Initial release: replication materials for "What Generalizes in Metacognition?"`
+3. Push to `origin main`. Verify with `git ls-remote origin` that `main` equals local HEAD. Report the hash.
+4. If the push is rejected because the remote is not empty, STOP and report; do not force-push.
+
+## Part E: housekeeping in paper2 (logging only)
+1. Overwrite `cowork/REPORT.md` (keep its template): what was copied, MD5 match counts, size, render result, pushed hash, anything excluded or missing.
+2. PROGRESS.md: session-log row 17, one line.
+3. Commit those two files in paper2 (`docs:` commit) and push paper2 as usual. Nothing else in paper2 changes.
 
 ## Constraints
-- `results/` read-only; no analysis reruns; no new numbers computed.
-- Do not touch the frozen verdict wording strings.
-- Do not act on Part D.
+- Never modify paper2's ms.qmd, results/, analysis/, figures/, or any data.
+- Never copy raw data into the public copy.
+- No force-push anywhere.
+- Do not edit code comments or any file content beyond the two Part B edits.
