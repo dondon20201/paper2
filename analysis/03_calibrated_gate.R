@@ -3,7 +3,7 @@
 # the FINAL gate round: a pre-declared decision tree maps every outcome to a
 # definite Step 1+ design.
 #
-# Design (preregistered in cowork/DISPATCH.md #004 before running):
+# Design (pre-specified in cowork/DISPATCH.md #004 before running):
 #  CALIBRATION (training, seed family 1000+i): per trial config (200/200,
 #   200/100, 100/100), grid of true rho_sens in {0,...,0.6} with rho_level
 #   fixed 0.4 and rho_dprime 0.3 (keeps d'-partialing engaged), R = 20 per
@@ -17,7 +17,7 @@
 #   D'-CONF 0/0/rho_d'=.4) at all three configs, R = 30 (15 spot), corrected
 #   estimator applied blind — the correction is FROZEN before these seeds run.
 #
-# Preregistered criteria per config, applied to the CORRECTED estimator
+# Pre-specified criteria per config, applied to the CORRECTED estimator
 # (uncorrected reported alongside for comparison):
 #   a. GAP: |median rho_sens bias| <= 0.07; CI coverage >= 25/30; gap > 0 in
 #      >= 27/30.
@@ -264,7 +264,7 @@ branch <- if (!pass[["200/200"]]) {
 }
 spot_pass <- vapply(crit_spot, `[[`, TRUE, "all_pass")
 
-message("\n=== PREREGISTERED CRITERIA (corrected estimator, main eval seed) ===")
+message("\n=== PRE-SPECIFIED CRITERIA (corrected estimator, main eval seed) ===")
 str(crit_main)
 message("Config pass map (main): ",
         paste(names(pass), pass, sep = "=", collapse = ", "))

@@ -1,5 +1,5 @@
 # STEP 4 — NON-IPSATIVE MULTILEVEL DECOMPOSITION (dispatch 008, Part B).
-# REALDATA. Tier label: STEP4_MULTILEVEL (preregistered, NON-CONFIRMATORY).
+# REALDATA. Tier label: STEP4_MULTILEVEL (pre-specified, NON-CONFIRMATORY).
 #
 # *** GATE-CONDITIONAL: this script refuses to run unless the Part A gate
 # *** (analysis/08_step4_recovery_gate.R) PASSED — hard check below.
@@ -11,7 +11,7 @@
 # incorrect), not AUROC2. Nothing here confirms, disconfirms, or re-tests
 # the 006 confirmatory result.
 #
-# Preregistered decisions (cowork/DISPATCH.md #008, fixed before running):
+# Pre-specified decisions (cowork/DISPATCH.md #008, fixed before running):
 #  - Model, ladder M1->M2->M3, and acc_dc (DOMAIN-level centering) exactly as
 #    in R/multilevel.R.
 #  - Trials: primary set (repeat_exclude == 0, missing confidence dropped);
@@ -145,7 +145,7 @@ pci <- function(x) quantile(x, c(0.025, 0.975), na.rm = TRUE, names = FALSE)
 qty <- function(name, est, cis, note = "") {
   data.frame(
     data_type = "REALDATA",
-    tier = "STEP4_MULTILEVEL (preregistered, NON-CONFIRMATORY)",
+    tier = "STEP4_MULTILEVEL (pre-specified, NON-CONFIRMATORY)",
     quantity = name, estimate = est, ci_lo = cis[1], ci_hi = cis[2],
     ci_method = sprintf("cluster bootstrap B=%d, percentile, %s, %s",
                         B, ci_resolution, ci_stability),
@@ -285,7 +285,7 @@ write.csv(ips, here("results", "step9_REALDATA_ipsative_exhibit.csv"),
 message(sprintf("Ipsative exhibit (real data): centered pairwise r range [%.3f, %.3f], mean %.3f",
                 min(ips$r_centered), max(ips$r_centered), mean(ips$r_centered)))
 
-# ---- Verdict MD (preregistered wording) -----------------------------------------
+# ---- Verdict MD (pre-specified wording) -----------------------------------------
 fmt <- function(x) ifelse(is.na(x), "NOT ESTIMABLE", sprintf("%.2f", x))
 d_est <- point$delta_icc
 d_lo <- pci(bok$delta_icc)[1]
@@ -293,7 +293,7 @@ d_hi <- pci(bok$delta_icc)[2]
 delta_sentence <- if (is.na(d_est)) {
   "Delta_ICC is NOT ESTIMABLE at the landed ladder rung."
 } else if (d_lo > 0 || d_hi < 0) {
-  sprintf("As a preregistered secondary finding, stated with hedges: in this dataset and under this model, the person-general variance share was %s for the set-point and %s for resolution (Delta_ICC = %s, 95%% bootstrap CI [%s, %s], CI excluding zero). This is a variance-share result, not a re-test of the confirmatory latent-correlation gap.",
+  sprintf("As a pre-specified secondary finding, stated with hedges: in this dataset and under this model, the person-general variance share was %s for the set-point and %s for resolution (Delta_ICC = %s, 95%% bootstrap CI [%s, %s], CI excluding zero). This is a variance-share result, not a re-test of the confirmatory latent-correlation gap.",
           fmt(point$icc_level), fmt(point$icc_sens), fmt(d_est), fmt(d_lo), fmt(d_hi))
 } else {
   sprintf("A Delta_ICC of zero is not excluded (Delta_ICC = %s, 95%% bootstrap CI [%s, %s]).",
@@ -303,7 +303,7 @@ delta_sentence <- if (is.na(d_est)) {
 md <- c(
   "# STEP 4 — Non-ipsative multilevel decomposition (dispatch 008)",
   "",
-  "**Tier: STEP4_MULTILEVEL (preregistered, NON-CONFIRMATORY).**",
+  "**Tier: STEP4_MULTILEVEL (pre-specified, NON-CONFIRMATORY).**",
   "",
   sprintf("**Date:** %s · **Code:** `analysis/09_step4_multilevel.R` · **Data:** REALDATA, primary trial set, step-1 qualifying subject-domains (n = %d subjects, %d subject-domains, %d trials)",
           format(Sys.Date()), n_sub, n_sd, nrow(dat)),
@@ -367,7 +367,7 @@ writeLines(md, here("results", "step9_REALDATA_step4_multilevel.md"))
 
 meta <- list(
   data_type = "REALDATA",
-  tier = "STEP4_MULTILEVEL (preregistered, NON-CONFIRMATORY)",
+  tier = "STEP4_MULTILEVEL (pre-specified, NON-CONFIRMATORY)",
   gate = "PASSED (results/step8_SIMULATION_step4gate_summary.csv)",
   n_subjects = n_sub, n_subject_domains = n_sd, n_trials = nrow(dat),
   point_rung = point$rung, point_fit_seconds = fit_secs,

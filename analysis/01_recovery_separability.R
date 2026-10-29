@@ -13,7 +13,7 @@
 #      when one is planted, and does not invent one under a null
 #      (thesis-detectability).
 #
-# Preregistered pass criteria (fixed in cowork/DISPATCH.md #002 BEFORE running):
+# Pre-specified pass criteria (fixed in cowork/DISPATCH.md #002 BEFORE running):
 #   recovery:     level r >= 0.9 at 200 AND 100 trials;
 #                 sensitivity r >= 0.7 at 200 trials (100-trial value reported
 #                 with CI whatever it is)
@@ -297,7 +297,7 @@ gap_compare <- merge(
 gap_compare$data_type <- "SIMULATION"
 print(gap_compare, digits = 3, row.names = FALSE)
 
-# ---- 5. PREREGISTERED CRITERIA + OUTPUTS ------------------------------------
+# ---- 5. PRE-SPECIFIED CRITERIA + OUTPUTS ------------------------------------
 crit <- function(df, n_trials, est, planted) {
   df[df$n_trials == n_trials & df$estimated == est & df$planted == planted, ]
 }
@@ -366,7 +366,7 @@ gate_passed <- criteria$level_recovery_200$pass &&
   criteria$detectability_gap_recovered$pass &&
   criteria$null_no_spurious_raw_gap$pass
 
-message("\n=== PREREGISTERED CRITERIA (SIMULATION) ===")
+message("\n=== PRE-SPECIFIED CRITERIA (SIMULATION) ===")
 str(criteria)
 message("GATE (step 0b portion): ", if (gate_passed) "PASSED" else "FAILED")
 

@@ -1,16 +1,16 @@
 # Step 5a Parts B + C — Confidence Database structural inventory and
-# MECHANICAL preregistered study selection (dispatch 009).
+# MECHANICAL pre-specified study selection (dispatch 009).
 # REALDATA-EXTERNAL (CONFDB).
 #
 # *** FIREWALL (binding, dispatch 009): NO cross-task statistic of any kind
 # *** is computed here. Part B records structure only; Part C applies the
-# *** preregistered filters to structural counts. No AUROC2, no
+# *** pre-specified filters to structural counts. No AUROC2, no
 # *** reliabilities, no correlations, no measurement statistics at all.
 #
 # Part B: every data_*.csv in the verified manifest is parsed defensively;
 # parse failures are RECORDED, not repaired. One inventory row per file.
 #
-# Part C: the preregistered criteria (dispatch 009, frozen) applied as
+# Part C: the pre-specified criteria (dispatch 009, frozen) applied as
 # literal filters to inventory fields:
 #   S1 multi-task within-subject: >=2 distinct tasks and >=40 subjects who
 #      each have >=60 clean trials (non-training, non-missing confidence,
@@ -184,7 +184,7 @@ for (i in seq_len(nrow(data_files))) {
     sel$s1_n_qualified_subjects <- length(qualified_subj)
 
     # informational: largest single task PAIR both-qualified subject count
-    # (structural count only; needed for the 010 preregistration)
+    # (structural count only; needed for the 010 pre-specification)
     sel$best_pair <- ""
     sel$best_pair_n_subjects <- 0L
     if (length(qualified_subj) > 0) {
@@ -309,7 +309,7 @@ write.csv(selection, here("results", "step11_CONFDB_selection.csv"),
           row.names = FALSE)
 
 # ---- Funnel ----------------------------------------------------------------
-message("\n=== Selection funnel (mechanical, preregistered) ===")
+message("\n=== Selection funnel (mechanical, pre-specified) ===")
 message("data files in manifest:        ", nrow(data_files))
 message("parsed OK:                     ",
         sum(inventory$parse_status %in% c("OK", "OK_WITH_FIX")))

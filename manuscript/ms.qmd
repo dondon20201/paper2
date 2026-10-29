@@ -207,7 +207,7 @@ V$cap_fig1 <- paste0(
   "Cross-domain correlation landscape. Top: latent correlation of confidence ",
   "level (set-point) for each of the six domain pairs, with 95% delta-method ",
   "CIs. Bottom: the gap (rho_level - rho_sens) per pair. memory x vision ",
-  "(filled point) is the preregistered CONFIRMATORY pair: its rho_sens is ",
+  "(filled point) is the pre-specified CONFIRMATORY pair: its rho_sens is ",
   "calibration-corrected and its gap carries no systematic band. The five open ",
   "points are NON-CONFIRMATORY / DESCRIPTIVE: their sensitivity correlations ",
   "are uncorrected (these trial-count configurations failed the blind ",
@@ -251,7 +251,7 @@ V$cap_fig2 <- paste0(
   "Arbuzova_unpub_3 memory x visual is cross-DOMAIN; Arbuzova_2021_expt2 is a ",
   "visuomotor condition x condition pair, and Bang_2019_Exp2 and ",
   "Haddara_2022_Expt1 are within-vision task pairs - these four studies are not ",
-  "four cross-domain replications. The Lund row is the preregistered ",
+  "four cross-domain replications. The Lund row is the pre-specified ",
   "CONFIRMATORY (corrected) result: its gap (", V$gap, ", 95% CI ", V$gap_ci,
   ") does not exclude a null. Null-reference intervals are a simulation ",
   "reference, not a correction and not a test.")
@@ -359,7 +359,7 @@ confidence, or set-point — and its INFORMATIVENESS, the metacognitive
 sensitivity with which confidence discriminates correct from incorrect
 responses. Because level is measured far more reliably than sensitivity, a naive
 comparison of their cross-domain correlations manufactures an apparent
-level-over-sensitivity advantage even when none exists. Using a preregistered,
+level-over-sensitivity advantage even when none exists. Using a pre-specified,
 reliability-corrected estimator validated by simulation before it touched the
 data, we ask which component is domain-general in a four-domain confidence study
 [@Lund_2025]. Confidence level generalizes strongly across domains
@@ -426,7 +426,7 @@ value and that the two components are separable — that estimating one does not
 leak into the other. That gate forces two design choices that are not cosmetic:
 metacognitive sensitivity must be partialed for first-order performance, and one
 domain pair alone meets the trial-count requirement for a calibrated,
-reliability-corrected confirmatory test. Around that single preregistered test
+reliability-corrected confirmatory test. Around that single pre-specified test
 we place explicitly weaker tiers — a descriptive survey of the remaining domain
 pairs with frozen bias allowances, a non-ipsative multilevel decomposition that
 avoids the mean-subtraction artifact known to plague this literature, and an
@@ -441,7 +441,7 @@ we report what the data show either way.
 This paper makes four contributions. First, a validated two-component
 measurement framework for confidence with an explicit recovery-and-separability
 gate, so that the estimators are known to work before they are trusted. Second, a
-preregistered, reliability-corrected confirmatory test of which component is
+pre-specified, reliability-corrected confirmatory test of which component is
 domain-general in the four-domain study of @Lund_2025. Third, a non-ipsative
 multilevel decomposition that asks which component carries the cross-domain
 covariance without inducing the ipsative artifact of naive mean subtraction.
@@ -525,7 +525,7 @@ confirmatory test is powered to detect a substantial gap but not a small one.
 
 ## Confirmatory design {#sec-methods-confirmatory}
 
-The single preregistered confirmatory test is the memory × vision pair,
+The single pre-specified confirmatory test is the memory × vision pair,
 chosen mechanically as the only pair meeting the gate's 200/200-trial
 requirement, and fixed by git timestamp before the cross-domain quantities
 were computed. We estimate the latent cross-domain correlation of level
@@ -614,7 +614,7 @@ and both CI bounds — a sensitivity range, never a corrected point value); and
 gap in a simulated true-null world (true ρ_level = true ρ_sens) matched to
 each study's n, trials, confidence scale, and reliabilities, quantifying how
 much raw-gap inflation differential attenuation alone produces. The
-preregistered reading rule: the Lund pattern **holds** in a study only if
+pre-specified reading rule: the Lund pattern **holds** in a study only if
 r_level exceeds the top of r_sens's disattenuation range **and** the raw gap
 exceeds the null-reference interval under both null scenarios; one condition
 met is **partial**; neither is **fails**. No meta-analytic pooling is
@@ -649,7 +649,7 @@ kb(rel_tbl, NULL)
 
 ## Confirmatory test: memory × vision {#sec-results-confirmatory}
 
-**CONFIRMATORY.** In the single preregistered pair, confidence level
+**CONFIRMATORY.** In the single pre-specified pair, confidence level
 generalizes strongly across domains (ρ_level = `r V$rl`, 95% CI
 `r V$rl_ci`). Corrected metacognitive sensitivity also correlates
 across domains and its interval excludes zero (ρ_sens = `r V$rs`, 95%
@@ -741,7 +741,7 @@ interval (@tbl-cdb-yard): at these configurations, differential attenuation
 plus sampling noise alone can produce raw gaps up to ~0.5 in the small-n
 studies.
 
-By the preregistered rule, the Lund pattern **holds in 1 of 4** studies,
+By the pre-specified rule, the Lund pattern **holds in 1 of 4** studies,
 is **partial in 3**, and **fails in 0**. In every study r_level exceeds the
 top of r_sens's disattenuation range; what separates "holds" from "partial"
 is whether the raw gap also clears its null reference. Only the single
@@ -795,7 +795,7 @@ kb(claim_tbl, NULL)
 
 Read through the measurement lens, these results tell a two-sided story that
 resists both of the overclaims available here. On one side, confidence level
-generalizes strongly and reliably across domains: in the preregistered
+generalizes strongly and reliably across domains: in the pre-specified
 confirmatory pair its cross-domain correlation is `r V$rl`, and it is uniformly
 positive everywhere else we look. On the other side, once metacognitive
 sensitivity is corrected for its poor reliability, it too correlates across
@@ -840,7 +840,7 @@ sensitivity is where the taxonomy matters. Only one of the four pairs is
 genuinely cross-**domain** (Arbuzova_unpub_3, memory × visual); the others are a
 condition × condition pair and two within-vision task pairs, which test
 task-generalization, not cross-domain generality, and are never presented as
-cross-domain replications. By the preregistered rule the Lund pattern holds in
+cross-domain replications. By the pre-specified rule the Lund pattern holds in
 that single cross-domain pair only narrowly: its raw gap clears its simulated
 null reference by margins of just `r V$cd_margin30` and `r V$cd_margin45`, so the
 replication is directional rather than decisive, and a null is not excluded in

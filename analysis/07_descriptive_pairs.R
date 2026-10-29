@@ -7,7 +7,7 @@
 # confirmatory pair (memory x vision, dispatch 006) is copied VERBATIM from
 # the committed results/step6_REALDATA_confirmatory.csv, not recomputed.
 #
-# Preregistered decisions (cowork/DISPATCH.md #007, fixed before running):
+# Pre-specified decisions (cowork/DISPATCH.md #007, fixed before running):
 #  1. Inputs: committed parcel columns of step1_REALDATA_subject_measures.csv
 #     AS-IS (no recomputation). Primary trial set. Per pair: both-qualifying
 #     subjects; listwise complete-case (both n's reported).
@@ -214,7 +214,7 @@ md <- c(
     "where the calibration correction could not be validated. A descriptive gap whose ",
     "CI excludes zero is therefore still NOT a positive finding if it sits within its ",
     "band of zero (and even one that clears both is descriptive, not a test — nothing ",
-    "in this tier was preregistered as confirmatory). What this table legitimately ",
+    "in this tier was pre-specified as confirmatory). What this table legitimately ",
     "supports: (1) the cross-domain correlation LANDSCAPE for the paper's summary ",
     "table, with honest uncertainty in both channels; (2) a consistency check — do the ",
     "descriptive pairs point the same direction as the confirmatory memory × vision ",

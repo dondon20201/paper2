@@ -14,7 +14,7 @@
 # (R/parcels.R) whose labeled factor correlations give latent rho_sens,
 # rho_level, and gap := rho_level - rho_sens with delta-method CIs.
 #
-# Preregistered criteria (dispatch 003, fixed before running; evaluated
+# Pre-specified criteria (dispatch 003, fixed before running; evaluated
 # against each replicate's REALIZED trait correlations):
 #   a. GAP (rho_level .6, rho_sens .2): median bias of latent rho_sens within
 #      +-0.07; CI coverage of realized truth >= 25/30; gap > 0 in >= 27/30.
@@ -217,7 +217,7 @@ criteria_for <- function(smry, variant, n_rep) {
 crit_raw <- criteria_for(sum_main, "raw", n_rep_main)
 crit_part <- criteria_for(sum_main, "dprime_partialed", n_rep_main)
 
-# Primary variant per preregistration: raw, unless DCONF fails raw and passes
+# Primary variant per pre-specification: raw, unless DCONF fails raw and passes
 # partialed — then partialed becomes primary.
 dconf_raw_fails <- !all(vapply(crit_raw, `[[`, TRUE, "d_dconf_spurious"))
 dconf_part_passes <- all(vapply(crit_part, `[[`, TRUE, "d_dconf_spurious"))
@@ -232,7 +232,7 @@ gate_passed <- all(vapply(crit_primary, `[[`, TRUE, "all_pass"))
 message("\n=== SUMMARY (SIMULATION, main seed) ===")
 print(sum_main, digits = 3, row.names = FALSE)
 message("\nPrimary variant: ", primary_variant)
-message("\n=== PREREGISTERED CRITERIA, primary variant ===")
+message("\n=== PRE-SPECIFIED CRITERIA, primary variant ===")
 str(crit_primary)
 message("\nSTEP 0b' GATE: ", if (gate_passed) "PASSED" else "FAILED")
 

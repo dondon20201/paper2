@@ -9,9 +9,9 @@
 # *** a corrected point value (BRIEF section 1, collapsed claim 3).
 #
 # This script computes the FIRST cross-task quantities of Step 5 — the
-# dispatch-009 firewall ends here, by preregistration (dispatch 010).
+# dispatch-009 firewall ends here, by pre-specification (dispatch 010).
 #
-# Preregistered decisions implemented here (fixed in cowork/DISPATCH.md 010
+# Pre-specified decisions implemented here (fixed in cowork/DISPATCH.md 010
 # before any contrast was computed):
 # - Primary pairs: Arbuzova_2021_expt2 1x2; Arbuzova_unpub_3 memory x visual
 #   (all 6 pairs exploratory); Bang_2019_Exp2 1x2; Haddara_2022_Expt1 1x2.
@@ -93,7 +93,7 @@ message("Part A null-reference gate: ", nullref_meta$gate)
 
 # ---- Bang recompute from raw (PRIMARY input for Bang) -----------------------
 # Identical to analysis/13_confdb_measures.R (same helpers, same constants)
-# PLUS the preregistered Catch_trial == 1 drop.
+# PLUS the pre-specified Catch_trial == 1 drop.
 dprime_confdb <- function(stim, resp, signal_value) {
   # identical to the copy in analysis/13_confdb_measures.R
   is_sig <- stim == signal_value
@@ -176,7 +176,7 @@ had_group <- ifelse(vapply(fb_by_subj, `[`, numeric(1), 1) == 1,
 message("Haddara groups: ", paste(names(table(had_group)),
                                   table(had_group), collapse = ", "))
 
-# ---- Estimators (preregistered) ---------------------------------------------
+# ---- Estimators (pre-specified) ---------------------------------------------
 make_wide <- function(m, study, task_a, task_b, subj_keep = NULL) {
   cols <- c("subj_idx", "level", "auroc2", "dprime_hat")
   a <- m[m$study == study & m$task == task_a, cols]
@@ -385,7 +385,7 @@ out <- do.call(rbind, rows)
 write.csv(out, here("results", "step15_CONFDB_contrast.csv"),
           row.names = FALSE)
 
-# ---- Holds / partial / fails verdicts (preregistered wording) ----------------
+# ---- Holds / partial / fails verdicts (pre-specified wording) ----------------
 # "Holds" in a study iff (a) r_level exceeds the TOP of r_sens's
 # disattenuated range AND (b) the observed raw gap exceeds the null-reference
 # interval (its 97.5% bound) under BOTH null scenarios. One condition ->
@@ -418,7 +418,7 @@ md <- c(
   "",
   "This tier tests **TASK-generalization**, with exactly one external cross-domain pair. Only **Arbuzova_unpub_3 memory x visual** is a cross-DOMAIN pair. Arbuzova_2021_expt2 is a visuomotor **condition x condition** pair; Bang_2019_Exp2 (coarse x fine Gabor) and Haddara_2022_Expt1 (letter x color grids) are cross-TASK pairs **within vision**. These four studies must never be presented as four cross-domain replications.",
   "",
-  "## Primary results (preregistered pairs; subject bootstrap, B = 2000, seed 20260711)",
+  "## Primary results (pre-specified pairs; subject bootstrap, B = 2000, seed 20260711)",
   "",
   "| Study | Pair | n | r_level [95% CI] | r_sens (d'-partialed) [95% CI] | gap [95% CI] |",
   "|---|---|---|---|---|---|"
@@ -451,7 +451,7 @@ for (st in names(primary_results)) {
 md <- c(md, "",
   "Disattenuation ranges are r / sqrt(rel_a x rel_b) evaluated at the committed step11 reliability point estimates and at both reliability CI bounds — a sensitivity RANGE, not a corrected estimate. The null-reference intervals are the 2.5–97.5% span of the RAW gap under a SIMULATED true-null world (true r_level = true r_sens = rho) matched to each study's n / trials / scale / reliabilities: they quantify how much raw-gap inflation differential attenuation alone produces. They are a simulation reference, not a correction and not a test.",
   "",
-  "## Reading each study (preregistered criteria)",
+  "## Reading each study (pre-specified criteria)",
   "",
   "The Lund pattern **holds** in a study only if r_level exceeds the TOP of r_sens's disattenuated range AND the raw gap exceeds the null-reference interval under both null scenarios; one condition met = **partial**; neither = **fails**.",
   "")
@@ -531,7 +531,7 @@ md <- c(md, "",
   paste0(
     "(i) This entire tier is **NON-CONFIRMATORY / ROBUSTNESS**: the four studies were selected mechanically (dispatch 009), but no calibration correction exists for their configurations, so none of these estimates carries the confirmatory status of the Lund memory x vision result. ",
     "(ii) **Raw gaps are inflated by differential attenuation**: LEVEL is measured near-perfectly (committed split-half reliabilities 0.97–1.00) while AUROC2 is not (0.62–0.90), so a positive raw gap is expected even in a true-null world — each observed raw gap must be compared to its SIMULATION null-reference interval before any interpretation. ",
-    sprintf("(iii) Per the preregistered criteria, the Lund pattern **holds** in %d of 4 studies, is **partial** in %d, and **fails** in %d (study-by-study statements above). ",
+    sprintf("(iii) Per the pre-specified criteria, the Lund pattern **holds** in %d of 4 studies, is **partial** in %d, and **fails** in %d (study-by-study statements above). ",
             n_holds, n_partial, n_fails),
     "Where the pattern does not hold, a null is **not excluded** (it is never 'absent' — sensitivity here is weakly measured, not proven undifferentiated). ",
     "No meta-analytic pooling is performed across the four studies (heterogeneous tasks, scales, and populations; forest display only, dispatch 010). ",

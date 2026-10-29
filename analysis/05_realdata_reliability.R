@@ -9,9 +9,9 @@
 #                                            reliabilities, bootstrap CIs
 #  results/step2_REALDATA_trialsneeded.csv   subsampled reliability curve,
 #                                            SB-prophecy fit, trials-to-target
-#  results/step2_REALDATA_transfer_check.md  preregistered transfer verdict
+#  results/step2_REALDATA_transfer_check.md  pre-specified transfer verdict
 #
-# Preregistered (dispatch 005): primary trial set = repeat_exclude == 0;
+# Pre-specified (dispatch 005): primary trial set = repeat_exclude == 0;
 # inclusion >= 60 trials + both accuracy classes; trials-needed grid
 # n in {25, 50, 75, 100, 150, 200}, 3 random subsamples averaged per n,
 # fixed seed. Transfer rule: real memory & vision parcel AUROC2 reliability
@@ -293,7 +293,7 @@ md <- c(
   "",
   sprintf("## VERDICT: **%s**", verdict),
   "",
-  "Preregistered rule (dispatch 005): real memory & vision parcel AUROC2",
+  "Pre-specified rule (dispatch 005): real memory & vision parcel AUROC2",
   "reliability must be >= 70% of the simulation's matching value.",
   "",
   "| Quantity | Simulation | Real | Ratio real/sim |",
@@ -347,7 +347,7 @@ md <- c(
     "trait variance outside memory. Consequences: (i) the real d'-confound",
     "risk the calibration guarded against is SMALLER than simulated —",
     "conservative; (ii) d'-partialing stays in the 006 design as",
-    "preregistered but will be near-inert for vision; (iii) real memory d'",
+    "pre-specified but will be near-inert for vision; (iii) real memory d'",
     "(mean %.2f, SD %.2f) is more variable than the simulated truncnorm(1.2,",
     "0.3) — partialing matters most exactly where d' is a real trait."),
     reliability$reliability[reliability$domain == "memory" &

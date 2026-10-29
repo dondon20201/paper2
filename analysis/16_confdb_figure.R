@@ -207,7 +207,7 @@ if (!any(grepl("fig_confdb_contrast", existing))) {
       sprintf("Arbuzova_unpub_3 memory x visual exceeds its null-reference intervals (raw gap %.3f vs upper bounds %.3f / %.3f). ",
               gr_arb$estimate, gr_arb$nullref_rho30_hi, gr_arb$nullref_rho45_hi),
       "This tier tests TASK-generalization with exactly one external cross-domain pair: only Arbuzova_unpub_3 memory x visual is cross-DOMAIN; Arbuzova_2021_expt2 is a visuomotor condition x condition pair, and Bang_2019_Exp2 and Haddara_2022_Expt1 are within-vision task pairs — these four studies are not four cross-domain replications. ",
-      "The Lund row (top) is the preregistered CONFIRMATORY (corrected) result: its gap (0.113, 95% CI [-0.138, 0.364]) does not exclude a null. ",
+      "The Lund row (top) is the pre-specified CONFIRMATORY (corrected) result: its gap (0.113, 95% CI [-0.138, 0.364]) does not exclude a null. ",
       "Null-reference intervals are a simulation reference, not a correction and not a test."))
   writeLines(c(existing, cap), cap_path)
   message("Caption appended to figures/fig_captions.md")

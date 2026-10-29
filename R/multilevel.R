@@ -2,7 +2,7 @@
 # Shared by analysis/08_step4_recovery_gate.R (SIMULATION gate) and
 # analysis/09_step4_multilevel.R (REALDATA, gate-conditional).
 #
-# Preregistered model (cowork/DISPATCH.md #008):
+# Pre-specified model (cowork/DISPATCH.md #008):
 #   conf ~ 0 + domain + domain:acc_dc
 #          + (1 + acc_dc | subject) + (1 + acc_dc | subject_domain)
 # acc_dc = trial accuracy minus the DOMAIN mean accuracy (fixed domain-level
@@ -122,7 +122,7 @@ step4_result <- function(r, rung, drop_at) {
   )
 }
 
-# Fixed domain-level centering of accuracy (the preregistered acc_dc).
+# Fixed domain-level centering of accuracy (the pre-specified acc_dc).
 add_acc_dc <- function(dat) {
   dm <- tapply(dat$accuracy, dat$domain, mean)
   dat$acc_dc <- dat$accuracy - dm[as.character(dat$domain)]

@@ -13,7 +13,7 @@ exists in `results/` (step0a_*, step0b_SIMULATION_*). Labels follow BRIEF.md §3
 | Gate half | Verdict |
 |---|---|
 | **0a — data provenance** | **PASSED** |
-| **0b — recovery & separability (simulation)** | **FAILED** on 3 of 6 preregistered criterion families |
+| **0b — recovery & separability (simulation)** | **FAILED** on 3 of 6 pre-specified criterion families |
 | **0b′ — latent-estimator gate (dispatch 003)** | **FAILED** — one criterion, one config, by 0.012; see `STEP0B_PRIME_REPORT.md` |
 | **0b″ — calibrated estimator, final round (dispatch 004)** | **PASSED, NARROW** — 200/200 passes all criteria; see `STEP0B2_FINAL_REPORT.md` |
 | **STEP 0 GATE OVERALL** | **PASSED, NARROW (final): memory×vision sole confirmatory pair; other pairs descriptive with bias bands. Step 0 closed.** |
@@ -80,7 +80,7 @@ possible coupling channel is the fixed 1–7 binning. Cohorts: 322 subjects
   Note this did NOT translate into level-estimate leakage (below: r = −0.02).
 - Generated accuracy matches its analytic target: max |diff| 0.003 ✓.
 
-### B1. Recovery of planted traits (preregistered thresholds)
+### B1. Recovery of planted traits (pre-specified thresholds)
 
 | Measure | 200 trials r [95% CI] | 100 trials r [95% CI] | Criterion | Verdict |
 |---|---|---|---|---|
@@ -107,7 +107,7 @@ realistic trait spread — the reliability ceiling alone sits at ≈ 0.65–0.72
 This is a fact about the measure at these trial counts, i.e. exactly the
 "sensitivity is poorly measured" warning in BRIEF.md, now with numbers.
 
-### B2. Separability / leakage (at 200 trials; preregistered |r| < 0.10, CI ∋ 0)
+### B2. Separability / leakage (at 200 trials; pre-specified |r| < 0.10, CI ∋ 0)
 
 | Direction | r [95% CI] | Verdict |
 |---|---|---|
@@ -155,7 +155,7 @@ both seeds). The unstable quantity is the disattenuated gap, as noted.
 
 Per BRIEF.md, Step 1+ (any thesis analysis on real data) does **not** proceed
 until a revised Step 0 passes. Nothing here was silently relaxed; the
-preregistered criteria stand and were failed.
+pre-specified criteria stand and were failed.
 
 What is now on solid ground:
 1. The data is real, verified, and understood (0a).

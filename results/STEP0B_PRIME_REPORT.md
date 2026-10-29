@@ -3,17 +3,17 @@
 **Project:** Confidence Level vs Confidence Informativeness (paper2/metacog)
 **Date:** 2026-07-10 · **Dispatch:** 003 · **Code:** `analysis/02_latent_gate.R`, `R/parcels.R`
 **Everything below is SIMULATION** (planted truth; files `results/step0bprime_SIMULATION_*`).
-Preregistered criteria were fixed in `cowork/DISPATCH.md` #003 before running and
+Pre-specified criteria were fixed in `cowork/DISPATCH.md` #003 before running and
 were not adjusted. Seeds: 20260710 (30 replicates/cell), 42424242 (15, spot-check).
 
 ---
 
 ## VERDICT
 
-**STEP 0b′: FAILED per preregistration — by one criterion, in one trial
+**STEP 0b′: FAILED per pre-specification — by one criterion, in one trial
 configuration, by 0.012.** Consequently **STEP 0 GATE overall: FAILED** as the
 criteria were written. The scoreboard (primary variant = d′-partialed, which
-the preregistration itself promoted; see §3):
+the pre-specification itself promoted; see §3):
 
 | Criterion | 200/200 | 200/100 |
 |---|---|---|
@@ -76,7 +76,7 @@ gap ~75–83% of the time at n = 322.
 spurious metacognitive correlation:** with ρ_d′ = 0.4 and NOTHING else
 correlated, raw latent ρ_sens medians were 0.084 (200/200) and **0.102
 (200/100) — over the 0.10 bar → raw FAILS criterion (d)**. Per the
-preregistered rule, the d′-partialed variant (parcel AUROC2 residualized on
+pre-specified rule, the d′-partialed variant (parcel AUROC2 residualized on
 estimated d′ per domain) became primary: it kills the confound (−0.004 /
 +0.029) while leaving GAP-scenario recovery intact (see table). **Standing
 consequence: any real-data sensitivity analysis in this project must be
@@ -95,7 +95,7 @@ inherits a small spurious positive component that peaks in the NULL scenario
 dispatch 002 exposed for raw correlations (there: ~+0.28), reduced ~4-fold
 but not eliminated. It is quantified, replicated, and direction-known —
 i.e., correctable in principle (simulation-calibrated bias band or
-correction), but that would be a NEW estimator requiring a NEW preregistered
+correction), but that would be a NEW estimator requiring a NEW pre-specified
 gate round, not a post-hoc adjustment of this one.
 
 ## 5. The 002 realized-vs-population question — resolved, benign
@@ -129,11 +129,11 @@ Options for the next planning round (not mine to decide):
    demonstrations (raw AND latent) as a methodological contribution.
 2. **One more gate round** with a bias-corrected latent estimator
    (simulation-calibrated shrinkage correction or a planted-truth calibration
-   band), preregistered fresh, including 100/100.
+   band), pre-specified fresh, including 100/100.
 3. **Scope-restricted design:** strong thesis claims only from the 200/200
    pair; 200/100 pairs reported with the simulation-measured bias band
    (±0.10) attached; no stand-alone claims from 100/100.
 
-**STEP 0 GATE: FAILED (per preregistration). No real-data thesis analysis
+**STEP 0 GATE: FAILED (per pre-specification). No real-data thesis analysis
 proceeds until Ben/Cowork select a path and, for options 2–3, a revised gate
 passes.**

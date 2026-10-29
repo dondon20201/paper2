@@ -4,7 +4,7 @@
 
 ## VERDICT: **006 CLEARED**
 
-Preregistered rule (dispatch 005): real memory & vision parcel AUROC2
+Pre-specified rule (dispatch 005): real memory & vision parcel AUROC2
 reliability must be >= 70% of the simulation's matching value.
 
 | Quantity | Simulation | Real | Ratio real/sim |
@@ -30,7 +30,7 @@ trials -> ~46/40 per parcel) — noted, affects the context rows only.
 
 ## Material notes for dispatch 006
 
-**d'-hat split-half reliability (SB): memory 0.86, vision -0.96, Calories -1.49, GDP -0.36.** The NEGATIVE values outside memory are a staircase/difficulty-control artifact (vision accuracy SD is only 0.017 — the contrast staircase clamps performance, and its negative feedback anticorrelates odd/even d'), so d'-hat carries essentially no stable trait variance outside memory. Consequences: (i) the real d'-confound risk the calibration guarded against is SMALLER than simulated — conservative; (ii) d'-partialing stays in the 006 design as preregistered but will be near-inert for vision; (iii) real memory d' (mean 1.56, SD 0.56) is more variable than the simulated truncnorm(1.2, 0.3) — partialing matters most exactly where d' is a real trait.
+**d'-hat split-half reliability (SB): memory 0.86, vision -0.96, Calories -1.49, GDP -0.36.** The NEGATIVE values outside memory are a staircase/difficulty-control artifact (vision accuracy SD is only 0.017 — the contrast staircase clamps performance, and its negative feedback anticorrelates odd/even d'), so d'-hat carries essentially no stable trait variance outside memory. Consequences: (i) the real d'-confound risk the calibration guarded against is SMALLER than simulated — conservative; (ii) d'-partialing stays in the 006 design as pre-specified but will be near-inert for vision; (iii) real memory d' (mean 1.56, SD 0.56) is more variable than the simulated truncnorm(1.2, 0.3) — partialing matters most exactly where d' is a real trait.
 
 **Real between-subject level SD (0.72-0.91) is below the simulated implied 1.31**, while level reliability is >= 0.95 everywhere — validity unaffected; cross-domain level correlations will simply have somewhat wider CIs than the simulations suggested. No action needed.
 

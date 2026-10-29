@@ -1,7 +1,7 @@
 # Step 5a Part D — per subject-task measures + split-half reliabilities for
 # the SELECTED Confidence Database studies (dispatch 009).
 # REALDATA-EXTERNAL (CONFDB). NON-CONFIRMATORY: these are measurement
-# summaries only; the level-vs-sensitivity contrast is preregistered
+# summaries only; the level-vs-sensitivity contrast is pre-specified
 # separately (dispatch 010) and is NOT computed here.
 #
 # *** FIREWALL (binding, dispatch 009): NO cross-task quantity of any kind.
@@ -11,7 +11,7 @@
 # *** row per study x task x measure. Auditable: every loop below is over
 # *** one study-task cell at a time; no object ever joins two tasks.
 #
-# Preregistered cleaning (dispatch 009, implemented in R/confdb.R):
+# Pre-specified cleaning (dispatch 009, implemented in R/confdb.R):
 # drop training trials where flagged (Training != 0); drop missing-confidence
 # trials; accuracy from a 0/1 Accuracy column when shipped, else
 # Stimulus == Response equality (mechanism recorded per study in the
@@ -20,13 +20,13 @@
 # Inclusion here: every subject x task cell with >= 60 clean trials in a
 # SELECTED study (the same per-cell threshold as S1; all such subjects are
 # included, not only S1-qualified ones, so Cowork can subset either way for
-# the 010 preregistration).
+# the 010 pre-specification).
 #
 # Measures per subject-task (dispatch 009):
 #   n_trials_clean, mean_accuracy,
 #   LEVEL = mean confidence normalized to [0,1] by the STUDY's own observed
 #     clean-trial scale range (constants recorded per row),
-#   raw AUROC2 (no d'-partialing here — estimator choices are preregistered
+#   raw AUROC2 (no d'-partialing here — estimator choices are pre-specified
 #     in 010), and a same-task d'-hat for later use (log-linear correction;
 #     defined only for tasks with exactly 2 distinct stimulus values).
 #
@@ -81,7 +81,7 @@ for (study in selected) {
   ct <- clean_trials(p$data)
   cd <- ct$data
 
-  # study-level observed confidence range on clean trials (the preregistered
+  # study-level observed confidence range on clean trials (the pre-specified
   # normalization; recorded on every row)
   conf_min <- min(cd$.conf)
   conf_max <- max(cd$.conf)

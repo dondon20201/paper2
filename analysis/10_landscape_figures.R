@@ -65,7 +65,7 @@ for (d in names(rel_want)) {
 rel_of <- function(d) rel$reliability[rel$domain == d]
 message("All assertions passed — committed files match audited values.")
 
-# ---- Assemble the six-pair frame (preregistered order) ------------------------
+# ---- Assemble the six-pair frame (pre-specified order) ------------------------
 fig <- data.frame(
   pair = c("memory_x_vision", want$pair),
   label = c("mem × vis", "mem × Cal", "mem × GDP",
@@ -120,7 +120,7 @@ draw_landscape <- function() {
          pt.bg = c(NA, "white", grDevices::adjustcolor("steelblue", 0.25)),
          pt.cex = c(1.2, 1.2, 2),
          col = c("black", "black", "gray70"),
-         legend = c("CONFIRMATORY (corrected, dispatch 006)",
+         legend = c("CONFIRMATORY (corrected)",
                     "NON-CONFIRMATORY (uncorrected, descriptive)",
                     "frozen systematic band (±0.09 / ±0.10)"))
 }
@@ -176,7 +176,7 @@ writeLines(c(
   "**Cross-domain correlation landscape.** Top: latent correlation of confidence",
   "level (set-point) for each of the six domain pairs, with 95% delta-method CIs.",
   "Bottom: the gap (ρ_level − ρ_sens) per pair. memory × vision (filled point) is",
-  "the preregistered CONFIRMATORY pair (dispatch 006): its ρ_sens is",
+  "the pre-specified CONFIRMATORY pair (dispatch 006): its ρ_sens is",
   "calibration-corrected and its gap carries no systematic band. The five open",
   "points are NON-CONFIRMATORY / DESCRIPTIVE (dispatch 007): their sensitivity",
   "correlations are uncorrected (these trial-count configurations failed the",

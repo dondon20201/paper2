@@ -34,7 +34,7 @@ E[latent estimate] = a + b·(realized truth), per config:
 | 200/100 | −0.015 | 0.94 (0.069) | 0.16 | 0.83 |
 | 100/100 | +0.034 | 0.76 (0.092) | 0.22 | 0.81 |
 
-**Functional form:** linear, as preregistered-by-default — no quadratic term
+**Functional form:** linear, as pre-specified-by-default — no quadratic term
 approaches significance (residual plot:
 `figures/step0b2_SIMULATION_calibration_residuals.png`; underlying data
 `results/step0b2_SIMULATION_calibration_replicates.csv`). Corrected estimator:
@@ -60,7 +60,7 @@ Notes the reader should not miss:
 - **Corrected CIs are honest everywhere**: coverage 28–30/30 in every cell,
   widths 1.07–1.35× the uncorrected ones, zero replicates narrower (criterion
   f explicitly designed to catch a fake-precision correction).
-- **200/100 is genuinely borderline, and the preregistration decides:** it
+- **200/100 is genuinely borderline, and the pre-specification decides:** it
   failed on the main seed by 0.011 on one criterion (GAP bias −0.081; the
   uncorrected bias same cell was −0.10, i.e. the correction under-corrected
   this seed's draws) and PASSED outright on the spot-check seed. The main

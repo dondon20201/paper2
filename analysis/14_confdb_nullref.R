@@ -12,7 +12,7 @@
 # test (dispatch 010, binding). The frozen Lund 200/200 calibration does
 # NOT transfer to these configs; nothing downstream is confirmatory.
 #
-# Preregistered design (dispatch 010, fixed before any contrast was run):
+# Pre-specified design (dispatch 010, fixed before any contrast was run):
 # - Per study: two tasks (the PRIMARY pair), matched n subjects (pair-
 #   qualified in the committed step11 measures), matched trials/task
 #   (median clean trials among those subjects), matched discrete confidence
@@ -53,7 +53,7 @@ seed_base <- 20260711L
 tol_rel <- 0.05
 n_tune <- 3000L # tuning-cohort size (common random numbers per eval)
 
-# ---- Preregistered primary pairs (dispatch 010) -----------------------------
+# ---- Pre-specified primary pairs (dispatch 010) -----------------------------
 pairs <- list(
   Arbuzova_2021_expt2 = c("1", "2"),
   Arbuzova_unpub_3    = c("memory", "visual"),

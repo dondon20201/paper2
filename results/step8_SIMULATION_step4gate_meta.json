@@ -38,7 +38,7 @@
     "planted_int_slope_correlation": 0,
     "discretization": "round(conf*) clamped to 1..7",
     "centering_generation": "true p_acc",
-    "centering_fitting": "empirical domain mean (preregistered acc_dc)"
+    "centering_fitting": "empirical domain mean (pre-specified acc_dc)"
   },
   "cells": [
     {

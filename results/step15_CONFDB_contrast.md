@@ -8,7 +8,7 @@
 
 This tier tests **TASK-generalization**, with exactly one external cross-domain pair. Only **Arbuzova_unpub_3 memory x visual** is a cross-DOMAIN pair. Arbuzova_2021_expt2 is a visuomotor **condition x condition** pair; Bang_2019_Exp2 (coarse x fine Gabor) and Haddara_2022_Expt1 (letter x color grids) are cross-TASK pairs **within vision**. These four studies must never be presented as four cross-domain replications.
 
-## Primary results (preregistered pairs; subject bootstrap, B = 2000, seed 20260711)
+## Primary results (pre-specified pairs; subject bootstrap, B = 2000, seed 20260711)
 
 | Study | Pair | n | r_level [95% CI] | r_sens (d'-partialed) [95% CI] | gap [95% CI] |
 |---|---|---|---|---|---|
@@ -28,7 +28,7 @@ This tier tests **TASK-generalization**, with exactly one external cross-domain 
 
 Disattenuation ranges are r / sqrt(rel_a x rel_b) evaluated at the committed step11 reliability point estimates and at both reliability CI bounds — a sensitivity RANGE, not a corrected estimate. The null-reference intervals are the 2.5–97.5% span of the RAW gap under a SIMULATED true-null world (true r_level = true r_sens = rho) matched to each study's n / trials / scale / reliabilities: they quantify how much raw-gap inflation differential attenuation alone produces. They are a simulation reference, not a correction and not a test.
 
-## Reading each study (preregistered criteria)
+## Reading each study (pre-specified criteria)
 
 The Lund pattern **holds** in a study only if r_level exceeds the TOP of r_sens's disattenuated range AND the raw gap exceeds the null-reference interval under both null scenarios; one condition met = **partial**; neither = **fails**.
 
@@ -72,7 +72,7 @@ EXPLORATORY. motor and visuomotor are two conditions of one skittles paradigm (s
 
 ## Honest reading
 
-(i) This entire tier is **NON-CONFIRMATORY / ROBUSTNESS**: the four studies were selected mechanically (dispatch 009), but no calibration correction exists for their configurations, so none of these estimates carries the confirmatory status of the Lund memory x vision result. (ii) **Raw gaps are inflated by differential attenuation**: LEVEL is measured near-perfectly (committed split-half reliabilities 0.97–1.00) while AUROC2 is not (0.62–0.90), so a positive raw gap is expected even in a true-null world — each observed raw gap must be compared to its SIMULATION null-reference interval before any interpretation. (iii) Per the preregistered criteria, the Lund pattern **holds** in 1 of 4 studies, is **partial** in 3, and **fails** in 0 (study-by-study statements above). Where the pattern does not hold, a null is **not excluded** (it is never 'absent' — sensitivity here is weakly measured, not proven undifferentiated). No meta-analytic pooling is performed across the four studies (heterogeneous tasks, scales, and populations; forest display only, dispatch 010). Because Bang and Haddara are within-vision task pairs and Arbuzova_2021 is a condition pair, **no claim of cross-domain generality is made from them**; the only external cross-domain evidence in this tier is the single Arbuzova_unpub_3 memory x visual pair.
+(i) This entire tier is **NON-CONFIRMATORY / ROBUSTNESS**: the four studies were selected mechanically (dispatch 009), but no calibration correction exists for their configurations, so none of these estimates carries the confirmatory status of the Lund memory x vision result. (ii) **Raw gaps are inflated by differential attenuation**: LEVEL is measured near-perfectly (committed split-half reliabilities 0.97–1.00) while AUROC2 is not (0.62–0.90), so a positive raw gap is expected even in a true-null world — each observed raw gap must be compared to its SIMULATION null-reference interval before any interpretation. (iii) Per the pre-specified criteria, the Lund pattern **holds** in 1 of 4 studies, is **partial** in 3, and **fails** in 0 (study-by-study statements above). Where the pattern does not hold, a null is **not excluded** (it is never 'absent' — sensitivity here is weakly measured, not proven undifferentiated). No meta-analytic pooling is performed across the four studies (heterogeneous tasks, scales, and populations; forest display only, dispatch 010). Because Bang and Haddara are within-vision task pairs and Arbuzova_2021 is a condition pair, **no claim of cross-domain generality is made from them**; the only external cross-domain evidence in this tier is the single Arbuzova_unpub_3 memory x visual pair.
 
 ## Provenance / run info
 

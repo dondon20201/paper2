@@ -1,6 +1,6 @@
 {
   "data_type": "REALDATA",
-  "tier": "STEP4_MULTILEVEL (preregistered, NON-CONFIRMATORY)",
+  "tier": "STEP4_MULTILEVEL (pre-specified, NON-CONFIRMATORY)",
   "gate": "PASSED (results/step8_SIMULATION_step4gate_summary.csv)",
   "n_subjects": 322,
   "n_subject_domains": 1281,

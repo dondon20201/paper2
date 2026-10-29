@@ -5,7 +5,7 @@
 # *** joins, correlations, gaps, or latent fits. The confirmatory test is
 # *** dispatch 006 and fires exactly once.
 #
-# Preregistered decisions (cowork/DISPATCH.md #005, fixed before running):
+# Pre-specified decisions (cowork/DISPATCH.md #005, fixed before running):
 #  - PRIMARY trial set: repeat_exclude == 0; SENSITIVITY CHECK: all trials.
 #  - A subject-domain enters a given analysis only with >= 60 qualifying
 #    trials AND both correct and incorrect responses present.

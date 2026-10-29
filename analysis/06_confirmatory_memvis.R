@@ -1,7 +1,7 @@
 # CONFIRMATORY TEST — memory x vision (dispatch 006). REALDATA.
 #
 # *** ONE SHOT. Once results/step6_REALDATA_confirmatory.csv exists, the
-# *** primary numbers are final (preregistered decision #4, dispatch 006).
+# *** primary numbers are final (pre-specified decision #4, dispatch 006).
 #
 # Locked design (STEP0B2_FINAL_REPORT.md §3, dispatch 006):
 #  - Inputs: committed parcel columns of step1_REALDATA_subject_measures.csv,
@@ -20,7 +20,7 @@
 #    because the coefs CSV stores SEs but not the coefficient covariance) and
 #    asserted equal to the published a = 0.0401, b = 0.749.
 #
-# Preregistered sample: primary trial set; subjects qualifying in BOTH
+# Pre-specified sample: primary trial set; subjects qualifying in BOTH
 # domains; listwise deletion of incomplete parcel rows (lavaan default —
 # matches the gate machinery, which ran on complete data).
 #
@@ -197,7 +197,7 @@ out <- rbind(
          "d'-partialed, frozen 200/200 correction, delta-method CI"),
   row_of("PRIMARY_CONFIRMATORY", "gap_corrected",
          prim$gap_c, prim$gap_c_se, prim$gap_c_lo, prim$gap_c_hi,
-         prim$n_complete, "THE preregistered primary outcome"),
+         prim$n_complete, "THE pre-specified primary outcome"),
   row_of("SECONDARY_a_bootstrap", "gap_corrected_bootCI",
          prim$gap_c, NA, boot_gap_ci[1], boot_gap_ci[2], prim$n_complete,
          sprintf("subject bootstrap, calibration fixed; %d/%d bad fits",
@@ -236,7 +236,7 @@ out$admissible <- prim$fit$admissible
 write.csv(out, here("results", "step6_REALDATA_confirmatory.csv"),
           row.names = FALSE)
 
-# ---- Verdict document (preregistered wording, verbatim) -----------------------
+# ---- Verdict document (pre-specified wording, verbatim) -----------------------
 gap <- prim$gap_c
 lo <- prim$gap_c_lo
 hi <- prim$gap_c_hi
@@ -255,10 +255,10 @@ primary_sentence <- if (lo > 0) {
 md <- c(
   "# CONFIRMATORY RESULT — memory × vision (dispatch 006)",
   "",
-  sprintf("**Date:** %s · **Code:** `analysis/06_confirmatory_memvis.R` · **Data:** REALDATA, primary trial set · n = %d both-qualifying, %d complete-case (listwise, preregistered)",
+  sprintf("**Date:** %s · **Code:** `analysis/06_confirmatory_memvis.R` · **Data:** REALDATA, primary trial set · n = %d both-qualifying, %d complete-case (listwise, pre-specified)",
           format(Sys.Date()), prim$n_both, prim$n_complete),
   "",
-  "## PRIMARY (CONFIRMATORY — preregistered wording verbatim)",
+  "## PRIMARY (CONFIRMATORY — pre-specified wording verbatim)",
   "",
   primary_sentence,
   "",

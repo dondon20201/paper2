@@ -94,7 +94,7 @@ find_subj_col <- function(df) {
   sc
 }
 
-# ---- Clean-trial construction (preregistered, dispatch 009) -----------------
+# ---- Clean-trial construction (pre-specified, dispatch 009) -----------------
 # A clean trial is: non-training, non-missing Confidence, and accuracy
 # present/derivable at trial level.
 # Training rule: the documented CD standard is a Training column with

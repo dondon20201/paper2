@@ -1,6 +1,6 @@
 # STEP 4 — Non-ipsative multilevel decomposition (dispatch 008)
 
-**Tier: STEP4_MULTILEVEL (preregistered, NON-CONFIRMATORY).**
+**Tier: STEP4_MULTILEVEL (pre-specified, NON-CONFIRMATORY).**
 
 **Date:** 2026-07-10 · **Code:** `analysis/09_step4_multilevel.R` · **Data:** REALDATA, primary trial set, step-1 qualifying subject-domains (n = 322 subjects, 1281 subject-domains, 182892 trials)
 
@@ -22,7 +22,7 @@ Ladder rung: **M1** (converged TRUE, singular FALSE). Bootstrap: B = 500, 500 ok
 | ICC_sens (person-general share of resolution variance) | 0.34 | [0.26, 0.42] | VERIFIED, NON-CONFIRMATORY |
 | Δ_ICC | 0.11 | [0.00, 0.21] | VERIFIED, NON-CONFIRMATORY |
 
-As a preregistered secondary finding, stated with hedges: in this dataset and under this model, the person-general variance share was 0.44 for the set-point and 0.34 for resolution (Delta_ICC = 0.11, 95% bootstrap CI [0.00, 0.21], CI excluding zero). This is a variance-share result, not a re-test of the confirmatory latent-correlation gap.
+As a pre-specified secondary finding, stated with hedges: in this dataset and under this model, the person-general variance share was 0.44 for the set-point and 0.34 for resolution (Delta_ICC = 0.11, 95% bootstrap CI [0.00, 0.21], CI excluding zero). This is a variance-share result, not a re-test of the confirmatory latent-correlation gap.
 
 ## Secondary / robustness
 

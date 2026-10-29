@@ -1,8 +1,8 @@
 # CONFIRMATORY RESULT — memory × vision (dispatch 006)
 
-**Date:** 2026-07-10 · **Code:** `analysis/06_confirmatory_memvis.R` · **Data:** REALDATA, primary trial set · n = 320 both-qualifying, 317 complete-case (listwise, preregistered)
+**Date:** 2026-07-10 · **Code:** `analysis/06_confirmatory_memvis.R` · **Data:** REALDATA, primary trial set · n = 320 both-qualifying, 317 complete-case (listwise, pre-specified)
 
-## PRIMARY (CONFIRMATORY — preregistered wording verbatim)
+## PRIMARY (CONFIRMATORY — pre-specified wording verbatim)
 
 The confirmatory test does not exclude a null gap (corrected gap = 0.11, 95% CI [-0.14, 0.36]). Given ~60% simulated power at a true gap of 0.4 (plausibly somewhat higher given memory's measured reliability), a null gap is **not excluded**; this is not evidence of absence.
 

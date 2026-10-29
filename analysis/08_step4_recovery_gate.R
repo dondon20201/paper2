@@ -2,15 +2,15 @@
 # (dispatch 008, Part A). SIMULATION ONLY — no real data touched except the
 # committed step-1 domain summary, read for design magnitudes.
 #
-# Question the gate answers: can the preregistered trial-level LMM
+# Question the gate answers: can the pre-specified trial-level LMM
 #   conf ~ 0 + domain + domain:acc_dc + (1 + acc_dc | subject)
 #          + (1 + acc_dc | subject_domain)
 # recover PLANTED person-level shares of set-point variance (ICC_level) and
 # resolution-slope variance (ICC_sens), separably, at real-data scale, after
 # discretization to the 1-7 confidence scale? Part B (real data) runs ONLY
-# if this gate passes ALL preregistered criteria.
+# if this gate passes ALL pre-specified criteria.
 #
-# Preregistered design (cowork/DISPATCH.md #008, fixed before running):
+# Pre-specified design (cowork/DISPATCH.md #008, fixed before running):
 #  - 322 subjects; trials/domain 200/200/100/100; domain accuracy rates
 #    memory .77, vision .72, Calories .71, GDP .70; accuracy exogenous
 #    Bernoulli. Generative model = the LMM's own DGP, then round + clamp to
@@ -245,7 +245,7 @@ meta <- list(
     planted_int_slope_correlation = 0,
     discretization = "round(conf*) clamped to 1..7",
     centering_generation = "true p_acc",
-    centering_fitting = "empirical domain mean (preregistered acc_dc)"
+    centering_fitting = "empirical domain mean (pre-specified acc_dc)"
   ),
   cells = cells,
   n_replicates_per_cell = n_rep,
